@@ -36,7 +36,10 @@ export interface Profile {
     scope?: string;
   };
   extraNotes?: string[];
+  /** 応募文の基本テンプレート(本人の原文)。案件ごとに部分編集して使う */
   sampleApplication?: string;
+  /** 応募文作成時に常に守るべきルール(本人の原文) */
+  applicationRules?: string;
 }
 
 export interface Job {

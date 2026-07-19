@@ -24,7 +24,18 @@ function looksLikePlaceholder(text: string): boolean {
   return /example\.com|○○|your-|xxxxx|ここに|placeholder|差し替えて/i.test(text);
 }
 
-function renderProfile(profile: Profile): string {
+interface RealPortfolioItem {
+  name: string;
+  url: string;
+}
+
+function getRealPortfolio(profile: Profile): RealPortfolioItem[] {
+  return (profile.portfolio ?? [])
+    .filter((p) => p.url && !looksLikePlaceholder(p.url))
+    .map((p) => ({ name: p.name ?? p.url, url: p.url }));
+}
+
+function renderProfileFacts(profile: Profile, portfolio: RealPortfolioItem[]): string {
   const lines: string[] = [];
   lines.push(`名前: ${profile.name}`);
   if (profile.title) lines.push(`肩書き: ${profile.title}`);
@@ -33,14 +44,11 @@ function renderProfile(profile: Profile): string {
   lines.push("", "強み・実績(以下に明記された内容のみが事実です。ここにない経験・年数・実績を作らないこと):");
   for (const s of realStrengths) lines.push(`- ${s}`);
 
-  const realPortfolio = (profile.portfolio ?? []).filter((p) => p.url && !looksLikePlaceholder(p.url));
-  if (realPortfolio.length > 0) {
-    lines.push("", "ポートフォリオ(実在するURL。案件に関連するものを最大2件まで選んで使用可):");
-    for (const p of realPortfolio) {
-      lines.push(`- ${p.name ?? "実績"}: ${p.url}${p.note ? `(${p.note})` : ""}`);
-    }
+  if (portfolio.length > 0) {
+    lines.push("", "ポートフォリオ(実在するURL。これ以外のURLを書かないこと):");
+    for (const p of portfolio) lines.push(`- ${p.name}: ${p.url}`);
   } else {
-    lines.push("", "ポートフォリオ: 登録なし(本人確認が必要。URLを創作しないこと)");
+    lines.push("", "ポートフォリオ: 登録なし(URLを創作しないこと)");
   }
 
   if (profile.availability?.hours || profile.availability?.scope) {
@@ -52,10 +60,6 @@ function renderProfile(profile: Profile): string {
   if (profile.extraNotes && profile.extraNotes.length > 0) {
     lines.push("", "その他アピール:");
     for (const n of profile.extraNotes) lines.push(`- ${n}`);
-  }
-
-  if (profile.sampleApplication) {
-    lines.push("", "参考にしたい応募文サンプル(文体・構成の参考用):", profile.sampleApplication);
   }
 
   return lines.join("\n");
@@ -72,7 +76,7 @@ function renderMetadata(metadata: JobMetadata): string {
   if (metadata.deliveryDate) lines.push(`納期: ${metadata.deliveryDate}`);
   if (metadata.applicationInstructions) lines.push(`応募時の指定事項: ${metadata.applicationInstructions}`);
   if (metadata.applicationQuestions && metadata.applicationQuestions.length > 0) {
-    lines.push("応募時の質問項目:");
+    lines.push("応募時の質問項目(この順番・すべてに回答すること。最優先で対応):");
     metadata.applicationQuestions.forEach((q, i) => lines.push(`  ${i + 1}. ${q}`));
   }
   if (metadata.hasAttachments) lines.push("添付ファイルあり");
@@ -133,47 +137,6 @@ function extractDraftFallback(text: string): string | null {
   }
 }
 
-function buildSystemPrompt(short: boolean): string {
-  const base =
-    "あなたはフリーランスの案件応募文を作成するアシスタントです。" +
-    "「応募者プロフィール」に明記された名前・強み・ポートフォリオ・稼働条件だけを事実として使い、案件内容に合わせて応募文を作成してください。" +
-    "応募文の最後は必ずプロフィールの名前で署名してください。" +
-    "「応募時の指定事項」「応募時の質問項目」がある場合は、それに沿った見出し・回答順で構成し、質問には漏れなく回答してください。" +
-    "共通テンプレートの貼り付けではなく、案件内容に合わせて冒頭を変えてください。不要な項目は追加しないこと。" +
-    "『AIを活用して対応します』のような抽象表現は避け、業務内容・課題整理・要件定義・設計・開発・動作確認・改善という具体的な実務表現を使うこと。" +
-    "応募文は次の構成にすること: 1.挨拶・案件を確認した旨 2.案件内容の理解 3.関連する実績・対応可能範囲 4.未経験/未確認部分の正直な説明 5.進め方 6.稼働時間・納期 7.確認したい事項 8.ポートフォリオ 9.締めと署名。" +
-    "【事実性のルール(最優先で厳守)】" +
-    "プロフィールに書かれていない経験年数・会社名・顧客実績・資格を書かないこと。" +
-    "プロフィールに経験年数が明記されていない場合は、年数を推測して補わないこと。特定の技術について「◯年の経験」のような数字を、プロフィールにその技術名と年数が明記されている場合以外は書かないこと。" +
-    "「実務経験」「経験豊富」「多数」「豊富」等の量・頻度を強調する語は、プロフィールにそれを裏付ける具体的な記述がある場合だけ使うこと。無い場合は「個人開発で◯◯を開発・公開した経験がある」のように、実際に確認できる事実の範囲でのみ表現すること。" +
-    "実務経験・個人開発・学習経験・試作経験は区別し、実務経験がない技術を「実務経験あり」「対応可能です」と断定しないこと。歓迎条件や案件本文にのみ登場する未経験技術については、"+
-    "「実績はないが仕組みは理解しており、要件確認しながら検証・実装は可能」等、事実に即した正直な表現にすること。" +
-    "技術的に対応できるか不明な場合は断定せず「要件確認後に判断」とすること。" +
-    "ポートフォリオはプロフィールに実在するURLとしてリストされたものだけを使用し、案件に関連するものを最大2件までに絞ること。プロフィールにポートフォリオが無い場合はURLを創作せず「本人確認が必要」と書くこと。" +
-    "提案する金額・納期は、案件に記載された予算・必要機能と、プロフィールの稼働時間(週あたりの時間)を根拠にすること。プロフィールの稼働時間を超える前提(例: 月160時間のフルタイム常駐)を勝手に想定しないこと。" +
-    "要件が確定していない、または未経験技術の対応範囲が不明瞭な場合は、金額・納期を断定せず「仮提案」「要件確認後に再見積もり」「本人確認が必要」と明記すること。" +
-    "応募文は800〜1200文字程度を目安にしてください。同じ内容の繰り返しや長い一般論は書かないこと。" +
-    "candidacyReason・concerns・suggestedRateは1〜2文で簡潔に。questionsToConfirmは最大3件まで。" +
-    "JSON文字列内で改行が必要な場合は必ず\\nのようにエスケープし、生の改行文字(実際の改行)をJSON文字列の中に含めないこと。";
-
-  const jsonSpec =
-    '{"draft": "応募文本文", "candidacyReason": "この案件を応募候補にした理由(簡潔に)", ' +
-    '"concerns": "懸念点(簡潔に)", "questionsToConfirm": ["応募前に確認したい質問(最大3件)"], ' +
-    '"suggestedRate": "提案する契約金額または時間単価の考え方(簡潔に)"}';
-
-  if (short) {
-    return (
-      base +
-      " 前回の出力は長すぎて途中で切れました。今回は必ず全体をより簡潔にし、" +
-      "応募文は600〜800文字程度、他の項目は1文のみにしてください。" +
-      "回答は必ず次のJSON形式のみとし、前後に説明文を付けないでください: " +
-      jsonSpec
-    );
-  }
-
-  return base + " 回答は必ず次のJSON形式のみとし、前後に説明文を付けないでください: " + jsonSpec;
-}
-
 function parseDraftResult(text: string): DraftResult {
   const parsed = JSON.parse(sanitizeJsonText(extractJson(text))) as Partial<DraftResult>;
   if (typeof parsed.draft !== "string" || parsed.draft.trim().length === 0) {
@@ -190,10 +153,62 @@ function parseDraftResult(text: string): DraftResult {
   };
 }
 
+function buildSystemPrompt(short: boolean, applicationRules: string | undefined): string {
+  const base =
+    "あなたは、応募者が用意した「基本の応募文(原文)」を土台に、案件ごとに必要な部分だけを編集するアシスタントです。" +
+    "応募文全体をゼロから書き直さないこと。原文の文体・段落構成・自己紹介・進め方・締めの文章は、案件に無関係な部分であればそのまま維持し、必要な箇所だけを追記・修正・入れ替えてください。" +
+    "案件タイトルや募集内容に合わせて冒頭の応募理由を調整すること。" +
+    "原文中の実績紹介段落(例: 「制作実績の中に『介護申し送りツール』があります」以降の段落)と、それに先立つポートフォリオURLの掲載(例: 【公式サイト・ポートフォリオサイト】の見出しとURL)は、原文どおりの位置・文言のまま原則として必ず維持すること。特に業務効率化・社内システム・業務ツール・Webアプリ等の案件では省略しないこと。あなたの判断だけでこれらを削除・省略しないこと。" +
+    "この実績紹介段落・ポートフォリオURLを省略または移動してよいのは、案件側に明確な文字数制限があり原文のままでは超過する場合、または案件側が指定するフォーマットと構成上衝突する場合に限ること。その場合は必ずconcernsに「文字数制限のため実績紹介/ポートフォリオURLを省略(または移動)しました」のように理由を明記すること。" +
+    "ポートフォリオURLを本文に掲載する場合は、プロフィールのportfolioに登録されている項目だけを、登録されている名前どおりに使うこと。URLや案件内容から実績名を推測したり、公式サイト・ポートフォリオサイトのURLをサイト内で紹介されている個別の制作物名(例: 習慣トラッカー)であるかのように誤表記したりしないこと。原文中の個々の制作物名(例: 介護申し送りツール)への言及に対して、その制作物専用の個別URLを勝手に追加しないこと(プロフィールのportfolioに、その制作物専用のURLとして登録されていない限り、URLを書き足さないこと)。クライアントから個別の制作物のURLを明示的に求められた場合のみ、URLを創作せず「本人確認が必要」と書くこと。" +
+    "不要な段落は省略してよいが、維持する段落の文章表現は原文をできる限りそのまま使うこと。" +
+    "『AIを活用して』という表現は使わないこと。" +
+    "【事実性のルール(最優先で厳守)】" +
+    "プロフィールに書かれていない経験年数・会社名・顧客実績・資格を書かないこと。" +
+    "プロフィールに経験年数が明記されていない場合は、年数を推測して補わないこと。特定の技術について「◯年の経験」のような数字を、プロフィールにその技術名と年数が明記されている場合以外は書かないこと。" +
+    "「実務経験」「経験豊富」「多数」「豊富」等の量・頻度を強調する語は、プロフィールにそれを裏付ける具体的な記述がある場合だけ使うこと。" +
+    "実務経験・個人開発・学習経験・試作経験は区別し、実務経験がない技術を「実務経験あり」「対応可能です」と断定しないこと。" +
+    "未経験の技術については、未経験であることを経験済みのように書かない一方で、応募可否を相手に委ねるような弱い表現(例: 「未経験でも応募可能でしょうか」「必須条件を満たしているかご判断いただければ」)も使わないこと。" +
+    "代わりに、事実(未経験であること)を正直に伝えたうえで、関連する経験(業務フロー整理・要件定義・小規模Webツール開発等、プロフィールに明記されたものに限る)を活かして仕様を確認しながらキャッチアップし対応する、という前向きな挑戦表現にすること。" +
+    "技術的に対応できるか不明な場合は断定せず「要件確認後に判断」とすること。" +
+    "「〜に携わっており」「〜業務を担当しており」のような表現は有償の顧客実務経験と誤解されるため、プロフィールに明記された内容が個人開発・自己制作である場合は「〜を意識した業務ツール開発に取り組んでおり」のように、実務委託ではなく自主的な取り組みだと分かる表現にすること。" +
+    "ポートフォリオはプロフィールに実在するURLとしてリストされたものだけを使用し、新しいURLを創作しないこと。案件に関連する実績を最大2件までに絞ること。" +
+    "プロフィールの稼働時間が週単位でしか明記されていない場合、月単位に勝手に換算しないこと(例: 週10時間を月40時間のように掛け算しない)。稼働時間の話をする際は、プロフィールに明記された単位(週/月)をそのまま使い、案件側の単位と異なる場合は換算せず「週◯時間程度の稼働が可能です。案件で想定されている月◯時間程度であれば、対応可能な範囲と考えております」のように、単位を変えずに両方を併記する形にすること。" +
+    "提案する金額・納期は、案件に記載された予算・必要機能と、プロフィールの稼働時間を根拠にすること。プロフィールの稼働時間を超える前提(例: 月160時間のフルタイム常駐)を勝手に想定しないこと。" +
+    "要件が確定していない、または未経験技術の対応範囲が不明瞭な場合は、金額・納期を断定せず「仮提案」「要件確認後に再見積もり」「本人確認が必要」と明記すること。" +
+    "案件に「応募時の質問項目」がある場合は最優先で対応し、指定された順番・形式(番号・箇条書き・Q&A等)で漏れなく回答すること。回答が分からない場合は「本人確認が必要」と書くこと。" +
+    "questionsToConfirmおよび本文中の確認事項は、「応募してよいか」「未経験でも応募可能か」のような可否を尋ねる質問にせず、対象業務フローの範囲、アプリ数・連携の有無、既存kintone環境の有無、開発範囲・納品形式など、実作業を進める上で必要な内容を中心にすること。" +
+    "candidacyReason・concerns・suggestedRateは1〜2文で簡潔に。questionsToConfirmは最大3件まで。" +
+    "JSON文字列内で改行が必要な場合は必ず\\nのようにエスケープし、生の改行文字(実際の改行)をJSON文字列の中に含めないこと。";
+
+  const rulesSection = applicationRules
+    ? ` 【本人が指定する応募文作成ルール(必ず守ること)】${applicationRules.trim().replace(/\n/g, " ")}`
+    : "";
+
+  const jsonSpec =
+    '{"draft": "編集後の応募文全文", "candidacyReason": "この案件を応募候補にした理由(簡潔に)", ' +
+    '"concerns": "懸念点(簡潔に)", "questionsToConfirm": ["応募前に確認したい質問(最大3件)"], ' +
+    '"suggestedRate": "提案する契約金額または時間単価の考え方(簡潔に)"}';
+
+  if (short) {
+    return (
+      base +
+      rulesSection +
+      " 前回の出力は長すぎて途中で切れました。今回は必ず全体をより簡潔にし、原文からの変更を最小限に絞り、他の項目は1文のみにしてください。" +
+      "回答は必ず次のJSON形式のみとし、前後に説明文を付けないでください: " +
+      jsonSpec
+    );
+  }
+
+  return base + rulesSection + " 回答は必ず次のJSON形式のみとし、前後に説明文を付けないでください: " + jsonSpec;
+}
+
 async function callModel(
   job: JobRef,
   metadata: JobMetadata,
-  profileText: string,
+  profileFactsText: string,
+  baseApplication: string,
+  applicationRules: string | undefined,
   short: boolean
 ): Promise<{ text: string; usage: TokenUsage; stopReason: string | null }> {
   const metadataText = renderMetadata(metadata);
@@ -204,11 +219,11 @@ async function callModel(
     // 単純なJSON生成タスクのため思考は不要。Sonnet 5はthinking省略時に
     // adaptive thinkingが暗黙で有効になりmax_tokens予算を消費するため、明示的に無効化する。
     thinking: { type: "disabled" },
-    system: buildSystemPrompt(short),
+    system: buildSystemPrompt(short, applicationRules),
     messages: [
       {
         role: "user",
-        content: `# 応募者プロフィール\n${profileText}\n\n# 案件情報\nタイトル: ${job.title}\nURL: ${job.url}\n\n# 本文から抽出した指定事項・条件\n${metadataText}\n\n上記の案件に対する応募文と付随情報をJSONで出力してください。`,
+        content: `# 応募者プロフィール(事実)\n${profileFactsText}\n\n# 基本となる応募文(原文。このまま最大限保持し、必要な部分だけ編集すること)\n${baseApplication}\n\n# 案件情報\nタイトル: ${job.title}\nURL: ${job.url}\n\n# 本文から抽出した指定事項・条件\n${metadataText}\n\n上記の基本応募文を土台に、この案件向けに必要な部分だけを編集した応募文をJSONで出力してください。`,
       },
     ],
   });
@@ -227,15 +242,44 @@ async function callModel(
 }
 
 /**
- * 案件1件につき1回のAPI呼び出しで応募文と付随情報を生成する(他案件のデータは一切渡さない)。
+ * モデルが応募文中に、実在するポートフォリオURL以外のURLを書いていないか
+ * 簡易チェックする(創作URLの見逃し検知用。安全側のログ警告のみで、
+ * 生成結果自体は変更しない)。
+ */
+function warnIfUnknownUrls(draft: string, portfolio: RealPortfolioItem[], jobUrl: string): void {
+  const urls = draft.match(/https?:\/\/\S+/g) ?? [];
+  const known = new Set([...portfolio.map((p) => p.url), jobUrl]);
+  const unknown = urls.filter((u) => !known.has(u.replace(/[)\]。、,.]+$/, "")));
+  if (unknown.length > 0) {
+    console.warn(`  [応募文生成] 警告: 未登録のURLが応募文に含まれています(本人確認が必要): ${unknown.join(", ")}`);
+  }
+}
+
+/**
+ * 案件1件につき1回のAPI呼び出しで、profile.yamlのsampleApplication(本人が
+ * 作成した基本の応募文)を土台に、案件ごとに必要な部分だけを編集する
+ * (他案件のデータは一切渡さない)。
  * JSON解析に失敗した場合は、その案件だけ1回だけ短い形式で再試行する。
- * stop_reason: "max_tokens" は残高切れではなく出力過多の合図として扱い、
- * 再試行時はより簡潔な出力を明示的に指示する。
- * 2回とも失敗した場合は、他案件の結果に影響を与えず、失敗として記録する。
+ * stop_reason: "max_tokens" は残高切れではなく出力過多の合図として扱う。
+ * 2回とも失敗した場合でも、"draft"フィールドが復旧できれば安全に取り出す。
  */
 export async function generateDraft(job: JobRef, metadata: JobMetadata): Promise<DraftGenerationOutcome> {
   const profile = loadProfile();
-  const profileText = renderProfile(profile);
+
+  if (!profile.sampleApplication || looksLikePlaceholder(profile.sampleApplication)) {
+    return {
+      success: false,
+      attempts: 0,
+      usages: [],
+      failureReason:
+        "profile.yamlのsampleApplication(応募文の基本テンプレート)が未設定、または未記入のプレースホルダーのままです。先にテンプレートを記入してください。",
+    };
+  }
+
+  const portfolio = getRealPortfolio(profile);
+  const profileFactsText = renderProfileFacts(profile, portfolio);
+  const baseApplication = profile.sampleApplication;
+  const applicationRules = profile.applicationRules;
 
   const usages: TokenUsage[] = [];
   let lastText = "";
@@ -243,13 +287,21 @@ export async function generateDraft(job: JobRef, metadata: JobMetadata): Promise
 
   for (let attempt = 1; attempt <= 2; attempt++) {
     const short = attempt === 2;
-    const { text, usage, stopReason } = await callModel(job, metadata, profileText, short);
+    const { text, usage, stopReason } = await callModel(
+      job,
+      metadata,
+      profileFactsText,
+      baseApplication,
+      applicationRules,
+      short
+    );
     usages.push(usage);
     lastText = text;
     lastStopReason = stopReason;
 
     try {
       const result = parseDraftResult(text);
+      warnIfUnknownUrls(result.draft, portfolio, job.url);
       return { success: true, result, attempts: attempt, usages };
     } catch {
       // JSON全体の解析に失敗しても、応募文本文だけは復旧できる場合がある
@@ -259,6 +311,7 @@ export async function generateDraft(job: JobRef, metadata: JobMetadata): Promise
         console.warn(
           `  [応募文生成] ${attempt}回目: JSON全体の解析には失敗しましたが、応募文本文のみ復旧しました(stop_reason=${stopReason})。他の項目は空欄です。`
         );
+        warnIfUnknownUrls(recoveredDraft, portfolio, job.url);
         return {
           success: true,
           result: {

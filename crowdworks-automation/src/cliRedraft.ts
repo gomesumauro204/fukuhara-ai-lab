@@ -1,9 +1,9 @@
 /**
  * 「応募文生成のみ再テスト」専用スクリプト。
  *
- * 今回の目的: 既に取得・AI判定済みの候補案件データ(data/reports/2026-07-19_0310.md)を
+ * 今回の目的: 既に取得・AI判定済みの候補案件データ(data/reports/2026-07-19_1454.md)を
  * 再利用し、新たな案件検索・AI判定は一切行わずに、応募文生成のロジックだけを
- * 修正後の実装で再テストする。
+ * 修正後の実装(固定テンプレート+可変スロット方式)で再テストする。
  *
  * 案件情報は上記レポートに記載されていた内容をそのまま転記したもの
  * (クライアント名・報酬・条件・応募時の質問項目など、レポートのAI判定結果を再利用)。
@@ -24,33 +24,24 @@ interface Candidate {
   metadata: JobMetadata;
 }
 
-const SOURCE_REPORT = "data/reports/2026-07-19_0310.md";
+const SOURCE_REPORT = "data/reports/2026-07-19_1454.md";
 
 const candidates: Candidate[] = [
   {
     job: {
-      title: "【Webアプリ開発】TikTok LIVE向け配信支援システム(管理画面・演出制御)",
-      url: "https://crowdworks.jp/public/jobs/13302084",
-      searchName: "Webアプリ(固定報酬)",
+      title: "⭐【kintone】社内システム構築(kintoneアプリ開発)エンジニア業務案件・JA-086818⭐",
+      url: "https://crowdworks.jp/public/jobs/13288053",
+      searchName: "エンジニア(固定報酬)",
     },
     classification: "応募候補",
-    reason: "Webアプリ・管理画面・OBS連携の開発案件で実装スキルが必要。稼働時間は不明だが自動化開発に合致",
+    reason: "kintoneアプリ開発による社内システム構築で実装業務を伴うが、月32時間程度で週10時間をやや超える可能性あり",
     metadata: {
-      clientName: "神谷 司",
-      budgetOrRate: "50,000円〜100,000円",
-      deadline: "2026年07月26日",
-      requiredConditions: "Webアプリ開発経験、保守・拡張しやすい設計、提案力",
-      welcomeConditions: "OBS連携やリアルタイム処理の経験",
-      expectedHours: "不明",
-      deliveryDate: "2026年9月1日頃まで(相談可能)",
-      applicationInstructions: "応募時に類似開発経験・OBS連携経験・実装範囲・納期・実績を記載",
-      applicationQuestions: [
-        "類似システムやWebアプリの開発経験",
-        "OBS連携やリアルタイム処理の経験(あれば)",
-        "この予算で実装できる範囲",
-        "おおよその納期",
-        "過去の制作実績(URL等あれば)",
-      ],
+      clientName: "クラウドワークス テック",
+      budgetOrRate: "100,000円〜150,000円(想定96,000〜120,000円、相談可)",
+      deadline: "2026年07月20日",
+      requiredConditions: "業務経験1〜2年程度",
+      expectedHours: "月32時間程度",
+      applicationInstructions: "案件詳細ページのURLから応募し、職務経歴書・ポートフォリオを登録",
       hasAttachments: false,
     },
   },
