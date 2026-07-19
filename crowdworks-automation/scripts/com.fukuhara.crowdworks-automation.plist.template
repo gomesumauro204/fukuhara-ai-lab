@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  launchd用 LaunchAgent 雛形(テンプレート)。
+
+  【重要】このファイルはまだ ~/Library/LaunchAgents/ には配置していません。
+  本登録するときは、以下の手順で行ってください(実装担当が指示するまで実行しないこと)。
+
+    1. このファイルを ~/Library/LaunchAgents/com.fukuhara.crowdworks-automation.plist
+       としてコピーする
+    2. launchctl load ~/Library/LaunchAgents/com.fukuhara.crowdworks-automation.plist
+       で読み込む
+    3. 解除する場合は
+       launchctl unload ~/Library/LaunchAgents/com.fukuhara.crowdworks-automation.plist
+
+  朝8:00・昼13:00・夜20:00の3回、scripts/run-scheduled.sh を起動する。
+  実際にどの回に該当するか(朝/昼/夜)・スリープ等による遅延判定は
+  run-scheduled.sh 側で判定するため、このplist自体は単純に3つの時刻を
+  登録するだけでよい。
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.fukuhara.crowdworks-automation</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/fukuharakeisuke/Downloads/セットアップ/my-workspace/crowdworks-automation/scripts/run-scheduled.sh</string>
+  </array>
+
+  <key>StartCalendarInterval</key>
+  <array>
+    <dict>
+      <key>Hour</key>
+      <integer>8</integer>
+      <key>Minute</key>
+      <integer>0</integer>
+    </dict>
+    <dict>
+      <key>Hour</key>
+      <integer>13</integer>
+      <key>Minute</key>
+      <integer>0</integer>
+    </dict>
+    <dict>
+      <key>Hour</key>
+      <integer>20</integer>
+      <key>Minute</key>
+      <integer>0</integer>
+    </dict>
+  </array>
+
+  <!-- 起動時(ログイン時)には実行しない。あくまで上記3時刻のみ -->
+  <key>RunAtLoad</key>
+  <false/>
+
+  <!-- launchdの標準出力/エラー出力(run-scheduled.sh自体のログとは別に、launchdが
+       スクリプト起動自体に失敗した場合の記録用)。data/配下はGit管理外。 -->
+  <key>StandardOutPath</key>
+  <string>/Users/fukuharakeisuke/Downloads/セットアップ/my-workspace/crowdworks-automation/data/logs/launchd.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/fukuharakeisuke/Downloads/セットアップ/my-workspace/crowdworks-automation/data/logs/launchd.err.log</string>
+</dict>
+</plist>

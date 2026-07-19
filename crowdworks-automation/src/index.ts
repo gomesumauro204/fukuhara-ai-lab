@@ -1,13 +1,18 @@
 import { loadSearchConditions } from "./config.js";
 import { loadSeenJobIds, saveSeenJobIds } from "./store.js";
 import { launchBrowser, ensureLoggedIn, scrapeSearch, scrapeJobDetail } from "./scraper.js";
+import { saveSession } from "./session.js";
 import { generateDraft } from "./draftGenerator.js";
 import { screenJob } from "./screening.js";
 import { writeReport, type SearchRunStat } from "./report.js";
 import { matchesSearchCondition } from "./filters.js";
 import { findManagedConfigs, checkConfig, syncConfig } from "./configSync.js";
 import { estimateCostUsd, sumUsage } from "./pricing.js";
+import { notify } from "./notify.js";
 import type { Job, JobClassification, JobDraft, ScreenedJob, SearchCondition, TokenUsage } from "./types.js";
+
+/** launchd経由の定期実行時に scripts/run-scheduled.sh が設定するラベル(朝/昼/夜)。手動実行時は未設定 */
+const runLabel = process.env.RUN_LABEL ? `(${process.env.RUN_LABEL})` : "";
 
 /**
  * 起動時に設定ファイル(*.yaml)の状態を確認する。
@@ -121,7 +126,7 @@ async function main() {
   const seenJobIds = loadSeenJobIds();
 
   const browser = await launchBrowser();
-  const { page, usedSavedSession, twoFactorRequired } = await ensureLoggedIn(browser);
+  const { context, page, usedSavedSession, twoFactorRequired } = await ensureLoggedIn(browser);
 
   const newJobs: Job[] = [];
   const searchStats: SearchRunStat[] = [];
@@ -219,6 +224,10 @@ async function main() {
     }
   }
 
+  // ここまで到達している(= main()がエラーなく正常終了する)場合のみ、最新の
+  // storageStateを再保存する。ログイン失敗・2FA待ち・処理途中の異常終了時は
+  // ここに到達しないため、既存のsession.jsonは上書きされない。
+  await saveSession(context);
   await browser.close();
 
   const draftUsageTotal = sumUsage(draftUsages);
@@ -255,9 +264,26 @@ async function main() {
     excluded,
   });
   console.log(`レポートを出力しました: ${reportPath}`);
+
+  const totalCandidates = priority.length + candidate.length;
+  const summaryLine =
+    totalCandidates === 0
+      ? "該当する新着候補はありませんでした。"
+      : `優先応募${priority.length}件・挑戦応募${candidate.length}件・要確認${review.length}件・除外${excluded.length}件`;
+  await notify({
+    title: `CrowdWorks 案件チェック完了${runLabel}`,
+    message:
+      `${summaryLine}\n` +
+      `応募文生成: 成功${draftSuccessCount}件/失敗${draftFailCount}件(概算$${estimateCostUsd(draftUsageTotal).toFixed(4)})\n` +
+      `レポート: ${reportPath}`,
+  });
 }
 
-main().catch((err) => {
+main().catch(async (err) => {
   console.error(err);
+  await notify({
+    title: `CrowdWorks 自動実行エラー${runLabel}`,
+    message: `処理を中断しました(応募送信・案件確認は行われていません): ${(err as Error).message}`,
+  });
   process.exit(1);
 });

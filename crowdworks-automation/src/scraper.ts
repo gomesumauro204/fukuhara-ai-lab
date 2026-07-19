@@ -146,6 +146,21 @@ async function waitForEnter(promptText: string): Promise<void> {
   }
 }
 
+/** 2FA検知に使うキーワード(URLパターンだけでは検知できないケースの保険) */
+const TWO_FACTOR_TEXT_KEYWORDS = ["認証コード", "確認コード", "2段階認証", "セキュリティコード"];
+
+/**
+ * 2段階認証(2FA)待ちの画面かどうかを判定する。
+ * URLパターン(two_step_authentication)に加えて、画面内テキストに
+ * 「認証コード」「確認コード」「2段階認証」「セキュリティコード」等が
+ * 含まれる場合も2FA待ちとして検知する(URL側だけでは取りこぼすケースがあったため)。
+ */
+async function detectTwoFactorPrompt(page: Page): Promise<boolean> {
+  if (page.url().includes("two_step_authentication")) return true;
+  const bodyText = await page.evaluate(() => document.body.innerText);
+  return TWO_FACTOR_TEXT_KEYWORDS.some((keyword) => bodyText.includes(keyword));
+}
+
 /** ID/パスワードでログインし、2段階認証が要求された場合は人間の入力を待つ。戻り値は2段階認証が発生したかどうか */
 async function performCredentialLogin(page: Page): Promise<{ twoFactorRequired: boolean }> {
   await page.goto("https://crowdworks.jp/login");
@@ -156,13 +171,11 @@ async function performCredentialLogin(page: Page): Promise<{ twoFactorRequired: 
 
   let twoFactorRequired = false;
 
-  if (page.url().includes("two_step_authentication")) {
+  if (await detectTwoFactorPrompt(page)) {
     twoFactorRequired = true;
     if (!config.headful) {
       throw new Error(
-        "2段階認証が必要ですが、ヘッドレスモードのため入力できません。" +
-          "初回は `pnpm run run:test` または `pnpm run run:headful` で実行し、" +
-          "ブラウザ上で認証コードを入力してセッションを保存してください。"
+        "CrowdWorksで認証コードの入力が必要です。pnpm run login:checkを実行してください。"
       );
     }
     console.log("");
@@ -217,6 +230,9 @@ export async function ensureLoggedIn(browser: Browser): Promise<LoginResult> {
     const detail = await checkLoginState(page);
     if (detail.loggedIn) {
       console.log("保存済みセッションでログインできました(認証コードの入力は不要です)。");
+      // ログイン確認に成功した場合、CrowdWorks側でCookieの有効期限が延長されている
+      // 可能性があるため、最新のstorageStateを再保存しておく(失敗時は上書きしない)。
+      await saveSession(context);
       return { context, page, usedSavedSession: true, twoFactorRequired: false, loginCheck: detail };
     }
     console.log("保存済みセッションが失効していました(ログイン後の要素を確認できませんでした)。再ログインします。");
