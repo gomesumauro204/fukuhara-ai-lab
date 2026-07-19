@@ -78,8 +78,8 @@ function resolveSearches(allSearches: SearchCondition[]): SearchCondition[] {
 }
 
 function classificationLabel(c: JobClassification): string {
-  if (c === "priority") return "優先応募候補";
-  if (c === "candidate") return "応募候補";
+  if (c === "priority") return "優先応募";
+  if (c === "candidate") return "挑戦応募";
   if (c === "review") return "要確認";
   return "除外";
 }
@@ -89,18 +89,18 @@ function classificationLabel(c: JobClassification): string {
  * - TEST_MODE=1            : 既読管理(data/seen-jobs.json)を更新しない(テストが本番の重複判定に影響しないようにする)
  * - TEST_SEARCH_LIMIT=n    : (--search/--search-all未指定時のみ)先頭 n 件の検索条件だけ使う
  * - TEST_JOB_LIMIT=n       : 検索条件ごとに、詳細取得・判定の対象を先頭 n 件までに絞る
- * - TEST_DRAFT_LIMIT=n     : 応募文ドラフトの生成を、優先応募候補→応募候補の順で上位 n 件までに絞る
+ * - TEST_DRAFT_LIMIT=n     : 応募文ドラフトの生成を、優先応募→挑戦応募の順で上位 n 件までに絞る
  *
  * 通常運用の挙動(環境変数不要・常時有効):
- * - CANDIDATE_LIMIT=n      : 優先応募候補+応募候補の合計が n 件に達した時点でAI判定を打ち切る。
- *                            既定値は 1(=候補が1件見つかった時点で以降の案件確認を停止)。
+ * - CANDIDATE_LIMIT=n      : 優先応募+挑戦応募の合計が n 件に達した時点でAI判定を打ち切る。
+ *                            既定値は 5(=候補が5件見つかった時点で以降の案件確認を停止)。
  *                            無制限にしたい場合は CANDIDATE_LIMIT=0 を指定する。
  */
 const testMode = process.env.TEST_MODE === "1";
 const searchLimit = process.env.TEST_SEARCH_LIMIT ? Number(process.env.TEST_SEARCH_LIMIT) : undefined;
 const perSearchJobLimit = process.env.TEST_JOB_LIMIT ? Number(process.env.TEST_JOB_LIMIT) : undefined;
 const draftLimit = process.env.TEST_DRAFT_LIMIT ? Number(process.env.TEST_DRAFT_LIMIT) : undefined;
-const candidateLimit = process.env.CANDIDATE_LIMIT ? Number(process.env.CANDIDATE_LIMIT) : 1;
+const candidateLimit = process.env.CANDIDATE_LIMIT ? Number(process.env.CANDIDATE_LIMIT) : 5;
 
 async function main() {
   ensureConfigsUpToDate();
@@ -188,7 +188,7 @@ async function main() {
     }
   }
 
-  // ドラフト生成は「優先応募候補」→「応募候補」の順で上位 draftLimit 件のみ
+  // ドラフト生成は「優先応募」→「挑戦応募」の順で上位 draftLimit 件のみ
   const draftEligible = [...priority, ...candidate] as ScreenedJob[];
   const draftTargets = draftLimit ? draftEligible.slice(0, draftLimit) : draftEligible;
 
@@ -203,7 +203,7 @@ async function main() {
 
     if (outcome.success && outcome.result) {
       draftSuccessCount++;
-      const jobDraft: JobDraft = { ...job, draftResult: outcome.result };
+      const jobDraft: JobDraft = { ...job, draftResult: outcome.result, draftUsage: sumUsage(outcome.usages) };
       const pIdx = priority.findIndex((j) => j.id === job.id);
       if (pIdx >= 0) {
         priority[pIdx] = jobDraft;
@@ -227,7 +227,7 @@ async function main() {
   );
 
   console.log(
-    `優先応募候補: ${priority.length}件 / 応募候補: ${candidate.length}件 / 要確認: ${review.length}件 / 除外: ${excluded.length}件`
+    `優先応募: ${priority.length}件 / 挑戦応募: ${candidate.length}件 / 要確認: ${review.length}件 / 除外: ${excluded.length}件`
   );
 
   if (testMode) {

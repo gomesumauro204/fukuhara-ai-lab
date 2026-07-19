@@ -103,6 +103,8 @@ export interface DraftResult {
 
 export interface JobDraft extends ScreenedJob {
   draftResult: DraftResult;
+  /** この案件の応募文生成に使ったトークン量(複数回試行した場合は合計) */
+  draftUsage?: TokenUsage;
 }
 
 /** 応募文生成に必要な最小限の案件情報(本文全文は含まない) */

@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { config } from "./config.js";
+import { estimateCostUsd } from "./pricing.js";
 import type { JobDraft, JobMetadata, ScreenedJob, TokenUsage } from "./types.js";
 
 function timestamp(): string {
@@ -87,6 +88,11 @@ function renderJobSection(job: ScreenedJob | JobDraft, index: number): string {
       }`
     );
     lines.push(`- 提案する契約金額/時間単価の考え方: ${d.suggestedRate || "(記載なし)"}`);
+    if (job.draftUsage) {
+      lines.push(
+        `- 応募文生成トークン数: 入力${job.draftUsage.inputTokens.toLocaleString()} / 出力${job.draftUsage.outputTokens.toLocaleString()}(概算 $${estimateCostUsd(job.draftUsage).toFixed(4)})`
+      );
+    }
   }
 
   lines.push("", "---", "");
@@ -123,8 +129,8 @@ export function writeReport(input: ReportInput): string {
   lines.push(`- 重複除外後の件数: ${meta.totalAfterDedup}件`);
   const totalScreened = priority.length + candidate.length + review.length + excluded.length;
   lines.push(`- AI判定した件数: ${totalScreened}件`);
-  lines.push(`- 優先応募候補: ${priority.length}件`);
-  lines.push(`- 応募候補: ${candidate.length}件`);
+  lines.push(`- 優先応募: ${priority.length}件`);
+  lines.push(`- 挑戦応募: ${candidate.length}件`);
   lines.push(`- 要確認: ${review.length}件`);
   lines.push(`- 除外: ${excluded.length}件`);
   const draftedCount = [...priority, ...candidate].filter(isJobDraft).length;
@@ -142,7 +148,7 @@ export function writeReport(input: ReportInput): string {
   }
   lines.push("");
 
-  lines.push("## 優先応募候補");
+  lines.push("## 優先応募");
   lines.push("");
   if (priority.length === 0) {
     lines.push("(該当する案件はありませんでした)");
@@ -151,7 +157,7 @@ export function writeReport(input: ReportInput): string {
     priority.forEach((job, i) => lines.push(renderJobSection(job, i)));
   }
 
-  lines.push("## 応募候補");
+  lines.push("## 挑戦応募");
   lines.push("");
   if (candidate.length === 0) {
     lines.push("(該当する案件はありませんでした)");
