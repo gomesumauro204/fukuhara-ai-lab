@@ -25,10 +25,12 @@ export interface Profile {
   name: string;
   title?: string;
   strengths: string[];
+  /** 実績ごとに名前・URLを紐付けたリスト(プレースホルダーURLは応募文生成時に除外される) */
   portfolio?: {
+    name?: string;
     url: string;
     note?: string;
-  };
+  }[];
   availability?: {
     hours?: string;
     scope?: string;

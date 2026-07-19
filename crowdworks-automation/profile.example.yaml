@@ -14,8 +14,9 @@
 #
 # [任意項目]
 #   title               : 肩書き・キャッチコピー
-#   portfolio.url        : ポートフォリオURL
-#   portfolio.note        : ポートフォリオの説明
+#   portfolio             : 実績のリスト(name/url/noteのオブジェクトを並べる)。
+#                            url が実在しない場合(example.com等のプレースホルダー)は
+#                            応募文生成時に自動的に除外され、代わりに「本人確認が必要」と表示されます。
 #   availability.hours    : 稼働可能時間
 #   availability.scope    : 対応可能な業務範囲
 #   extraNotes            : その他アピールしたいこと(リスト)
@@ -30,8 +31,9 @@ strengths:
   - "直近の実績: ○○ツールの開発(簡単な説明に差し替えてください)"
 
 portfolio:
-  url: "https://example.com/portfolio"
-  note: "過去の制作実績はこちらにまとめています"
+  - name: "○○ツール(実績名に差し替えてください)"
+    url: "https://example.com/portfolio"
+    note: "過去の制作実績はこちらにまとめています"
 
 availability:
   hours: "平日夜・週末中心、週10時間程度"
