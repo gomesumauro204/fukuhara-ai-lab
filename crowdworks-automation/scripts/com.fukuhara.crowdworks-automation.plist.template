@@ -13,10 +13,19 @@
     3. 解除する場合は
        launchctl unload ~/Library/LaunchAgents/com.fukuhara.crowdworks-automation.plist
 
-  朝8:00・昼13:00・夜20:00の3回、scripts/run-scheduled.sh を起動する。
+  朝6:00・昼12:00・夜19:00の3回、scripts/run-scheduled.sh を起動する。
   実際にどの回に該当するか(朝/昼/夜)・スリープ等による遅延判定は
   run-scheduled.sh 側で判定するため、このplist自体は単純に3つの時刻を
   登録するだけでよい。
+
+  【時刻を変更したい場合】
+  以下の2箇所を「必ずセットで」同じ時刻に変更すること(このplistの時刻を
+  変えるだけでは、run-scheduled.sh側の遅延判定が古い時刻を基準に計算してしまう)。
+    1. このファイルの StartCalendarInterval(下記3つのdict)
+    2. scripts/run-scheduled.sh の SLOT_HOURS / SLOT_LABELS 変数
+  変更後は、本登録前に本ドキュメントの手順で launchctl bootout → cp → bootstrap
+  をやり直すこと(launchdは実行中のplist定義をファイル書き換えだけでは
+  自動的に再読込しない)。
 -->
 <plist version="1.0">
 <dict>
@@ -28,23 +37,25 @@
     <string>/Users/fukuharakeisuke/Downloads/セットアップ/my-workspace/crowdworks-automation/scripts/run-scheduled.sh</string>
   </array>
 
+  <!-- 朝6:00・昼12:00・夜19:00。変更時は scripts/run-scheduled.sh の
+       SLOT_HOURS/SLOT_LABELS も必ず同じ時刻へ変更すること -->
   <key>StartCalendarInterval</key>
   <array>
     <dict>
       <key>Hour</key>
-      <integer>8</integer>
+      <integer>6</integer>
       <key>Minute</key>
       <integer>0</integer>
     </dict>
     <dict>
       <key>Hour</key>
-      <integer>13</integer>
+      <integer>12</integer>
       <key>Minute</key>
       <integer>0</integer>
     </dict>
     <dict>
       <key>Hour</key>
-      <integer>20</integer>
+      <integer>19</integer>
       <key>Minute</key>
       <integer>0</integer>
     </dict>

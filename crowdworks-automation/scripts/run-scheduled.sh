@@ -1,8 +1,14 @@
 #!/bin/bash
-# launchd(朝8:00 / 昼13:00 / 夜20:00)から呼び出される、通常運用の定期実行ラッパー。
+# launchd(朝6:00 / 昼12:00 / 夜19:00)から呼び出される、通常運用の定期実行ラッパー。
+#
+# 【実行時刻を変更したい場合】
+# 下の SLOT_HOURS/SLOT_LABELS と、
+# scripts/com.fukuhara.crowdworks-automation.plist.template の
+# StartCalendarInterval を「必ずセットで」同じ時刻に変更すること。
+# 片方だけ変更すると、遅延判定(予定時刻からの経過時間の計算)がズレる。
 #
 # 行うこと:
-#   - 直近の予定時刻(8/13/20時)を特定し、そこから3時間以上経過していれば
+#   - 直近の予定時刻(SLOT_HOURSの各時刻)を特定し、そこから3時間以上経過していれば
 #     スリープ・電源オフ等で遅延したとみなし、実行せずmacOS通知のみ行う
 #   - 前回の実行がまだ終わっていなければ(ロックファイル+PID確認)、多重起動せずスキップする
 #   - 実行ログを crowdworks-automation/data/logs/ に保存する
@@ -29,8 +35,9 @@ notify_mac() {
 
 TIMESTAMP="$(date +%Y-%m-%d_%H%M%S)"
 
-# --- 直近の予定時刻(朝8:00/昼13:00/夜20:00)のうち、最も近いものを特定する ---
-SLOT_HOURS=(8 13 20)
+# --- 直近の予定時刻(朝6:00/昼12:00/夜19:00)のうち、最も近いものを特定する ---
+# ※変更する場合は plist側の StartCalendarInterval も必ず同じ時刻に変更すること
+SLOT_HOURS=(6 12 19)
 SLOT_LABELS=(朝 昼 夜)
 
 NOW_EPOCH="$(date +%s)"

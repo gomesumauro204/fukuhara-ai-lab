@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { config, loadJobCriteria } from "./config.js";
+import { config, loadJobCriteria, loadProfile } from "./config.js";
 import type { JobClassification, JobMetadata, JobWithDetail, ScreeningResult, TokenUsage } from "./types.js";
 
 const anthropic = new Anthropic({ apiKey: config.anthropicApiKey });
@@ -47,6 +47,11 @@ export interface ScreenJobOutcome {
 
 export async function screenJob(job: JobWithDetail): Promise<ScreenJobOutcome> {
   const criteria = loadJobCriteria();
+  const profile = loadProfile();
+  const availabilityText =
+    profile.availability?.hours || profile.availability?.scope
+      ? [profile.availability.hours, profile.availability.scope].filter(Boolean).join(" / ")
+      : "(profile.yamlに稼働時間の記載なし)";
 
   const message = await anthropic.messages.create({
     model: "claude-sonnet-5",
@@ -67,11 +72,11 @@ export async function screenJob(job: JobWithDetail): Promise<ScreenJobOutcome> {
       "周辺経験を活かして挑戦する価値がある挑戦応募。未経験部分は正直に開示する前提で、完全一致でなくても積極的に候補に含める) / " +
       '"review"(判断材料が不足していて人間の確認が必要) / "excluded"(明確に対象外)。' +
       "分類にあたっては、応募者プロフィールとの適合度(必須経験・実務年数が現状とかけ離れていないか、" +
-      "想定稼働時間が週10時間程度の範囲で対応可能か、報酬と作業量のバランス)も考慮してください。" +
+      "「本人の稼働条件」として与えられた範囲で対応可能か、報酬と作業量のバランス)も考慮してください。" +
       "ただし、完全に経験が一致しないというだけで安易に除外/要確認にせず、周辺経験で挑戦応募として対応できそうな場合はcandidateに含めてください。" +
       "一方で、次のいずれかに該当する案件は明確にexcludedとしてください: " +
       "内容が明確に別職種(営業・ライティング・人材紹介・データ入力中心の実務で開発/自動化を伴わないもの)である、" +
-      "月160時間規模などフルタイム常駐前提で週10時間程度の稼働では明らかに対応不能である、" +
+      "「本人の稼働条件」を大きく超えるフルタイム常駐前提(例: 月160時間規模)で明らかに対応不能である、" +
       "弁護士・弁理士・医師等の法的資格や特殊資格の保有が必須条件だが本人がその資格を持っていない、" +
       "個人(1名)では遂行不可能な体制・規模を要求している。" +
       "あわせて、本文に明記されている範囲でクライアント名・報酬または時給・募集期限・必須条件・歓迎条件・" +
@@ -85,7 +90,7 @@ export async function screenJob(job: JobWithDetail): Promise<ScreenJobOutcome> {
     messages: [
       {
         role: "user",
-        content: `# 歓迎したい案件の特徴(参考。これに一致しなくても内容次第で採用可)\n${criteria.acceptKeywords.join(", ") || "(未設定)"}\n\n# 避けたい案件の特徴(参考。これに一致しても内容次第で採用可)\n${criteria.rejectKeywords.join(", ") || "(未設定)"}\n${criteria.description ? `\n# 判定方針の補足\n${criteria.description}\n` : ""}\n# 判定対象の案件\nタイトル: ${job.title}\n案件情報(抜粋): ${job.contextText.slice(0, 300)}\n\n本文:\n${job.description}\n\n上記の案件について、分類・判定理由・構造化情報をJSONで出力してください。`,
+        content: `# 本人の稼働条件(profile.yamlより)\n${availabilityText}\n\n# 歓迎したい案件の特徴(参考。これに一致しなくても内容次第で採用可)\n${criteria.acceptKeywords.join(", ") || "(未設定)"}\n\n# 避けたい案件の特徴(参考。これに一致しても内容次第で採用可)\n${criteria.rejectKeywords.join(", ") || "(未設定)"}\n${criteria.description ? `\n# 判定方針の補足\n${criteria.description}\n` : ""}\n# 判定対象の案件\nタイトル: ${job.title}\n案件情報(抜粋): ${job.contextText.slice(0, 300)}\n\n本文:\n${job.description}\n\n上記の案件について、分類・判定理由・構造化情報をJSONで出力してください。`,
       },
     ],
   });
