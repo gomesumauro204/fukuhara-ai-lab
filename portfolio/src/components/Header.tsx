@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { SITE, NAV, CONTACT, BOOKING } from '../data/site'
-import { BookingButton, IconMail, IconArrowRight } from './ui'
+import { NAV, CONTACT, BOOKING } from '../data/site'
+import Logo from './Logo'
+import { IconMail, IconArrow } from './ui'
 
 export default function Header() {
   const [open, setOpen] = useState(false)
@@ -12,16 +13,7 @@ export default function Header() {
     return () => { document.body.style.overflow = '' }
   }, [open])
 
-  /**
-   * メニュー内のリンクを押したときの処理。
-   * ページ内移動はブラウザ標準のアンカー遷移に任せ、
-   * ここではメニューを閉じるだけにする。
-   */
-  function handleNavClick() {
-    setOpen(false)
-  }
-
-  // Escape でメニューを閉じる
+  // Escape で閉じる
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
@@ -29,34 +21,37 @@ export default function Header() {
     return () => window.removeEventListener('keydown', onKey)
   }, [open])
 
+  // ページ内移動はブラウザ標準のアンカー遷移に任せ、メニューを閉じるだけ
+  const close = () => setOpen(false)
+
   return (
-    <header className="fixed top-0 inset-x-0 z-50 bg-white border-b border-surface-line">
+    <header className="fixed top-0 inset-x-0 z-50 bg-navy/95 backdrop-blur-md
+      border-b border-white/8">
       <div className="max-w-content mx-auto px-5 sm:px-8 lg:px-12
         h-14 sm:h-16 flex items-center justify-between gap-4">
 
-        {/* ロゴ */}
-        <a href="#top" className="flex flex-col leading-none shrink-0"
-          onClick={() => setOpen(false)}>
-          <span className="text-[15px] sm:text-base font-bold text-navy tracking-tight">
-            {SITE.name}
-          </span>
-          <span className="text-[9px] sm:text-[10px] font-semibold tracking-[0.18em]
-            text-ink-light mt-0.5">
-            {SITE.nameEn}
-          </span>
+        <a href="#top" onClick={close} aria-label="ページ先頭へ">
+          <Logo />
         </a>
 
         {/* PCナビ */}
-        <nav className="hidden lg:flex items-center gap-6"
+        <nav className="hidden lg:flex items-center gap-7"
           aria-label="サイト内ナビゲーション">
           {NAV.map(item => (
             <a key={item.href} href={item.href}
-              className="text-[13px] font-semibold text-ink-mid
-                hover:text-navy transition-colors whitespace-nowrap">
+              className="text-[12.5px] font-semibold text-white/70
+                hover:text-white transition-colors whitespace-nowrap">
               {item.label}
             </a>
           ))}
-          <BookingButton variant="compact" label={BOOKING.labelShort} />
+
+          <a href={BOOKING.url} target="_blank" rel="noopener noreferrer"
+            className="group inline-flex items-center gap-2.5 rounded-full
+              border border-gold/55 px-5 py-2.5 text-[12.5px] font-semibold
+              text-gold hover:border-gold hover:bg-gold/[0.07] transition-colors">
+            <span className="w-1 h-1 rounded-full bg-gold" aria-hidden="true" />
+            {BOOKING.labelShort}
+          </a>
         </nav>
 
         {/* ハンバーガー */}
@@ -66,24 +61,18 @@ export default function Header() {
           aria-expanded={open}
           aria-controls="mobile-menu"
           aria-label={open ? 'メニューを閉じる' : 'メニューを開く'}
-          className="lg:hidden -mr-2 p-2 text-navy"
+          className="lg:hidden -mr-2 p-2 text-white"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
             {open ? (
               <>
-                <line x1="5" y1="5" x2="19" y2="19" stroke="currentColor"
-                  strokeWidth="1.8" strokeLinecap="round" />
-                <line x1="19" y1="5" x2="5" y2="19" stroke="currentColor"
-                  strokeWidth="1.8" strokeLinecap="round" />
+                <line x1="4" y1="4" x2="18" y2="18" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                <line x1="18" y1="4" x2="4" y2="18" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
               </>
             ) : (
               <>
-                <line x1="4" y1="7" x2="20" y2="7" stroke="currentColor"
-                  strokeWidth="1.8" strokeLinecap="round" />
-                <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor"
-                  strokeWidth="1.8" strokeLinecap="round" />
-                <line x1="4" y1="17" x2="20" y2="17" stroke="currentColor"
-                  strokeWidth="1.8" strokeLinecap="round" />
+                <line x1="3" y1="7"  x2="19" y2="7"  stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                <line x1="3" y1="15" x2="19" y2="15" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
               </>
             )}
           </svg>
@@ -93,36 +82,33 @@ export default function Header() {
       {/* スマホメニュー */}
       {open && (
         <div id="mobile-menu"
-          className="lg:hidden bg-white border-t border-surface-line
+          className="lg:hidden bg-navy border-t border-white/8
             max-h-[calc(100vh-3.5rem)] overflow-y-auto">
-          <nav className="px-5 py-2" aria-label="サイト内ナビゲーション">
+          <nav className="px-5 pt-2" aria-label="サイト内ナビゲーション">
             {NAV.map(item => (
-              <a key={item.href} href={item.href}
-                onClick={handleNavClick}
-                className="flex items-center justify-between py-3.5
-                  border-b border-surface-line text-[15px] font-semibold text-navy">
+              <a key={item.href} href={item.href} onClick={close}
+                className="flex items-center justify-between py-4
+                  border-b border-white/8 text-[15px] font-semibold text-white">
                 {item.label}
-                <IconArrowRight className="text-ink-light" />
+                <IconArrow className="text-white/30" />
               </a>
             ))}
           </nav>
 
-          {/* スマホメニュー内のCTA */}
-          <div className="px-5 py-5 space-y-3 bg-surface-soft">
-            <a href="#works" onClick={handleNavClick}
-              className="flex items-center justify-center gap-2 w-full py-3.5
-                border border-navy/25 text-navy font-bold text-sm rounded-sm">
+          <div className="px-5 py-6 space-y-3">
+            <a href="#works" onClick={close}
+              className="flex items-center justify-center w-full py-3.5 rounded-full
+                border border-white/25 text-white font-semibold text-[13.5px]">
               制作実績を見る
             </a>
-            <a href={BOOKING.url} target="_blank" rel="noopener noreferrer"
-              onClick={() => setOpen(false)}
-              className="flex items-center justify-center gap-2 w-full py-3.5
-                bg-navy text-white font-bold text-sm rounded-sm">
+            <a href={BOOKING.url} target="_blank" rel="noopener noreferrer" onClick={close}
+              className="flex items-center justify-center w-full py-3.5 rounded-full
+                bg-gold text-navy-deep font-bold text-[13.5px]">
               無料相談を予約する
             </a>
-            <a href={CONTACT.mailto} onClick={() => setOpen(false)}
+            <a href={CONTACT.mailto} onClick={close}
               className="flex items-center justify-center gap-2 w-full py-3
-                text-ink-mid font-semibold text-sm">
+                text-white/60 font-semibold text-[13px]">
               <IconMail />
               メールで問い合わせる
             </a>

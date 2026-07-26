@@ -1,29 +1,36 @@
 import { SERVICES } from '../data/site'
 import { Section, SectionHead, Reveal } from './ui'
 
+/** 支援内容：巨大な番号を主役にし、カードの反復を避ける */
 export default function Service() {
   return (
-    <Section id="service">
+    <Section id="service" tone="navy">
       <SectionHead
+        num="03"
         en="Service"
         title="支援内容"
-        lead="業務の整理から、ツールの設計・開発、導入後の改善までを一貫して支援します。"
+        lead="業務の整理から、ツールの設計・開発、導入後の改善までを一貫して担当します。"
+        dark
       />
 
-      <div className="grid sm:grid-cols-2 gap-5 sm:gap-6">
+      <div className="border-t border-white/10">
         {SERVICES.map((service, i) => (
-          <Reveal key={service.num} delay={((i % 2) + 1) as 1 | 2}
-            className="border border-surface-line rounded-md p-6 sm:p-8
-              bg-white hover:border-navy/25 transition-colors">
-            <div className="flex items-baseline gap-3 mb-4">
-              <span className="text-[13px] font-bold tracking-widest text-accent">
-                {service.num}
-              </span>
-              <h3 className="text-[17px] sm:text-lg text-navy">
-                {service.title}
-              </h3>
-            </div>
-            <p className="text-[14px] leading-[1.85] text-ink-mid">
+          <Reveal key={service.num}
+            delay={((i % 4) + 1) as 1 | 2 | 3 | 4}
+            className="grid sm:grid-cols-[auto_1fr] lg:grid-cols-[8rem_18rem_1fr]
+              gap-x-8 gap-y-3 items-baseline
+              border-b border-white/10 py-8 lg:py-10">
+            <span aria-hidden="true"
+              className="font-en text-[2.4rem] lg:text-[3rem] leading-none
+                text-white/12 select-none">
+              {service.num}
+            </span>
+
+            <h3 className="font-mincho text-[1.15rem] lg:text-[1.35rem] text-white">
+              {service.title}
+            </h3>
+
+            <p className="text-[14px] leading-[2] text-white/65 max-w-xl">
               {service.body}
             </p>
           </Reveal>

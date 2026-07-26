@@ -13,6 +13,21 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
+    <!--
+      フォント方針
+      ・日本語の見出しは端末内蔵の明朝（ヒラギノ明朝／游明朝）を使用し、
+        Webフォントを読み込まない。日本語Webフォントは分割配信でも
+        リクエスト数と転送量が大きく、表示速度に影響するため。
+        文言を追加しても字形が欠けないという保守上の利点もある。
+      ・英字のみ Cormorant Garamond を読み込む（ラテン限定・軽量）。
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&display=swap"
+    />
+
     <!-- OGP -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="福原AI研究所" />
@@ -28,7 +43,7 @@
     <meta name="twitter:description" content="業務整理・要件整理をもとに、記録・共有・管理などを効率化する小規模Webツールの設計・開発を支援します。" />
     <meta name="twitter:image" content="https://streak-habit-tracker-portfolio.vercel.app/og-image.png" />
 
-    <meta name="theme-color" content="#12233f" />
+    <meta name="theme-color" content="#0B1B3A" />
   </head>
   <body>
     <div id="root"></div>

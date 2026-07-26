@@ -2,162 +2,249 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =============================================================
+   BASE
+   ============================================================= */
 @layer base {
   html {
     scroll-behavior: smooth;
-    /* 固定ヘッダー分のオフセット */
-    scroll-padding-top: 4rem;
+    scroll-padding-top: 4.5rem; /* 固定ヘッダー分 */
   }
 
   body {
-    @apply bg-surface text-ink font-sans antialiased;
+    @apply bg-navy text-white font-sans antialiased;
     font-size: 0.9375rem;
     line-height: 1.9;
+    overflow-x: hidden;
   }
 
   h1, h2, h3, h4 {
-    line-height: 1.35;
-    letter-spacing: -0.015em;
-    @apply font-bold text-navy;
+    line-height: 1.32;
+    font-weight: 600;
   }
 
-  /* フォーカス表示（キーボード操作用） */
+  /*
+    明朝を使う見出しはウェイトを落とす。
+    游明朝（Windows）で 600 を指定すると合成太字になり字形が濁るため、
+    明朝本来の線の細さを活かす。
+  */
+  .font-mincho {
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  /* キーボード操作時のフォーカス表示 */
   :focus-visible {
-    outline: 2px solid #0f7490;
+    outline: 2px solid theme('colors.gold.DEFAULT');
     outline-offset: 3px;
   }
 }
 
 /* =============================================================
-   スクロール連動アニメーション
-   IntersectionObserver で .is-visible が付与される
+   COMPONENTS
    ============================================================= */
+@layer components {
+  /* --- 極小の英字ラベル --- */
+  .label-en {
+    @apply font-en text-[10px] uppercase leading-[2.1] text-white/55;
+    letter-spacing: 0.32em;
+  }
+  .label-en-dark {
+    @apply font-en text-[10px] uppercase leading-[2.1] text-ink-soft;
+    letter-spacing: 0.32em;
+  }
+
+  /* --- ゴールドの星印（コーナーアンカー） --- */
+  .anchor-mark {
+    @apply inline-block text-gold text-[13px] leading-none mb-3;
+  }
+
+  /* --- 巨大な通し番号 --- */
+  .section-num {
+    @apply font-en leading-none select-none pointer-events-none;
+    font-size: clamp(3.5rem, 9vw, 7.5rem);
+    font-weight: 300;
+  }
+
+  /* --- 罫線 --- */
+  .rule-light { @apply border-white/12; }
+  .rule-dark  { @apply border-ink/12; }
+}
+
+/* =============================================================
+   HERO — 巨大見出し
+   白 → ゴールドへ、中央ビジュアルに重なる位置で色が変わる
+   ============================================================= */
+.hero-headline {
+  font-family: theme('fontFamily.mincho');
+  font-weight: 500;
+  line-height: 1.18;
+  letter-spacing: 0.02em;
+  font-size: clamp(2.4rem, 8.2vw, 8rem);
+}
+
+/* 1行目：左は白、柱に差しかかる位置からゴールド */
+.hero-line-top {
+  background-image: linear-gradient(
+    100deg,
+    #ffffff 0%,
+    #ffffff 44%,
+    theme('colors.gold.DEFAULT') 60%,
+    theme('colors.gold.DEFAULT') 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* 2行目：ほぼゴールド。右端は画面外へ抜ける */
+.hero-line-bottom {
+  background-image: linear-gradient(
+    100deg,
+    theme('colors.gold.DEFAULT') 0%,
+    theme('colors.gold.bright') 48%,
+    theme('colors.gold.DEFAULT') 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* =============================================================
+   HERO — 中央の縦長ビジュアル（光の柱）
+   外部画像を使わず、CSSグラデーションのみで構成
+   アニメーションは transform / opacity のみ（描画コストを抑制）
+   ============================================================= */
+.pillar {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg,
+      rgba(11, 27, 58, 0) 0%,
+      rgba(15, 36, 80, 0.55) 18%,
+      rgba(15, 36, 80, 0.55) 82%,
+      rgba(11, 27, 58, 0) 100%);
+}
+
+/* 柔らかい光（ぼかしは静的。動かすのは transform のみ） */
+.pillar-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(48px);
+  will-change: transform;
+}
+.pillar-glow-a {
+  inset: 6% -22% 52% -18%;
+  background: radial-gradient(circle, rgba(150, 190, 245, 0.30) 0%, transparent 68%);
+  animation: glowDriftA 26s ease-in-out infinite;
+}
+.pillar-glow-b {
+  inset: 44% -16% 8% -20%;
+  background: radial-gradient(circle, rgba(120, 165, 230, 0.22) 0%, transparent 68%);
+  animation: glowDriftB 34s ease-in-out infinite;
+}
+
+@keyframes glowDriftA {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(4%, -6%, 0) scale(1.08); }
+}
+@keyframes glowDriftB {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(-5%, 5%, 0) scale(0.94); }
+}
+
+/* 記録の行（業務ツールであることを示す控えめな具象要素） */
+.pillar-row {
+  @apply absolute left-[14%] right-[14%] h-px;
+  background: linear-gradient(90deg,
+    transparent, rgba(215, 232, 255, 0.34) 22%,
+    rgba(215, 232, 255, 0.34) 78%, transparent);
+}
+
+/* 走査線：下から上へゆっくり通過し、「整理されていく」を示す */
+.pillar-scan {
+  @apply absolute left-0 right-0 h-24 pointer-events-none;
+  background: linear-gradient(180deg,
+    transparent,
+    rgba(201, 169, 97, 0.16) 45%,
+    rgba(201, 169, 97, 0.28) 55%,
+    transparent);
+  animation: scanRise 9s linear infinite;
+  will-change: transform;
+}
+@keyframes scanRise {
+  0%   { transform: translate3d(0, 105%, 0); }
+  100% { transform: translate3d(0, -105%, 0); }
+}
+
+/* 柱の枠線 */
+.pillar-frame {
+  @apply absolute inset-0 pointer-events-none;
+  border-left:  1px solid rgba(201, 169, 97, 0.22);
+  border-right: 1px solid rgba(201, 169, 97, 0.22);
+  mask-image: linear-gradient(180deg, transparent, #000 14%, #000 86%, transparent);
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 14%, #000 86%, transparent);
+}
+
+/* =============================================================
+   ENTRANCE — 登場アニメーション（控えめ・短時間）
+   ============================================================= */
+@keyframes rise {
+  from { opacity: 0; transform: translate3d(0, 14px, 0); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.enter {
+  opacity: 0;
+  animation: rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.enter-fade {
+  opacity: 0;
+  animation: fadeIn 0.7s ease-out forwards;
+}
+
+.d1 { animation-delay: 0.05s; }
+.d2 { animation-delay: 0.13s; }
+.d3 { animation-delay: 0.21s; }
+.d4 { animation-delay: 0.29s; }
+.d5 { animation-delay: 0.37s; }
+.d6 { animation-delay: 0.45s; }
+
+/* スクロール連動（IntersectionObserver で is-in を付与） */
 .reveal {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  transform: translate3d(0, 16px, 0);
+  transition: opacity 0.5s ease-out, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.reveal.is-visible {
+.reveal.is-in {
   opacity: 1;
-  transform: translateY(0);
+  transform: none;
 }
+.reveal-1 { transition-delay: 0.05s; }
+.reveal-2 { transition-delay: 0.10s; }
+.reveal-3 { transition-delay: 0.15s; }
+.reveal-4 { transition-delay: 0.20s; }
 
-/* 段差表示（stagger） */
-.reveal-1 { transition-delay: 0.06s; }
-.reveal-2 { transition-delay: 0.12s; }
-.reveal-3 { transition-delay: 0.18s; }
-.reveal-4 { transition-delay: 0.24s; }
-.reveal-5 { transition-delay: 0.30s; }
-.reveal-6 { transition-delay: 0.36s; }
-
-/* =============================================================
-   Hero：初回表示アニメーション（待たせずに順次表示）
-   ============================================================= */
-@keyframes heroRise {
-  from { opacity: 0; transform: translateY(18px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.hero-item {
-  opacity: 0;
-  animation: heroRise 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-.hero-d1 { animation-delay: 0.05s; }
-.hero-d2 { animation-delay: 0.15s; }
-.hero-d3 { animation-delay: 0.25s; }
-.hero-d4 { animation-delay: 0.35s; }
-.hero-d5 { animation-delay: 0.50s; }
-.hero-d6 { animation-delay: 0.62s; }
-
-/* Hero背景の細いライン（ゆっくり動く） */
-@keyframes lineDrift {
-  0%   { transform: translateX(0); }
-  50%  { transform: translateX(28px); }
-  100% { transform: translateX(0); }
-}
-.hero-line {
-  position: absolute;
-  background: linear-gradient(90deg, transparent, rgba(15, 116, 144, 0.16), transparent);
-  height: 1px;
-  animation: lineDrift 18s ease-in-out infinite;
-}
-
-/* Hero背景のドットグリッド */
-.hero-dots {
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(rgba(18, 35, 63, 0.07) 1px, transparent 1px);
-  background-size: 26px 26px;
-  mask-image: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent 75%);
-  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent 75%);
-}
-
-/* =============================================================
-   モックアップ（ブラウザ枠 / スマートフォン枠）
-   ============================================================= */
-.mock-browser {
-  @apply bg-white border border-surface-line rounded-lg overflow-hidden;
-  box-shadow: 0 18px 40px -18px rgba(18, 35, 63, 0.28);
-}
-.mock-bar {
-  @apply flex items-center gap-1.5 px-3 py-2.5 bg-surface-soft border-b border-surface-line;
-}
-.mock-dot {
-  @apply w-2 h-2 rounded-full bg-surface-line;
-}
-
-.mock-phone {
-  @apply bg-white rounded-[1.75rem] overflow-hidden;
-  border: 6px solid #12233f;
-  box-shadow: 0 18px 36px -14px rgba(18, 35, 63, 0.4);
-}
-
-/* ワイヤーフレームのプレースホルダー行 */
-.wire-row {
-  @apply h-2 rounded-sm bg-surface-line;
-}
-.wire-block {
-  @apply rounded bg-surface-soft border border-surface-line;
-}
-
-/* Hero モックアップの軽い浮遊 */
-@keyframes mockFloat {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-7px); }
-}
-.mock-float { animation: mockFloat 7s ease-in-out infinite; }
-
-/* =============================================================
-   Works：スクロールで軽く拡大
-   ============================================================= */
-.work-visual {
-  transform: scale(0.97);
-  opacity: 0;
-  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.7s ease-out;
-}
-.work-visual.is-visible {
-  transform: scale(1);
-  opacity: 1;
-}
-
-/* =============================================================
-   Process：接続ラインの描画
-   ============================================================= */
-.process-line {
+/* 罫線を描画する演出（Process の接続線など） */
+.draw-x {
   transform: scaleX(0);
   transform-origin: left;
-  transition: transform 1.1s ease-out 0.2s;
+  transition: transform 0.8s ease-out 0.1s;
 }
-.process-line.is-visible { transform: scaleX(1); }
+.draw-x.is-in { transform: scaleX(1); }
 
 /* =============================================================
-   FAQ：アコーディオン
+   FAQ アコーディオン
    ============================================================= */
 .faq-panel {
   overflow: hidden;
   max-height: 0;
   opacity: 0;
-  transition: max-height 0.4s ease, opacity 0.3s ease, padding 0.3s ease;
+  transition: max-height 0.35s ease, opacity 0.25s ease;
 }
 .faq-panel.is-open {
   max-height: 24rem;
@@ -165,10 +252,17 @@
 }
 
 /* =============================================================
-   選択式チャット
+   ご相談案内（選択式）
    iOS Safari の下部UIを避けるため safe-area を考慮
    ============================================================= */
-.chat-launcher {
+.chat-teaser {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 60;
+}
+.chat-launcher-sp {
   position: fixed;
   right: 1rem;
   bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
@@ -177,47 +271,70 @@
 .chat-panel {
   position: fixed;
   right: 1rem;
-  bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
-  z-index: 60;
-  width: min(21rem, calc(100vw - 2rem));
-  /* 起動ボタン・下部UIを避けつつ選択肢が収まる高さ */
-  max-height: min(32rem, calc(100vh - 8rem));
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  z-index: 61;
+  width: min(20rem, calc(100vw - 2rem));
+  max-height: min(30rem, calc(100vh - 6rem));
 }
-
-@keyframes chatIn {
-  from { opacity: 0; transform: translateY(12px) scale(0.98); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+@media (min-width: 1024px) {
+  .chat-panel {
+    right: 1.5rem;
+    bottom: 1.5rem;
+    width: 20.5rem;
+    max-height: min(32rem, calc(100vh - 8rem));
+  }
 }
-.chat-panel { animation: chatIn 0.25s ease-out; }
 
 /* =============================================================
-   動きを減らす設定に対応
+   ブランドイントロ（初回のみ・0.8秒）
+   Hero は背後で描画済み。読み込みを待たせません。
+   ============================================================= */
+@keyframes introOut {
+  0%, 62%  { opacity: 1; }
+  100%     { opacity: 0; visibility: hidden; }
+}
+@keyframes introMark {
+  from { opacity: 0; letter-spacing: 0.7em; }
+  to   { opacity: 1; letter-spacing: 0.34em; }
+}
+.brand-intro {
+  @apply fixed inset-0 z-[100] flex items-center justify-center bg-navy-deep;
+  animation: introOut 1s ease-out forwards;
+}
+.brand-intro-mark {
+  animation: introMark 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* =============================================================
+   REDUCED MOTION
+   動きを減らす設定では、すべて即時表示に切り替えます。
    ============================================================= */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
 
-  .reveal,
-  .work-visual {
+  .enter,
+  .enter-fade,
+  .brand-intro-mark {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+
+  .reveal {
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;
   }
 
-  .hero-item {
-    opacity: 1 !important;
-    animation: none !important;
-  }
-
-  .process-line {
+  .draw-x {
     transform: scaleX(1) !important;
     transition: none !important;
   }
 
-  .hero-line,
-  .mock-float,
-  .chat-panel {
+  .pillar-glow,
+  .pillar-scan {
     animation: none !important;
   }
 
   .faq-panel { transition: none !important; }
+  .brand-intro { display: none !important; }
 }

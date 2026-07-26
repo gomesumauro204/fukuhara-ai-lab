@@ -1,129 +1,187 @@
-import { WORKS } from '../data/works'
-import { SITE } from '../data/site'
+import { WORKS, type Work } from '../data/works'
 import {
-  Section, SectionHead, Reveal, useReveal,
-  BookingButton, OutlineButton, IconExternal, IconCheck,
+  Section, SectionHead, Reveal, useInView,
+  BookingButton, LinkButton, IconExternal,
 } from './ui'
-import { BrowserMock, PhoneMock } from './Mockup'
+import { DesktopScreen, PhoneScreen } from './ScreenFrame'
 
+/**
+ * 制作実績
+ *
+ * このサイトで最も重要なセクション。
+ * 「何が課題で、どう解決し、何ができるのか」が一目で伝わるよう、
+ * 画面 → 課題/解決 → 機能 → 担当範囲 → 導線 の順に構成する。
+ */
 export default function Works() {
   return (
-    <Section id="works" tone="soft">
+    <Section id="works" tone="navy">
       <SectionHead
+        num="01"
         en="Works"
         title="制作実績"
-        lead={`${SITE.name}が設計・開発したツールをご覧いただけます。`}
+        lead="実際の業務を題材に、記録・共有・管理を効率化するWebツールを設計・開発しています。公開中のものはデモから操作いただけます。"
+        dark
       />
 
-      <div className="space-y-14">
-        {WORKS.map(work => (
-          <WorkItem key={work.title} work={work} />
-        ))}
+      <div className="space-y-24">
+        {WORKS.map(work => <WorkItem key={work.title} work={work} />)}
       </div>
     </Section>
   )
 }
 
-function WorkItem({ work }: { work: (typeof WORKS)[number] }) {
-  const visual = useReveal<HTMLDivElement>()
+function WorkItem({ work }: { work: Work }) {
+  const visual = useInView<HTMLDivElement>()
 
   return (
-    <article className="bg-white border border-surface-line rounded-lg
-      overflow-hidden">
+    <article>
+      {/* ── ツール画面 ── */}
+      <div
+        ref={visual.ref}
+        className={`reveal ${visual.inView ? 'is-in' : ''}
+          relative mb-12 lg:mb-16`}
+      >
+        <div className="relative max-w-4xl mx-auto lg:mx-0 lg:ml-auto lg:mr-[6%]">
+          <DesktopScreen
+            src={work.images.pc}
+            alt={`${work.title}のPC画面`}
+          />
 
-      {/* ── 上部：ツール画面 ── */}
-      <div ref={visual.ref}
-        className={`work-visual ${visual.visible ? 'is-visible' : ''}
-          relative bg-surface-soft px-5 sm:px-10 pt-8 sm:pt-12 pb-10 sm:pb-12`}>
-        <div className="max-w-3xl mx-auto relative">
-          <BrowserMock src={work.images.pc} alt={`${work.title}のPC画面`} />
-          <div className="absolute -bottom-5 -right-1 sm:right-2
-            w-[24%] max-w-[120px]">
-            <PhoneMock src={work.images.sp} alt={`${work.title}のスマートフォン画面`} />
+          {/* スマホ画面を左下に重ねる */}
+          <div className="absolute -bottom-8 -left-3 sm:-left-8 lg:-left-16
+            w-[22%] max-w-[122px]">
+            <PhoneScreen
+              src={work.images.sp}
+              alt={`${work.title}のスマートフォン画面`}
+            />
           </div>
         </div>
       </div>
 
-      {/* ── 下部：詳細 ── */}
-      <div className="p-6 sm:p-10">
-        <Reveal>
-          <span className="inline-block text-[11px] font-bold tracking-wider
-            text-accent bg-accent-light px-3 py-1 rounded-sm mb-4">
+      {/* ── 概要 ── */}
+      <Reveal className="mb-12">
+        <div className="flex flex-wrap items-center gap-3 mb-5">
+          <span className="text-[11px] font-semibold tracking-wider
+            text-gold border border-gold/45 rounded-full px-3.5 py-1">
             {work.badge}
           </span>
-          <h3 className="text-xl sm:text-2xl text-navy mb-3">{work.title}</h3>
-          <p className="text-[14px] leading-[1.85] text-ink-mid mb-8">
-            {work.summary}
+          <span className="label-en">Case 01</span>
+        </div>
+
+        <h3 className="font-mincho text-[1.5rem] sm:text-[2rem] text-white mb-4">
+          {work.title}
+        </h3>
+        <p className="text-[14.5px] leading-[1.95] text-white/60 max-w-2xl">
+          {work.summary}
+        </p>
+      </Reveal>
+
+      {/* ── 課題 / 解決方法 ── */}
+      <div className="grid lg:grid-cols-2 gap-px bg-white/10 mb-14">
+        <Reveal className="bg-navy p-7 sm:p-9">
+          <p className="label-en mb-4">Problem</p>
+          <h4 className="font-mincho text-[1.15rem] text-white/90 mb-4">
+            課題
+          </h4>
+          <p className="text-[14px] leading-[2] text-white/60">
+            {work.problem}
           </p>
         </Reveal>
 
-        {/* 課題 / 解決方法 */}
-        <div className="grid sm:grid-cols-2 gap-5 mb-8">
-          <Reveal delay={1} className="bg-surface-soft rounded-md p-5">
-            <p className="text-[11px] font-bold tracking-[0.2em] text-ink-light
-              uppercase mb-2.5">Problem</p>
-            <p className="text-[14px] font-bold text-navy mb-2">課題</p>
-            <p className="text-[13.5px] leading-[1.85] text-ink-mid">
-              {work.problem}
-            </p>
-          </Reveal>
-
-          <Reveal delay={2} className="bg-navy rounded-md p-5">
-            <p className="text-[11px] font-bold tracking-[0.2em]
-              text-accent-light/70 uppercase mb-2.5">Solution</p>
-            <p className="text-[14px] font-bold text-white mb-2">解決方法</p>
-            <p className="text-[13.5px] leading-[1.85] text-white/75">
-              {work.solution}
-            </p>
-          </Reveal>
-        </div>
-
-        {/* 主な機能 / 担当範囲 */}
-        <div className="grid sm:grid-cols-2 gap-x-8 gap-y-6 mb-8
-          pt-7 border-t border-surface-line">
-          <Reveal delay={3}>
-            <p className="text-[13px] font-bold text-navy mb-3">主な機能</p>
-            <ul className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-1 gap-2">
-              {work.features.map(f => (
-                <li key={f} className="flex items-start gap-2 text-[13.5px] text-ink-mid">
-                  <span className="text-accent mt-1 shrink-0"><IconCheck /></span>
-                  {f}
-                </li>
-              ))}
-            </ul>
-          </Reveal>
-
-          <Reveal delay={4}>
-            <p className="text-[13px] font-bold text-navy mb-3">担当範囲</p>
-            <div className="flex flex-wrap gap-2">
-              {work.scope.map(s => (
-                <span key={s} className="text-[12.5px] text-ink-mid
-                  border border-surface-line rounded-sm px-2.5 py-1">
-                  {s}
-                </span>
-              ))}
-            </div>
-          </Reveal>
-        </div>
-
-        {/* CTA */}
-        <Reveal delay={5} className="flex flex-col sm:flex-row gap-3
-          pt-7 border-t border-surface-line">
-          {work.demoUrl ? (
-            <OutlineButton href={work.demoUrl} external
-              className="w-full sm:w-auto">
-              デモツールを開く
-              <IconExternal />
-            </OutlineButton>
-          ) : (
-            <span className="inline-flex items-center px-7 py-4 text-sm
-              font-bold text-ink-light bg-surface-soft rounded-sm">
-              準備中
-            </span>
-          )}
-          <BookingButton label="無料相談を予約する" className="w-full sm:w-auto" />
+        <Reveal delay={1} className="bg-navy-lift p-7 sm:p-9 relative">
+          <span aria-hidden="true"
+            className="absolute inset-x-0 top-0 h-px bg-gradient-to-r
+              from-gold/60 to-transparent lg:hidden" />
+          <span aria-hidden="true"
+            className="absolute inset-y-0 left-0 w-px bg-gradient-to-b
+              from-gold/60 to-transparent hidden lg:block" />
+          <p className="label-en mb-4" style={{ color: '#D9BE83' }}>
+            Solution
+          </p>
+          <h4 className="font-mincho text-[1.15rem] text-white mb-4">
+            解決方法
+          </h4>
+          <p className="text-[14px] leading-[2] text-white/70">
+            {work.solution}
+          </p>
         </Reveal>
       </div>
+
+      {/* ── 主な機能 ── */}
+      <Reveal className="mb-14">
+        <div className="flex items-baseline gap-4 mb-7">
+          <h4 className="font-mincho text-[1.15rem] text-white">主な機能</h4>
+          <span className="flex-1 h-px bg-white/10" aria-hidden="true" />
+          <span className="label-en">{work.features.length} Features</span>
+        </div>
+
+        <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6">
+          {work.features.map((feature, i) => (
+            <li key={feature.name} className="flex gap-4 items-start">
+              <span className="font-en text-[11px] text-gold-bright leading-[1.9] shrink-0 pt-px">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <span className="min-w-0">
+                <span className="block text-[14px] font-semibold text-white mb-1">
+                  {feature.name}
+                </span>
+                <span className="block text-[12.5px] leading-[1.8] text-white/60">
+                  {feature.note}
+                </span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </Reveal>
+
+      {/* ── 担当範囲 / 使用技術 ── */}
+      <Reveal className="grid sm:grid-cols-2 gap-8 mb-12
+        pt-10 border-t border-white/10">
+        <div>
+          <p className="label-en mb-4">Scope</p>
+          <div className="flex flex-wrap gap-2">
+            {work.scope.map(item => (
+              <span key={item}
+                className="text-[12px] text-white/70 border border-white/15
+                  rounded-full px-3 py-1">
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <p className="label-en mb-4">Stack</p>
+          <div className="flex flex-wrap gap-2">
+            {work.stack.map(item => (
+              <span key={item}
+                className="font-en text-[12px] text-white/60 border border-white/10
+                  rounded-full px-3 py-1">
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+      </Reveal>
+
+      {/* ── 導線 ── */}
+      <Reveal className="flex flex-col sm:flex-row gap-3">
+        {work.demoUrl ? (
+          <LinkButton href={work.demoUrl} external tone="solidGold"
+            className="w-full sm:w-auto">
+            デモツールを開く
+            <IconExternal />
+          </LinkButton>
+        ) : (
+          <span className="inline-flex items-center justify-center rounded-full
+            px-7 py-4 text-[13.5px] font-semibold text-white/30
+            border border-white/10">
+            準備中
+          </span>
+        )}
+        <BookingButton tone="outline" label="このようなツールを相談する"
+          className="w-full sm:w-auto" />
+      </Reveal>
     </article>
   )
 }

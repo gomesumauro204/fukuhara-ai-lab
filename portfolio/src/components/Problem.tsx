@@ -1,27 +1,27 @@
 import { PROBLEMS } from '../data/site'
 import { Section, SectionHead, Reveal } from './ui'
 
+/** 顧客が抱えやすい課題：カードを並べず、罫線のリストで静かに見せる */
 export default function Problem() {
   return (
-    <Section id="problem" tone="soft">
+    <Section id="problem" tone="paper">
       <SectionHead
+        num="02"
         en="Issues"
         title="こんな業務が、そのままになっていませんか。"
         lead="どれか一つでも当てはまる場合、業務の整理とツール化で改善できる余地があります。"
       />
 
-      <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+      <ul className="border-t border-ink/12">
         {PROBLEMS.map((problem, i) => (
           <Reveal key={problem} as="li"
-            delay={((i % 3) + 1) as 1 | 2 | 3}
-            className="bg-white border border-surface-line rounded-md
-              px-5 py-5 flex items-start gap-3">
-            <span className="shrink-0 mt-0.5 w-5 h-5 rounded-full
-              bg-accent-light text-accent flex items-center justify-center
-              text-[11px] font-bold" aria-hidden="true">
-              {i + 1}
+            delay={((i % 4) + 1) as 1 | 2 | 3 | 4}
+            className="flex items-baseline gap-5 sm:gap-8
+              border-b border-ink/12 py-5">
+            <span className="font-en text-[12px] text-gold-deep shrink-0">
+              {String(i + 1).padStart(2, '0')}
             </span>
-            <span className="text-[14px] leading-[1.75] text-ink">
+            <span className="text-[14.5px] sm:text-[15.5px] leading-[1.8] text-ink">
               {problem}
             </span>
           </Reveal>

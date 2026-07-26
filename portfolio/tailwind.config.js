@@ -4,51 +4,53 @@ export default {
   theme: {
     extend: {
       colors: {
-        // メイン：濃いネイビー
+        // 濃色：青みの強い深いネイビー
         navy: {
-          DEFAULT: '#12233f',
-          light:   '#1c3559',
-          dark:    '#0b1729',
+          DEFAULT: '#0B1B3A',
+          lift:    '#0F2450', // 光を受ける面・パネル
+          deep:    '#071229', // 最暗（Contact / Footer）
         },
-        // アクセント：落ち着いた青緑
-        accent: {
-          DEFAULT: '#0f7490',
-          light:   '#e6f3f6',
+        // アクセント：落ち着いたゴールド（面には使わない）
+        // deep は淡色地で使う濃いゴールド。
+        // 明るいゴールドはオフホワイト上でコントラストが取れないため。
+        gold: {
+          DEFAULT: '#C9A961',
+          bright:  '#E0CB96',
+          deep:    '#7A5F26',
         },
-        // 本文：黒に近い濃いグレー
+        // 淡色セクション
+        paper: {
+          DEFAULT: '#F5F2EA',
+          dim:     '#E9E4D8',
+        },
+        // 淡色地の文字（soft も AA を満たす濃さにしている）
         ink: {
-          DEFAULT: '#1f2733',
-          mid:     '#4a5563',
-          light:   '#6b7684',
-        },
-        // 補助背景：薄いグレー / オフホワイト
-        surface: {
-          DEFAULT: '#ffffff',
-          soft:    '#f7f8fa',
-          line:    '#e4e7ec',
+          DEFAULT: '#14192A',
+          mid:     '#4A5265',
+          soft:    '#5C6474',
         },
       },
       fontFamily: {
-        sans: [
-          'Hiragino Kaku Gothic ProN',
-          'Hiragino Sans',
-          'Noto Sans JP',
-          'Meiryo',
-          'sans-serif',
+        // 大見出し：端末内蔵の日本語明朝（Webフォントを読み込まない）
+        mincho: [
+          '"Hiragino Mincho ProN"', '"Hiragino Mincho Pro"',
+          '"Yu Mincho"', '"YuMincho"', '"MS PMincho"',
+          'serif',
         ],
-      },
-      fontSize: {
-        // 本文を読みやすいサイズに固定
-        body: ['0.9375rem', { lineHeight: '1.9' }],
-        'body-lg': ['1rem', { lineHeight: '1.9' }],
+        // 英字：ハイコントラストなセリフ（ラテン限定・軽量）
+        en: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+        // 本文・UI：ゴシック
+        sans: ['"Hiragino Kaku Gothic ProN"', '"Hiragino Sans"', '"Noto Sans JP"', 'Meiryo', 'sans-serif'],
       },
       spacing: {
-        // セクション余白（旧py-32=8remから約30%削減）
-        section: '5.5rem',
-        'section-lg': '7rem',
+        section:   '5.5rem',
+        'section-lg': '7.5rem',
       },
       maxWidth: {
-        content: '75rem',
+        content: '78rem',
+      },
+      letterSpacing: {
+        label: '0.32em',
       },
     },
   },
