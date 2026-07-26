@@ -27,8 +27,15 @@ const DUST = [
  * 線・ノード・パケットとも極細・低彩度にしている（PCのみ表示）。
  */
 const NETWORK = [
-  { left: '8%',  top: '20%', len: 130, angle: 22,  duration: '15s' },
-  { left: '80%', top: '68%', len: 150, angle: -16, duration: '18s' },
+  { left: '8%',  top: '18%', len: 140, angle: 22,  duration: '11s' },
+  { left: '78%', top: '64%', len: 160, angle: -16, duration: '13s' },
+  { left: '58%', top: '30%', len: 100, angle: 34,  duration: '10s' },
+] as const
+
+/** AIチップ（小さな矩形＋ピン）。回路基板の部品を連想させる */
+const CHIPS = [
+  { left: '15%', top: '48%' },
+  { left: '86%', top: '38%' },
 ] as const
 
 export default function HeroAmbience() {
@@ -43,11 +50,11 @@ export default function HeroAmbience() {
       <span className="amb-line amb-line-v2" />
       <span className="amb-line amb-line-h1" />
 
-      {/* ノードを結ぶデータライン（PCのみ） */}
+      {/* ノードを結ぶデータライン（タブレット以上） */}
       {NETWORK.map(n => (
         <span
           key={n.left + n.top}
-          className="amb-network hidden lg:block"
+          className="amb-network hidden sm:block"
           style={{ left: n.left, top: n.top }}
         >
           <span
@@ -58,15 +65,34 @@ export default function HeroAmbience() {
               ['--line-len' as string]: `${n.len}px`,
             }}
           >
-            <span className="sec-line" style={{ background: 'rgba(150, 190, 245, 0.2)' }} />
-            <span className="sec-node" style={{ left: -2, background: 'rgba(212, 184, 122, 0.6)' }} />
+            <span className="sec-line" style={{ background: 'rgba(150, 190, 245, 0.3)' }} />
+            <span className="sec-node" style={{ left: -2, background: 'rgba(212, 184, 122, 0.85)' }} />
             <span className="sec-node"
-              style={{ left: n.len - 3, background: 'rgba(212, 184, 122, 0.6)', animationDelay: '2.4s' }} />
+              style={{ left: n.len - 3, background: 'rgba(212, 184, 122, 0.85)', animationDelay: '2.4s' }} />
             <span className="sec-packet"
-              style={{ background: 'rgba(212, 184, 122, 0.75)', animationDuration: n.duration }} />
+              style={{ background: 'rgba(212, 184, 122, 0.9)', animationDuration: n.duration }} />
           </span>
         </span>
       ))}
+
+      {/* AIチップ（回路基板の部品を連想させる小さな矩形）タブレット以上 */}
+      {CHIPS.map(chip => (
+        <span
+          key={chip.left + chip.top}
+          className="sec-chip hidden sm:block"
+          style={{ left: chip.left, top: chip.top, color: 'rgba(150,190,245,0.6)', borderColor: 'rgba(150,190,245,0.6)' }}
+        />
+      ))}
+
+      {/* 処理フローカード（半透明パネル） */}
+      <span
+        className="sec-card hidden lg:block"
+        style={{
+          left: '68%', top: '14%',
+          color: 'rgba(150,190,245,0.35)', borderColor: 'rgba(150,190,245,0.35)',
+          background: 'rgba(150,190,245,0.04)',
+        }}
+      />
 
       {/* 微細な粒子 */}
       <ul className="amb-dust">

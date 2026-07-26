@@ -39,21 +39,40 @@ export function useInView<T extends HTMLElement = HTMLDivElement>() {
 
 export type Stagger = 1 | 2 | 3 | 4 | 5 | 6
 type RevealDir = 'up' | 'left' | 'right'
+/**
+ * 役割ごとに移動量・時間を変える動きの種類。
+ *   num     … 数字（薄く拡大しながら）
+ *   label   … 英字ラベル（短い横移動）
+ *   heading … 大見出し（下から24〜48px、やや長め）
+ *   body    … 本文（見出しより控えめに16〜28px）
+ *   image   … 画像／カード（40〜80px＋スケールイン）
+ *   cta     … ボタン（最後に控えめに）
+ *   block   … 既定（本文相当。数値の delay で段差だけ付けたい場合）
+ */
+type RevealKind = 'block' | 'num' | 'label' | 'heading' | 'body' | 'image' | 'cta'
 
 /**
- * 画面に入ったら軽くフェードして現れる薄いラッパー。
+ * 画面に入ったら現れる薄いラッパー。役割ごとに異なる動きを持たせられる。
  *
- * delay: 1〜6 の段差（各 0.12s 刻み）。数字→見出し→説明文→画像→CTA のように
- *        意味のある単位ごとに delay を1つずつ上げて時間差をつける。
+ * kind:  上記参照。同じフェードアップの反復にならないよう、要素の役割に
+ *        合わせて指定する。
+ * delay: 1〜6 の段差（各0.12〜0.25s刻み）。数字→ラベル→見出し→本文→画像→CTA
+ *        のように意味の単位ごとに1つずつ上げて時間差をつける。
  * dir:   'up'（既定・下から）/ 'left'（右から）/ 'right'（左から）
- *        制作実績など左右交互のレイアウトで使う。
+ *        制作実績など左右交互のレイアウトで使う。kind="image" と組み合わせると
+ *        スケールイン＋斜め移動になる。
+ *
+ * 実装メモ：初期状態はすべて `:not(.is-in)` を使って定義しているため、
+ * kind と dir を組み合わせても is-in 到達後に確実に transform:none へ戻る
+ * （詳細度の衝突で残留する事故を構造的に防いでいる）。
  */
 export function Reveal({
-  children, delay, dir = 'up', className = '', as: Tag = 'div', ...rest
+  children, delay, dir = 'up', kind = 'block', className = '', as: Tag = 'div', ...rest
 }: {
   children: ReactNode
   delay?: Stagger
   dir?: RevealDir
+  kind?: RevealKind
   className?: string
   as?: 'div' | 'li' | 'article'
   /** data-* など、追加でDOMへ渡したい属性 */
@@ -61,11 +80,12 @@ export function Reveal({
 }) {
   const { ref, inView } = useInView<HTMLDivElement>()
   const dirClass = dir === 'up' ? '' : `reveal-${dir}`
+  const kindClass = kind === 'block' ? '' : `reveal-${kind}`
 
   return (
     <Tag
       ref={ref as never}
-      className={`reveal ${dirClass} ${delay ? `reveal-${delay}` : ''} ${inView ? 'is-in' : ''} ${className}`}
+      className={`reveal ${kindClass} ${dirClass} ${delay ? `reveal-${delay}` : ''} ${inView ? 'is-in' : ''} ${className}`}
       {...rest}
     >
       {children}
@@ -172,8 +192,9 @@ export function Section({
 /**
  * 通し番号 + 英字ラベル + 日本語見出し + 説明文
  *
- * 数字 → 見出し → 説明文 の順に 0.12s 刻みで時間差表示する
- * （それぞれ独立した Reveal にして段階的に現れるようにしている）。
+ * 数字（拡大しながら）→ 英字ラベル（横移動）→ 大見出し（下から）→
+ * 説明文（見出しより控えめに）の順に時間差表示する。4つとも独立した
+ * Reveal にして、それぞれ違う動き方をするようにしている。
  */
 export function SectionHead({
   num, en, title, lead, dark = false, className = '',
@@ -189,13 +210,15 @@ export function SectionHead({
     <div className={`mb-12 lg:mb-16 ${className}`}>
       <div className="flex items-start gap-5 sm:gap-8">
         {/* 通し番号は装飾。内容は英字ラベルと日本語見出しで伝える */}
-        <Reveal delay={1} as="div"
+        <Reveal kind="num" delay={1} as="div"
           className={`section-num ${dark ? 'text-white/10' : 'text-ink/10'}`}>
           <span aria-hidden="true">{num}</span>
         </Reveal>
         <div className="pt-2 sm:pt-4 min-w-0">
-          <Reveal delay={2}>
+          <Reveal kind="label" delay={2}>
             <p className={dark ? 'label-en' : 'label-en-dark'}>{en}</p>
+          </Reveal>
+          <Reveal kind="heading" delay={3}>
             <h2 className={`font-mincho mt-2
               text-[1.7rem] sm:text-[2.1rem] lg:text-[2.5rem]
               ${dark ? 'text-white' : 'text-ink'}`}>
@@ -206,7 +229,7 @@ export function SectionHead({
       </div>
 
       {lead && (
-        <Reveal delay={3} className={`mt-6 max-w-2xl text-[15px] leading-[1.95]
+        <Reveal kind="body" delay={4} className={`mt-6 max-w-2xl text-[15px] leading-[1.95]
           ${dark ? 'text-white/60' : 'text-ink-mid'}`}>
           <p>{lead}</p>
         </Reveal>

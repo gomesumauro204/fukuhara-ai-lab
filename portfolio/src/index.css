@@ -125,7 +125,7 @@
   pointer-events: none;
   transform: translate3d(
     calc(var(--mx, 0) * 4px),
-    calc(var(--my, 0) * 4px + var(--sy, 0) * 80px),
+    calc(var(--my, 0) * 4px + var(--sy, 0) * 100px),
     0
   );
   will-change: transform;
@@ -145,7 +145,7 @@
   pointer-events: none;
   transform: translate3d(
     calc(-50% + var(--mx, 0) * -2.5px),
-    calc(var(--sy, 0) * 45px),
+    calc(var(--sy, 0) * 60px),
     0
   );
   will-change: transform;
@@ -158,9 +158,9 @@
   }
 }
 
-/* 第3層：前景（ごくわずかに動く＝手前に見える） */
+/* 第3層：前景（背景・柱より控えめに動く＝手前に見える） */
 .hero-fg {
-  transform: translate3d(0, calc(var(--sy, 0) * 14px), 0);
+  transform: translate3d(0, calc(var(--sy, 0) * 22px), 0);
 }
 
 /* =============================================================
@@ -295,6 +295,7 @@
 .hero-root.is-off .amb-grain,
 .hero-root.is-off .amb-network .sec-node,
 .hero-root.is-off .amb-network .sec-packet,
+.hero-root.is-off .sec-chip,
 .hero-root.is-off .pillar-glow,
 .hero-root.is-off .pillar-scan {
   animation-play-state: paused;
@@ -311,34 +312,58 @@
   .amb-line-v1 { animation-duration: 34s; }
   .amb-line-v2 { animation-duration: 30s; }
 
-  /* スクロール視差も控えめにする */
+  /* スクロール視差はPCの55〜65%程度に */
   .hero-amb {
-    transform: translate3d(0, calc(var(--sy, 0) * 40px), 0);
+    transform: translate3d(0, calc(var(--sy, 0) * 58px), 0);
   }
   .hero-pillar-wrap {
-    transform: translate3d(-50%, calc(var(--sy, 0) * 22px), 0);
+    transform: translate3d(-50%, calc(var(--sy, 0) * 34px), 0);
   }
-  .hero-fg { transform: none; }
+  .hero-fg {
+    transform: translate3d(0, calc(var(--sy, 0) * 12px), 0);
+  }
 }
 
 /* =============================================================
    SECTION AMBIENCE — Hero以外の各セクション共通の背景装飾
-   AI・データ・ネットワークを連想させる、ごく控えめな光とライン。
-   2段階のラッパーで「パララックス（--p）」と「呼吸・移動アニメーション」の
-   transform を別要素に分け、競合しないようにしている。
+   AI・データ処理・ネットワークを連想させる要素で構成する
+   （星空・宇宙・ランダムな粒子にはしない）。
+
+   3段階のラッパーで役割を分けている：
+   1. .sec-amb-in    … このセクションに初めてスクロールしたときの
+                        一度きりの立ち上がり（空気感の切り替わり）
+   2. .sec-amb-back / -mid … scroll位置 --p に応じた層ごとの視差
+   3. 各要素自身の呼吸・移動アニメーション
+   transform の役割を別要素に分けているため、競合しない。
    ============================================================= */
 .sec-amb {
   position: absolute;
   inset: 0;
   overflow: hidden;
   pointer-events: none;
+  /* 本文が乗る左〜中央帯を薄く、右側〜余白側を濃く見せて可読性を守る */
+  -webkit-mask-image: linear-gradient(100deg,
+    rgba(0,0,0,0.32) 0%, rgba(0,0,0,0.32) 40%, #000 62%, #000 100%);
+  mask-image: linear-gradient(100deg,
+    rgba(0,0,0,0.32) 0%, rgba(0,0,0,0.32) 40%, #000 62%, #000 100%);
 }
 
-/* 外側：パララックス（scroll位置 --p に応じて層ごとに違う速度で動く） */
-.sec-amb-back { transform: translate3d(0, calc(var(--p, 0.5) * -1 * 34px + 17px), 0); }
-.sec-amb-mid  { transform: translate3d(0, calc(var(--p, 0.5) * -1 * 16px + 8px), 0); }
+/* 1. セクションに初めて入ったときの一度きりの立ち上がり */
+.sec-amb-in {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale3d(0.92, 0.92, 1);
+  transition: opacity 1s ease-out, transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.sec-amb-in.is-in { opacity: 1; transform: none; }
 
-/* 背景光：内側で呼吸する（拡大縮小＋明滅） */
+/* 2. パララックス（scroll位置 --p に応じて層ごとに違う速度で動く） */
+.sec-amb-back { transform: translate3d(0, calc(var(--p, 0.5) * -1 * 70px + 35px), 0); }
+.sec-amb-mid  { transform: translate3d(0, calc(var(--p, 0.5) * -1 * 36px + 18px), 0); }
+
+/* ---- 背景光：内側で呼吸する（拡大縮小＋明滅） ---- */
 .sec-glow-parallax {
   position: absolute;
   width: 42vw; height: 42vw;
@@ -355,11 +380,11 @@
   will-change: transform, opacity;
 }
 @keyframes secGlowBreathe {
-  0%, 100% { transform: scale(1);     opacity: 0.7; }
-  50%      { transform: scale(1.09);  opacity: 1;   }
+  0%, 100% { transform: scale(1);     opacity: 0.85; }
+  50%      { transform: scale(1.1);   opacity: 1;   }
 }
 
-/* データライン：ノード間を結ぶ細い線と、その上を流れるパケット */
+/* ---- データライン：ノード間を結ぶ細い線と、その上を流れるパケット ---- */
 .sec-line-parallax { position: absolute; }
 .sec-line-wrap {
   position: relative;
@@ -377,11 +402,11 @@
   width: 5px; height: 5px;
   margin-top: -2.5px;
   border-radius: 50%;
-  animation: secNodePulse 6s ease-in-out infinite;
+  animation: secNodePulse 5s ease-in-out infinite;
 }
 @keyframes secNodePulse {
-  0%, 100% { opacity: 0.3; }
-  50%      { opacity: 0.85; }
+  0%, 100% { opacity: 0.45; }
+  50%      { opacity: 1; }
 }
 .sec-packet {
   position: absolute;
@@ -397,24 +422,67 @@
 }
 @keyframes secPacketMove {
   0%   { transform: translate3d(0, -50%, 0);                     opacity: 0; }
-  8%   { opacity: 0.85; }
-  92%  { opacity: 0.5; }
+  8%   { opacity: 1; }
+  92%  { opacity: 0.6; }
   100% { transform: translate3d(var(--line-len, 120px), -50%, 0); opacity: 0; }
 }
+
+/* ---- AIチップ：小さな矩形＋内部のピン（回路基板の部品を連想） ---- */
+.sec-chip {
+  position: absolute;
+  width: 15px; height: 11px;
+  border-radius: 2px;
+  border-width: 1px;
+  border-style: solid;
+  animation: secNodePulse 7s ease-in-out infinite 1.2s;
+}
+.sec-chip::before,
+.sec-chip::after {
+  content: '';
+  position: absolute;
+  left: 3px; right: 3px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.7;
+}
+.sec-chip::before { top: 3px; }
+.sec-chip::after   { top: 6px; }
+
+/* ---- 処理フローカード：半透明パネル＋内部の2本の細い行 ---- */
+.sec-card {
+  position: absolute;
+  width: 54px; height: 34px;
+  border-radius: 3px;
+  border-width: 1px;
+  border-style: solid;
+  overflow: hidden;
+}
+.sec-card::before,
+.sec-card::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.55;
+}
+.sec-card::before { top: 11px; width: 30px; }
+.sec-card::after   { top: 20px; width: 18px; }
 
 /* スマートフォン：パケットの動きを止め、光を軽くする */
 @media (max-width: 767px) {
   .sec-packet { display: none; }
-  .sec-glow   { opacity: 0.6; }
+  .sec-glow   { opacity: 0.7; }
   .sec-glow-parallax { width: 60vw; height: 60vw; }
+  .sec-chip, .sec-card { transform: scale(0.85); }
 }
 
 /* =============================================================
    制作実績：画像のパララックス
-   文字は動かさず、画像だけがごくわずかに違う速度で動く。
+   文字は動かさず、画像だけが背景より少し違う速度で動く。
    ============================================================= */
 .img-parallax {
-  transform: translate3d(0, calc((var(--p, 0.5) - 0.5) * -18px), 0);
+  transform: translate3d(0, calc((var(--p, 0.5) - 0.5) * -40px), 0);
 }
 @media (max-width: 767px) {
   .img-parallax { transform: none; }
@@ -497,59 +565,133 @@
 }
 
 /* =============================================================
-   ENTRANCE — 登場アニメーション（控えめ・短時間）
+   ENTRANCE — Hero専用、初回表示時の一度きりの登場アニメーション
+   数字・ラベル・見出し・本文・画像・CTAで異なる移動量にし、
+   「全部同じフェードアップ」にならないようにしている。
    ============================================================= */
-@keyframes rise {
-  from { opacity: 0; transform: translate3d(0, 14px, 0); }
-  to   { opacity: 1; transform: none; }
-}
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
+@keyframes riseLabel {
+  from { opacity: 0; transform: translate3d(-14px, 0, 0); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes riseHeading {
+  from { opacity: 0; transform: translate3d(0, 40px, 0); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes riseBody {
+  from { opacity: 0; transform: translate3d(0, 22px, 0); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes riseImage {
+  from { opacity: 0; transform: translate3d(0, 56px, 0) scale3d(0.96, 0.96, 1); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes riseCta {
+  from { opacity: 0; transform: translate3d(0, 18px, 0); }
+  to   { opacity: 1; transform: none; }
+}
 
-.enter {
-  opacity: 0;
-  animation: rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-.enter-fade {
-  opacity: 0;
-  animation: fadeIn 0.7s ease-out forwards;
-}
+.enter-fade    { opacity: 0; animation: fadeIn    0.7s ease-out forwards; }
+.enter-label   { opacity: 0; animation: riseLabel   0.6s cubic-bezier(0.22,1,0.36,1) forwards; }
+.enter-heading { opacity: 0; animation: riseHeading 0.9s cubic-bezier(0.16,1,0.3,1)  forwards; }
+.enter-body    { opacity: 0; animation: riseBody    0.7s cubic-bezier(0.22,1,0.36,1) forwards; }
+.enter-image   { opacity: 0; animation: riseImage   0.95s cubic-bezier(0.16,1,0.3,1) forwards; }
+.enter-cta     { opacity: 0; animation: riseCta     0.6s cubic-bezier(0.22,1,0.36,1) forwards; }
 
 .d1 { animation-delay: 0.05s; }
-.d2 { animation-delay: 0.13s; }
-.d3 { animation-delay: 0.21s; }
-.d4 { animation-delay: 0.29s; }
-.d5 { animation-delay: 0.37s; }
-.d6 { animation-delay: 0.45s; }
+.d2 { animation-delay: 0.20s; }
+.d3 { animation-delay: 0.35s; }
+.d4 { animation-delay: 0.50s; }
+.d5 { animation-delay: 0.65s; }
+.d6 { animation-delay: 0.80s; }
+
+@media (max-width: 767px) {
+  @keyframes riseHeadingSm { from { opacity: 0; transform: translate3d(0, 24px, 0); } to { opacity: 1; transform: none; } }
+  @keyframes riseBodySm    { from { opacity: 0; transform: translate3d(0, 14px, 0); } to { opacity: 1; transform: none; } }
+  @keyframes riseImageSm   { from { opacity: 0; transform: translate3d(0, 34px, 0) scale3d(0.97,0.97,1); } to { opacity: 1; transform: none; } }
+  .enter-heading { animation-name: riseHeadingSm; }
+  .enter-body    { animation-name: riseBodySm; }
+  .enter-image   { animation-name: riseImageSm; }
+}
 
 /* =============================================================
    REVEAL — スクロール連動の登場アニメーション
    IntersectionObserver（useInView）で is-in が付与される。
-   数字 → 見出し → 説明文 → 画像 → CTA のように意味の単位ごとに
-   delay を1段階ずつ上げ、0.12s刻みで時間差をつける。
+   数字 → ラベル → 見出し → 本文 → 画像 → 罫線 → CTA の順に、
+   役割ごとに異なる移動量・イージングで段階的に現れる。
+
+   実装上の注意（前回の不具合の再発防止）：
+   すべての「初期状態」は :not(.is-in) を使って記述する。
+   .reveal-left / .reveal-heading のような複数クラスの組み合わせと
+   .reveal.is-in が同じ詳細度になり、後から書いたルールが勝ってしまう
+   （＝is-in が付いても transform が戻らない）事故を防ぐため。
+   :not(.is-in) を使えば、is-in が付いた瞬間にこれらのルールは
+   マッチしなくなるので、詳細度の大小に関係なく必ず解除される。
    ============================================================= */
 .reveal {
   opacity: 0;
-  transform: translate3d(0, 16px, 0);
-  transition: opacity 0.5s ease-out, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .reveal.is-in {
   opacity: 1;
   transform: none;
 }
 
-/* 左右交互のフェードイン（制作実績など） */
-.reveal.reveal-left  { transform: translate3d(-28px, 0, 0); }
-.reveal.reveal-right { transform: translate3d(28px, 0, 0); }
+/* 既定（本文相当）：下から 24px */
+.reveal:not(.is-in) { transform: translate3d(0, 24px, 0); }
 
-.reveal-1 { transition-delay: 0.04s; }
-.reveal-2 { transition-delay: 0.16s; }
-.reveal-3 { transition-delay: 0.28s; }
-.reveal-4 { transition-delay: 0.40s; }
-.reveal-5 { transition-delay: 0.52s; }
-.reveal-6 { transition-delay: 0.64s; }
+/* ---- 役割ごとの初期状態 ---- */
+/* 番号：薄く・少し縮んだ状態から等倍へ */
+.reveal-num:not(.is-in)     { transform: scale3d(0.82, 0.82, 1); }
+
+/* 英字ラベル：短い横移動 */
+.reveal-label:not(.is-in)   { transform: translate3d(-16px, 0, 0); }
+
+/* 大見出し：下から 40px、やや長めの時間で立ち上がる */
+.reveal-heading      { transition-duration: 0.85s; }
+.reveal-heading:not(.is-in) { transform: translate3d(0, 40px, 0); }
+
+/* 本文：見出しより控えめに 24px */
+.reveal-body:not(.is-in)    { transform: translate3d(0, 24px, 0); }
+
+/* 画像／制作実績：下から大きめ＋わずかに縮小＝スケールインで立ち上がる */
+.reveal-image        { transition-duration: 0.9s; }
+.reveal-image:not(.is-in)   { transform: translate3d(0, 64px, 0) scale3d(0.96, 0.96, 1); }
+.reveal-image.reveal-left:not(.is-in)  { transform: translate3d(-56px, 28px, 0) scale3d(0.96, 0.96, 1); }
+.reveal-image.reveal-right:not(.is-in) { transform: translate3d(56px, 28px, 0) scale3d(0.96, 0.96, 1); }
+
+/* 左右交互のフェードイン（画像を伴わないブロックにも使う） */
+.reveal-left:not(.is-in)  { transform: translate3d(-40px, 0, 0); }
+.reveal-right:not(.is-in) { transform: translate3d(40px, 0, 0); }
+
+/* CTA：最後に控えめに下から */
+.reveal-cta:not(.is-in)     { transform: translate3d(0, 20px, 0); }
+
+/* ---- 段差（delay）0.12〜0.25s刻み ---- */
+.reveal-1 { transition-delay: 0.05s; }
+.reveal-2 { transition-delay: 0.20s; }
+.reveal-3 { transition-delay: 0.35s; }
+.reveal-4 { transition-delay: 0.50s; }
+.reveal-5 { transition-delay: 0.65s; }
+.reveal-6 { transition-delay: 0.80s; }
+
+/* ---- スマートフォン：移動量をPCの55〜65%程度に ---- */
+@media (max-width: 767px) {
+  .reveal:not(.is-in)         { transform: translate3d(0, 15px, 0); }
+  .reveal-heading:not(.is-in) { transform: translate3d(0, 24px, 0); }
+  .reveal-body:not(.is-in)    { transform: translate3d(0, 15px, 0); }
+  .reveal-image:not(.is-in)   { transform: translate3d(0, 40px, 0) scale3d(0.97, 0.97, 1); }
+  .reveal-image.reveal-left:not(.is-in)  { transform: translate3d(-24px, 18px, 0) scale3d(0.97, 0.97, 1); }
+  .reveal-image.reveal-right:not(.is-in) { transform: translate3d(24px, 18px, 0) scale3d(0.97, 0.97, 1); }
+  .reveal-left:not(.is-in)    { transform: translate3d(-22px, 0, 0); }
+  .reveal-right:not(.is-in)   { transform: translate3d(22px, 0, 0); }
+  .reveal-cta:not(.is-in)     { transform: translate3d(0, 14px, 0); }
+}
 
 /* 罫線を描画する演出（Process の接続線など） */
 .draw-x {
@@ -661,13 +803,21 @@
   .amb-grain,
   .sec-glow,
   .sec-node,
-  .sec-packet {
+  .sec-packet,
+  .sec-chip {
     animation: none !important;
   }
 
   /* 粒子は動かさず、静かに置いておく */
   .amb-dot { opacity: 0.25 !important; }
   .sec-node { opacity: 0.4 !important; }
+
+  /* セクションの一度きりの立ち上がりも即時表示に */
+  .sec-amb-in {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
 
   /* 視差も無効化（フック側でも変数を設定しないが、二重に止める） */
   .hero-amb,

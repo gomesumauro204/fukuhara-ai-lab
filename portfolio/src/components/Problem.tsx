@@ -14,7 +14,7 @@ export default function Problem() {
 
       <ul className="border-t border-ink/12">
         {PROBLEMS.map((problem, i) => (
-          <Reveal key={problem} as="li"
+          <Reveal key={problem} as="li" kind="body"
             delay={((i % 4) + 1) as 1 | 2 | 3 | 4}
             className="flex items-baseline gap-5 sm:gap-8
               border-b border-ink/12 py-5">

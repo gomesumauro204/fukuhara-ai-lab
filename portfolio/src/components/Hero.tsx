@@ -11,11 +11,14 @@ import HeroVisual from './HeroVisual'
  * 構図：中央の縦長ビジュアル（光の柱）を軸に、巨大な明朝の見出しが
  * その前を横断する。柱に差しかかる位置で文字色が白→ゴールドへ変わる。
  *
+ * 登場：数字/ラベル・見出し・本文・画像・CTAで異なる移動量・時間を使う
+ * （enter-label / enter-heading / enter-body / enter-image / enter-cta）。
+ *
  * 奥行き：背景アンビエンス・柱・前景の3層を異なる量で動かす。
  * 量は useHeroMotion が設定する --mx / --my / --sy を CSS 側で使う。
  *   背景  … 最も大きく遅れて動く（遠景）
  *   柱    … 中間
- *   前景  … ごくわずか（手前）
+ *   前景  … 背景・柱より控えめ（手前）
  */
 export default function Hero() {
   const rootRef = useRef<HTMLElement>(null)
@@ -36,7 +39,7 @@ export default function Hero() {
 
       {/* ── 第2層：中央の縦長ビジュアル ── */}
       <div className="hero-pillar-wrap" aria-hidden="true">
-        <div className="enter-fade d3 h-full">
+        <div className="enter-image d3 h-full">
           <HeroVisual />
         </div>
       </div>
@@ -46,7 +49,7 @@ export default function Hero() {
         px-5 sm:px-8 lg:px-12">
 
         {/* 右上のコーナーアンカー */}
-        <div className="enter d2 hidden sm:block absolute right-8 lg:right-12
+        <div className="enter-label d2 hidden sm:block absolute right-8 lg:right-12
           -top-4 text-right">
           <MarkStar className="text-gold" />
           {HERO.labelTopRight.map(line => (
@@ -56,14 +59,14 @@ export default function Hero() {
 
         {/* 巨大見出し：柱の前を横断する */}
         <h1 className="hero-headline mb-8 sm:mb-10">
-          <span className="enter d1 block hero-line-top">
+          <span className="enter-heading d1 block hero-line-top">
             {HERO.headlineTop}
           </span>
           {/*
             2行目：スマホでは語のまとまりで改行して3行構成にし、
             タブレット以上では1行にまとめて右へオフセットする。
           */}
-          <span className="enter d2 block hero-line-bottom
+          <span className="enter-heading d2 block hero-line-bottom
             sm:pl-[10vw] lg:pl-[15vw] sm:whitespace-nowrap">
             {HERO.headlineBottom.map(part => (
               <span key={part} className="block sm:inline">{part}</span>
@@ -73,19 +76,19 @@ export default function Hero() {
 
         {/* 説明文とCTA（柱と重ならないよう左寄せ・幅を制限） */}
         <div className="max-w-[26rem]">
-          <p className="enter d3 text-[14px] sm:text-[15px] leading-[2]
+          <p className="enter-body d3 text-[14px] sm:text-[15px] leading-[2]
             text-white/70 mb-9">
             {HERO.lead}
           </p>
 
-          <div className="enter d4 flex flex-col sm:flex-row gap-3 mb-7">
+          <div className="enter-cta d4 flex flex-col sm:flex-row gap-3 mb-7">
             <BookingButton tone="gold" className="w-full sm:w-auto" />
             <LinkButton href="#works" tone="outline" className="w-full sm:w-auto">
               制作実績を見る
             </LinkButton>
           </div>
 
-          <ul className="enter d5 flex flex-wrap gap-x-5 gap-y-1.5">
+          <ul className="enter-fade d5 flex flex-wrap gap-x-5 gap-y-1.5">
             {BOOKING.notes.map(note => (
               <li key={note} className="flex items-center gap-2 text-[11.5px] text-white/60">
                 <span className="w-1 h-1 rounded-full bg-gold/70" aria-hidden="true" />
@@ -96,7 +99,7 @@ export default function Hero() {
         </div>
 
         {/* 左下のコーナーアンカー */}
-        <div className="enter d6 mt-14 sm:mt-20">
+        <div className="enter-label d6 mt-14 sm:mt-20">
           <MarkStar className="text-gold" />
           {HERO.labelBottom.map(line => (
             <p key={line} className="label-en">{line}</p>

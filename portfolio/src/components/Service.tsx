@@ -16,6 +16,7 @@ export default function Service() {
       <div className="border-t border-white/10">
         {SERVICES.map((service, i) => (
           <Reveal key={service.num}
+            kind="body"
             delay={((i % 4) + 1) as 1 | 2 | 3 | 4}
             className="grid sm:grid-cols-[auto_1fr] lg:grid-cols-[8rem_18rem_1fr]
               gap-x-8 gap-y-3 items-baseline

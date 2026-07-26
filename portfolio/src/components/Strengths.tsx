@@ -15,6 +15,7 @@ export default function Strengths() {
       <div className="grid gap-10 sm:gap-x-14 sm:gap-y-12 lg:grid-cols-2">
         {STRENGTHS.map((item, i) => (
           <Reveal key={item.num}
+            kind="body"
             delay={((i % 2) + 1) as 1 | 2}
             className="border-l border-gold/50 pl-6 sm:pl-8">
             <p className="font-en text-[11px] text-gold-deep mb-3"

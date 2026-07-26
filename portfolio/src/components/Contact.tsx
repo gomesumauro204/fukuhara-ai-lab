@@ -5,7 +5,7 @@ import { Section, Reveal, BookingButton, LinkButton, IconMail, MarkStar } from '
 export default function Contact() {
   return (
     <Section id="contact" tone="deep">
-      <Reveal className="text-center mb-14">
+      <Reveal kind="heading" className="text-center mb-14">
         <MarkStar className="text-gold mx-auto" />
         <p className="label-en mt-3">Contact</p>
         <h2 className="font-mincho mt-5
@@ -22,7 +22,7 @@ export default function Contact() {
       </Reveal>
 
       {/* 無料相談（主導線） */}
-      <Reveal delay={1} className="max-w-2xl mx-auto border border-gold/35
+      <Reveal kind="cta" delay={2} className="max-w-2xl mx-auto border border-gold/35
         bg-white/[0.03] rounded-sm p-8 sm:p-11 text-center">
         <p className="label-en" style={{ color: '#D9BE83' }}>
           Online Meeting
@@ -47,7 +47,7 @@ export default function Contact() {
       </Reveal>
 
       {/* メール（副導線） */}
-      <Reveal delay={2}
+      <Reveal kind="cta" delay={3}
         className="max-w-2xl mx-auto mt-10 pt-10 border-t border-white/10
           text-center">
         <p className="text-[14px] font-semibold text-white mb-2">
