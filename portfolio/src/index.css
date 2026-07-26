@@ -125,7 +125,7 @@
   pointer-events: none;
   transform: translate3d(
     calc(var(--mx, 0) * 4px),
-    calc(var(--my, 0) * 4px + var(--sy, 0) * 130px),
+    calc(var(--my, 0) * 4px + var(--sy, 0) * 100px),
     0
   );
   will-change: transform;
@@ -145,7 +145,7 @@
   pointer-events: none;
   transform: translate3d(
     calc(-50% + var(--mx, 0) * -2.5px),
-    calc(var(--sy, 0) * 90px),
+    calc(var(--sy, 0) * 60px),
     0
   );
   will-change: transform;
@@ -160,62 +160,7 @@
 
 /* 第3層：前景（背景・柱より控えめに動く＝手前に見える） */
 .hero-fg {
-  transform: translate3d(0, calc(var(--sy, 0) * 30px), 0);
-}
-
-/* =============================================================
-   HERO — スクロールによる場面転換
-   useHeroMotion が設定する --sy（0〜1、Heroを1画面ぶんスクロールした
-   割合）を使い、初期表示が終わったあとのスクロールで見出し・説明文・
-   CTAを異なる速度・タイミングで退場させ、次のセクション（制作実績）
-   の気配を下から侵入させる。CTA→説明文→見出しの順に退場が早い
-   （画面下＝次のセクションに近い要素から先に譲る）。
-   entrance側のアニメーション（enter-*）と同じ要素に直接
-   transform/opacityを重ねると『forwardsで確定した値』に負けて
-   スクロール分が反映されないため、必ず一段外側のラッパーに掛ける。
-   ============================================================= */
-.hero-scene-heading {
-  transform:
-    translate3d(0, calc(var(--sy, 0) * -52px), 0)
-    scale3d(calc(1 - var(--sy, 0) * 0.12), calc(1 - var(--sy, 0) * 0.12), 1);
-  transform-origin: left top;
-  opacity: calc(1 - var(--sy, 0) * 1.2);
-  will-change: transform, opacity;
-}
-.hero-scene-desc {
-  transform: translate3d(0, calc(var(--sy, 0) * -34px), 0);
-  opacity: calc(1 - var(--sy, 0) * 1.6);
-  will-change: transform, opacity;
-}
-.hero-scene-cta {
-  transform: translate3d(0, calc(var(--sy, 0) * -18px), 0);
-  opacity: calc(1 - var(--sy, 0) * 2);
-  will-change: transform, opacity;
-}
-
-/* 次のセクション（制作実績）の番号・ラベルが下から侵入してくる予告 */
-.hero-next-peek {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1;
-  display: flex;
-  align-items: baseline;
-  gap: 0.85rem;
-  padding: 0 1.25rem 1.5rem;
-  pointer-events: none;
-  opacity: min(1, var(--sy, 0) * 2.4);
-  transform: translate3d(0, calc((1 - min(1, var(--sy, 0) * 2.4)) * 34px), 0);
-}
-@media (min-width: 640px)  { .hero-next-peek { padding: 0 2rem 1.75rem; } }
-@media (min-width: 1024px) { .hero-next-peek { padding: 0 3rem 2rem; } }
-
-@media (max-width: 767px) {
-  .hero-scene-heading { transform: translate3d(0, calc(var(--sy, 0) * -30px), 0) scale3d(calc(1 - var(--sy, 0) * 0.07), calc(1 - var(--sy, 0) * 0.07), 1); }
-  .hero-scene-desc    { transform: translate3d(0, calc(var(--sy, 0) * -20px), 0); }
-  .hero-scene-cta     { transform: translate3d(0, calc(var(--sy, 0) * -12px), 0); }
-  .hero-next-peek     { display: none; }
+  transform: translate3d(0, calc(var(--sy, 0) * 22px), 0);
 }
 
 /* =============================================================
@@ -367,15 +312,15 @@
   .amb-line-v1 { animation-duration: 34s; }
   .amb-line-v2 { animation-duration: 30s; }
 
-  /* スクロール視差はPCの60〜65%程度に */
+  /* スクロール視差はPCの55〜65%程度に */
   .hero-amb {
-    transform: translate3d(0, calc(var(--sy, 0) * 82px), 0);
+    transform: translate3d(0, calc(var(--sy, 0) * 58px), 0);
   }
   .hero-pillar-wrap {
-    transform: translate3d(-50%, calc(var(--sy, 0) * 56px), 0);
+    transform: translate3d(-50%, calc(var(--sy, 0) * 34px), 0);
   }
   .hero-fg {
-    transform: translate3d(0, calc(var(--sy, 0) * 18px), 0);
+    transform: translate3d(0, calc(var(--sy, 0) * 12px), 0);
   }
 }
 

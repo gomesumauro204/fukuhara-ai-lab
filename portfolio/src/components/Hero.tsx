@@ -57,44 +57,35 @@ export default function Hero() {
           ))}
         </div>
 
-        {/* 巨大見出し：柱の前を横断する。
-            初期表示は enter-heading（一度きり）、スクロール中の縮小・
-            退場は hero-scene-heading（--sy連動）が外側で担当する。 */}
-        <div className="hero-scene-heading">
-          <h1 className="hero-headline mb-8 sm:mb-10">
-            <span className="enter-heading d1 block hero-line-top">
-              {HERO.headlineTop}
-            </span>
-            {/*
-              2行目：スマホでは語のまとまりで改行して3行構成にし、
-              タブレット以上では1行にまとめて右へオフセットする。
-            */}
-            <span className="enter-heading d2 block hero-line-bottom
-              sm:pl-[10vw] lg:pl-[15vw] sm:whitespace-nowrap">
-              {HERO.headlineBottom.map(part => (
-                <span key={part} className="block sm:inline">{part}</span>
-              ))}
-            </span>
-          </h1>
-        </div>
+        {/* 巨大見出し：柱の前を横断する */}
+        <h1 className="hero-headline mb-8 sm:mb-10">
+          <span className="enter-heading d1 block hero-line-top">
+            {HERO.headlineTop}
+          </span>
+          {/*
+            2行目：スマホでは語のまとまりで改行して3行構成にし、
+            タブレット以上では1行にまとめて右へオフセットする。
+          */}
+          <span className="enter-heading d2 block hero-line-bottom
+            sm:pl-[10vw] lg:pl-[15vw] sm:whitespace-nowrap">
+            {HERO.headlineBottom.map(part => (
+              <span key={part} className="block sm:inline">{part}</span>
+            ))}
+          </span>
+        </h1>
 
-        {/* 説明文とCTA（柱と重ならないよう左寄せ・幅を制限）。
-            説明文とCTAは見出しより速く退場し、次のセクションへ場を譲る。 */}
+        {/* 説明文とCTA（柱と重ならないよう左寄せ・幅を制限） */}
         <div className="max-w-[26rem]">
-          <div className="hero-scene-desc">
-            <p className="enter-body d3 text-[14px] sm:text-[15px] leading-[2]
-              text-white/70 mb-9">
-              {HERO.lead}
-            </p>
-          </div>
+          <p className="enter-body d3 text-[14px] sm:text-[15px] leading-[2]
+            text-white/70 mb-9">
+            {HERO.lead}
+          </p>
 
-          <div className="hero-scene-cta">
-            <div className="enter-cta d4 flex flex-col sm:flex-row gap-3 mb-7">
-              <BookingButton tone="gold" className="w-full sm:w-auto" />
-              <LinkButton href="#works" tone="outline" className="w-full sm:w-auto">
-                制作実績を見る
-              </LinkButton>
-            </div>
+          <div className="enter-cta d4 flex flex-col sm:flex-row gap-3 mb-7">
+            <BookingButton tone="gold" className="w-full sm:w-auto" />
+            <LinkButton href="#works" tone="outline" className="w-full sm:w-auto">
+              制作実績を見る
+            </LinkButton>
           </div>
 
           <ul className="enter-fade d5 flex flex-wrap gap-x-5 gap-y-1.5">
@@ -115,12 +106,6 @@ export default function Hero() {
           ))}
           <p className="label-en mt-1">— {HERO.labelNote}</p>
         </div>
-      </div>
-
-      {/* 次のセクション（制作実績）の気配。スクロールすると下から侵入する */}
-      <div className="hero-next-peek" aria-hidden="true">
-        <span className="section-num text-white/10" style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}>01</span>
-        <p className="label-en">Works ／ 制作実績</p>
       </div>
 
       {/* スクロールキュー */}
