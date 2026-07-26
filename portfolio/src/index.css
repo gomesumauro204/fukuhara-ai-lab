@@ -3,219 +3,221 @@
 @tailwind utilities;
 
 @layer base {
-  html { scroll-behavior: smooth; }
+  html {
+    scroll-behavior: smooth;
+    /* 固定ヘッダー分のオフセット */
+    scroll-padding-top: 4rem;
+  }
+
   body {
-    @apply text-gray-800 bg-white antialiased;
-    font-family: 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Meiryo', sans-serif;
-    line-height: 1.8;
+    @apply bg-surface text-ink font-sans antialiased;
+    font-size: 0.9375rem;
+    line-height: 1.9;
   }
-  h1, h2, h3 { line-height: 1.3; letter-spacing: -0.01em; }
-}
 
-/* ============================================================
-   HERO BACKGROUND SYSTEM
-   層構成：
-   1. .hero-bg-base     — ダーク グラデーション (z=0)
-   2. .hero-video       — 背景動画              (z=1)
-   3. .hero-overlay     — 半透明オーバーレイ    (z=2)
-   4. .hero-deco        — CSS装飾（動画の上）   (z=3)
-   5. コンテンツ                                (z=10)
-   ============================================================ */
+  h1, h2, h3, h4 {
+    line-height: 1.35;
+    letter-spacing: -0.015em;
+    @apply font-bold text-navy;
+  }
 
-/* 1. ベースグラデーション */
-@keyframes gradientDrift {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-.hero-bg-base {
-  background: linear-gradient(
-    125deg,
-    #020810 0%,
-    #0a1628 35%,
-    #0d2044 65%,
-    #060f20 100%
-  );
-  background-size: 300% 300%;
-  animation: gradientDrift 20s ease infinite;
-}
-
-/* 2. 背景動画 — PC・スマホ両方で表示 */
-.hero-video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 60% center;
-  opacity: 0.55;         /* 動画をしっかり見せる */
-  z-index: 1;
-}
-/* スマホ: 動画をしっかり見せる */
-@media (max-width: 639px) {
-  .hero-video { opacity: 0.65; object-position: 70% center; }
-}
-
-/* 3. オーバーレイ — 動画の上に重ねてテキスト保護 */
-.hero-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  /* 左(テキスト側)は濃く、右(動画側)は薄め */
-  background: linear-gradient(
-    105deg,
-    rgba(2, 8, 16, 0.82) 0%,
-    rgba(2, 8, 16, 0.65) 45%,
-    rgba(2, 8, 16, 0.40) 100%
-  );
-}
-@media (max-width: 639px) {
-  .hero-overlay {
-    background: linear-gradient(
-      to bottom,
-      rgba(2, 8, 16, 0.58) 0%,
-      rgba(2, 8, 16, 0.48) 50%,
-      rgba(2, 8, 16, 0.55) 100%
-    );
+  /* フォーカス表示（キーボード操作用） */
+  :focus-visible {
+    outline: 2px solid #0f7490;
+    outline-offset: 3px;
   }
 }
 
-/* 4. CSS装飾レイヤー（オーバーレイの上 z=3） */
-.hero-deco {
+/* =============================================================
+   スクロール連動アニメーション
+   IntersectionObserver で .is-visible が付与される
+   ============================================================= */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 段差表示（stagger） */
+.reveal-1 { transition-delay: 0.06s; }
+.reveal-2 { transition-delay: 0.12s; }
+.reveal-3 { transition-delay: 0.18s; }
+.reveal-4 { transition-delay: 0.24s; }
+.reveal-5 { transition-delay: 0.30s; }
+.reveal-6 { transition-delay: 0.36s; }
+
+/* =============================================================
+   Hero：初回表示アニメーション（待たせずに順次表示）
+   ============================================================= */
+@keyframes heroRise {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-item {
+  opacity: 0;
+  animation: heroRise 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.hero-d1 { animation-delay: 0.05s; }
+.hero-d2 { animation-delay: 0.15s; }
+.hero-d3 { animation-delay: 0.25s; }
+.hero-d4 { animation-delay: 0.35s; }
+.hero-d5 { animation-delay: 0.50s; }
+.hero-d6 { animation-delay: 0.62s; }
+
+/* Hero背景の細いライン（ゆっくり動く） */
+@keyframes lineDrift {
+  0%   { transform: translateX(0); }
+  50%  { transform: translateX(28px); }
+  100% { transform: translateX(0); }
+}
+.hero-line {
+  position: absolute;
+  background: linear-gradient(90deg, transparent, rgba(15, 116, 144, 0.16), transparent);
+  height: 1px;
+  animation: lineDrift 18s ease-in-out infinite;
+}
+
+/* Hero背景のドットグリッド */
+.hero-dots {
   position: absolute;
   inset: 0;
-  z-index: 3;
+  background-image: radial-gradient(rgba(18, 35, 63, 0.07) 1px, transparent 1px);
+  background-size: 26px 26px;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent 75%);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent 75%);
+}
+
+/* =============================================================
+   モックアップ（ブラウザ枠 / スマートフォン枠）
+   ============================================================= */
+.mock-browser {
+  @apply bg-white border border-surface-line rounded-lg overflow-hidden;
+  box-shadow: 0 18px 40px -18px rgba(18, 35, 63, 0.28);
+}
+.mock-bar {
+  @apply flex items-center gap-1.5 px-3 py-2.5 bg-surface-soft border-b border-surface-line;
+}
+.mock-dot {
+  @apply w-2 h-2 rounded-full bg-surface-line;
+}
+
+.mock-phone {
+  @apply bg-white rounded-[1.75rem] overflow-hidden;
+  border: 6px solid #12233f;
+  box-shadow: 0 18px 36px -14px rgba(18, 35, 63, 0.4);
+}
+
+/* ワイヤーフレームのプレースホルダー行 */
+.wire-row {
+  @apply h-2 rounded-sm bg-surface-line;
+}
+.wire-block {
+  @apply rounded bg-surface-soft border border-surface-line;
+}
+
+/* Hero モックアップの軽い浮遊 */
+@keyframes mockFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-7px); }
+}
+.mock-float { animation: mockFloat 7s ease-in-out infinite; }
+
+/* =============================================================
+   Works：スクロールで軽く拡大
+   ============================================================= */
+.work-visual {
+  transform: scale(0.97);
+  opacity: 0;
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.7s ease-out;
+}
+.work-visual.is-visible {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* =============================================================
+   Process：接続ラインの描画
+   ============================================================= */
+.process-line {
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 1.1s ease-out 0.2s;
+}
+.process-line.is-visible { transform: scaleX(1); }
+
+/* =============================================================
+   FAQ：アコーディオン
+   ============================================================= */
+.faq-panel {
   overflow: hidden;
-  pointer-events: none;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.4s ease, opacity 0.3s ease, padding 0.3s ease;
+}
+.faq-panel.is-open {
+  max-height: 24rem;
+  opacity: 1;
 }
 
-/* ---- グリッド線 ---- */
-.hero-grid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(96, 165, 250, 0.10) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(96, 165, 250, 0.10) 1px, transparent 1px);
-  background-size: 72px 72px;
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    rgba(0,0,0,0.8) 15%,
-    rgba(0,0,0,0.8) 85%,
-    transparent 100%
-  );
+/* =============================================================
+   選択式チャット
+   iOS Safari の下部UIを避けるため safe-area を考慮
+   ============================================================= */
+.chat-launcher {
+  position: fixed;
+  right: 1rem;
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  z-index: 60;
 }
-@media (max-width: 639px) {
-  .hero-grid {
-    background-size: 48px 48px;
-    background-image:
-      linear-gradient(rgba(96, 165, 250, 0.12) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(96, 165, 250, 0.12) 1px, transparent 1px);
+.chat-panel {
+  position: fixed;
+  right: 1rem;
+  bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
+  z-index: 60;
+  width: min(21rem, calc(100vw - 2rem));
+  /* 起動ボタン・下部UIを避けつつ選択肢が収まる高さ */
+  max-height: min(32rem, calc(100vh - 8rem));
+}
+
+@keyframes chatIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.chat-panel { animation: chatIn 0.25s ease-out; }
+
+/* =============================================================
+   動きを減らす設定に対応
+   ============================================================= */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  .reveal,
+  .work-visual {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
-}
 
-/* ---- 流れるデータライン ---- */
-@keyframes lineFlow {
-  0%   { transform: translateY(-100%) skewX(-8deg); opacity: 0; }
-  5%   { opacity: 1; }
-  90%  { opacity: 0.7; }
-  100% { transform: translateY(120vh) skewX(-8deg); opacity: 0; }
-}
-.data-line {
-  position: absolute;
-  top: 0;
-  width: 1px;
-  height: 35vh;
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    rgba(96,165,250,0.7) 40%,
-    rgba(147,197,253,0.9) 60%,
-    transparent 100%
-  );
-}
-.data-line-1 { left: 58%; animation: lineFlow 7s linear 0s   infinite; }
-.data-line-2 { left: 68%; animation: lineFlow 9s linear 2.5s infinite; opacity: 0.6; }
-.data-line-3 { left: 76%; animation: lineFlow 11s linear 5s  infinite; opacity: 0.4; }
-.data-line-4 { left: 63%; animation: lineFlow 8s linear 7s   infinite; opacity: 0.5; }
-/* スマホ: 左右に1本ずつ表示 */
-@media (max-width: 639px) {
-  .data-line-1 { left: 75%; }
-  .data-line-2 { left: 88%; opacity: 0.5; }
-  .data-line-3 { left: 60%; opacity: 0.35; }
-  .data-line-4 { display: none; }
-}
+  .hero-item {
+    opacity: 1 !important;
+    animation: none !important;
+  }
 
-/* ---- 浮遊オーブ ---- */
-@keyframes orbFloat {
-  0%,100% { transform: translate(0,0) scale(1); }
-  33%     { transform: translate(15px,-20px) scale(1.05); }
-  66%     { transform: translate(-10px,15px) scale(0.96); }
-}
-.hero-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(60px);
-}
-.hero-orb-1 {
-  width: 500px; height: 500px;
-  top: -10%; right: 5%;
-  background: radial-gradient(circle, rgba(59,130,246,0.18) 0%, transparent 70%);
-  animation: orbFloat 16s ease-in-out infinite;
-}
-.hero-orb-2 {
-  width: 350px; height: 350px;
-  bottom: 5%; left: 40%;
-  background: radial-gradient(circle, rgba(99,102,241,0.14) 0%, transparent 70%);
-  animation: orbFloat 20s ease-in-out infinite reverse;
-}
+  .process-line {
+    transform: scaleX(1) !important;
+    transition: none !important;
+  }
 
-/* ---- UIパネル風の枠線 ---- */
-@keyframes panelFadeIn {
-  0%   { opacity: 0; transform: scaleX(0.8); }
-  100% { opacity: 1; transform: scaleX(1); }
-}
-.ui-panel {
-  position: absolute;
-  border: 1px solid rgba(96,165,250,0.15);
-  animation: panelFadeIn 1.5s ease forwards;
-}
-.ui-panel-1 {
-  right: 8%;
-  top: 20%;
-  width: 260px;
-  height: 120px;
-  border-color: rgba(96,165,250,0.12);
-  animation-delay: 0.5s;
-  opacity: 0;
-}
-.ui-panel-2 {
-  right: 12%;
-  top: 48%;
-  width: 180px;
-  height: 80px;
-  border-color: rgba(96,165,250,0.09);
-  animation-delay: 0.9s;
-  opacity: 0;
-}
-/* UIパネル内のダミーバー */
-.ui-panel::before {
-  content: '';
-  position: absolute;
-  top: 14px; left: 14px; right: 14px;
-  height: 1px;
-  background: rgba(96,165,250,0.2);
-}
-.ui-panel::after {
-  content: '';
-  position: absolute;
-  top: 28px; left: 14px;
-  width: 40%;
-  height: 1px;
-  background: rgba(96,165,250,0.12);
-}
+  .hero-line,
+  .mock-float,
+  .chat-panel {
+    animation: none !important;
+  }
 
-/* スマホではUIパネルを非表示（動画優先） */
-@media (max-width: 639px) {
-  .ui-panel { display: none; }
+  .faq-panel { transition: none !important; }
 }
