@@ -13,15 +13,18 @@ export default function Profile() {
 
       <div className="grid lg:grid-cols-[18rem_1fr] gap-10 lg:gap-16">
 
-        {/* 氏名・担当 */}
+        {/* 名称・担当 */}
         <Reveal>
-          <p className="font-mincho text-[1.8rem] text-white mb-2">
+          <p className="font-mincho text-[1.8rem] text-white mb-1">
             {PROFILE.name}
+          </p>
+          <p className="text-[12.5px] text-gold-bright tracking-[0.1em]">
+            {PROFILE.role}
           </p>
           <div className="w-10 h-px bg-gold my-6" aria-hidden="true" />
           <p className="label-en mb-3">Role</p>
           <p className="text-[13px] leading-[1.95] text-white/65">
-            {PROFILE.role}
+            {PROFILE.taskLine}
           </p>
         </Reveal>
 

@@ -184,14 +184,15 @@
   max-width: 760px; max-height: 760px;
   top: -14%; left: 4%;
   background: radial-gradient(circle, rgba(92, 142, 222, 0.20) 0%, transparent 70%);
-  animation: ambDriftA 24s ease-in-out infinite;
+  /* 移動（transform）と呼吸（opacity）は別の property なので同時に走らせられる */
+  animation: ambDriftA 24s ease-in-out infinite, ambBreathe 9s ease-in-out infinite;
 }
 .amb-glow-b {
   width: 44vw; height: 44vw;
   max-width: 620px; max-height: 620px;
   bottom: -12%; right: 2%;
   background: radial-gradient(circle, rgba(70, 112, 190, 0.17) 0%, transparent 70%);
-  animation: ambDriftB 19s ease-in-out infinite;
+  animation: ambDriftB 19s ease-in-out infinite, ambBreathe 11s ease-in-out infinite 2s;
 }
 @keyframes ambDriftA {
   0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
@@ -201,6 +202,16 @@
   0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
   50%      { transform: translate3d(-4%, -3%, 0) scale(0.95); }
 }
+/* 背景全体がゆっくり呼吸しているような明滅（transformとは別property） */
+@keyframes ambBreathe {
+  0%, 100% { opacity: 0.8; }
+  50%      { opacity: 1;   }
+}
+
+/* ---- AIネットワークを思わせるノード・データライン・パケット ---- */
+/* セクション共通の sec-line-wrap 系クラスを流用し、Heroの外側パララックスに乗せる */
+.amb-network { position: absolute; }
+.amb-network .sec-line { height: 1px; }
 
 /* ---- 情報の流れを思わせる細い線 ---- */
 .amb-line {
@@ -282,6 +293,8 @@
 .hero-root.is-off .amb-line,
 .hero-root.is-off .amb-dot,
 .hero-root.is-off .amb-grain,
+.hero-root.is-off .amb-network .sec-node,
+.hero-root.is-off .amb-network .sec-packet,
 .hero-root.is-off .pillar-glow,
 .hero-root.is-off .pillar-scan {
   animation-play-state: paused;
@@ -306,6 +319,105 @@
     transform: translate3d(-50%, calc(var(--sy, 0) * 22px), 0);
   }
   .hero-fg { transform: none; }
+}
+
+/* =============================================================
+   SECTION AMBIENCE — Hero以外の各セクション共通の背景装飾
+   AI・データ・ネットワークを連想させる、ごく控えめな光とライン。
+   2段階のラッパーで「パララックス（--p）」と「呼吸・移動アニメーション」の
+   transform を別要素に分け、競合しないようにしている。
+   ============================================================= */
+.sec-amb {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* 外側：パララックス（scroll位置 --p に応じて層ごとに違う速度で動く） */
+.sec-amb-back { transform: translate3d(0, calc(var(--p, 0.5) * -1 * 34px + 17px), 0); }
+.sec-amb-mid  { transform: translate3d(0, calc(var(--p, 0.5) * -1 * 16px + 8px), 0); }
+
+/* 背景光：内側で呼吸する（拡大縮小＋明滅） */
+.sec-glow-parallax {
+  position: absolute;
+  width: 42vw; height: 42vw;
+  max-width: 560px; max-height: 560px;
+}
+.sec-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  filter: blur(80px);
+  animation-name: secGlowBreathe;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+@keyframes secGlowBreathe {
+  0%, 100% { transform: scale(1);     opacity: 0.7; }
+  50%      { transform: scale(1.09);  opacity: 1;   }
+}
+
+/* データライン：ノード間を結ぶ細い線と、その上を流れるパケット */
+.sec-line-parallax { position: absolute; }
+.sec-line-wrap {
+  position: relative;
+  height: 1px;
+  transform-origin: left center;
+}
+.sec-line {
+  position: absolute;
+  inset: 0;
+  height: 1px;
+}
+.sec-node {
+  position: absolute;
+  top: 50%;
+  width: 5px; height: 5px;
+  margin-top: -2.5px;
+  border-radius: 50%;
+  animation: secNodePulse 6s ease-in-out infinite;
+}
+@keyframes secNodePulse {
+  0%, 100% { opacity: 0.3; }
+  50%      { opacity: 0.85; }
+}
+.sec-packet {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 4px; height: 4px;
+  margin-top: -2px;
+  border-radius: 50%;
+  animation-name: secPacketMove;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+@keyframes secPacketMove {
+  0%   { transform: translate3d(0, -50%, 0);                     opacity: 0; }
+  8%   { opacity: 0.85; }
+  92%  { opacity: 0.5; }
+  100% { transform: translate3d(var(--line-len, 120px), -50%, 0); opacity: 0; }
+}
+
+/* スマートフォン：パケットの動きを止め、光を軽くする */
+@media (max-width: 767px) {
+  .sec-packet { display: none; }
+  .sec-glow   { opacity: 0.6; }
+  .sec-glow-parallax { width: 60vw; height: 60vw; }
+}
+
+/* =============================================================
+   制作実績：画像のパララックス
+   文字は動かさず、画像だけがごくわずかに違う速度で動く。
+   ============================================================= */
+.img-parallax {
+  transform: translate3d(0, calc((var(--p, 0.5) - 0.5) * -18px), 0);
+}
+@media (max-width: 767px) {
+  .img-parallax { transform: none; }
 }
 
 /* =============================================================
@@ -334,12 +446,12 @@
 .pillar-glow-a {
   inset: 6% -22% 52% -18%;
   background: radial-gradient(circle, rgba(150, 190, 245, 0.30) 0%, transparent 68%);
-  animation: glowDriftA 26s ease-in-out infinite;
+  animation: glowDriftA 26s ease-in-out infinite, ambBreathe 8s ease-in-out infinite;
 }
 .pillar-glow-b {
   inset: 44% -16% 8% -20%;
   background: radial-gradient(circle, rgba(120, 165, 230, 0.22) 0%, transparent 68%);
-  animation: glowDriftB 27s ease-in-out infinite;
+  animation: glowDriftB 27s ease-in-out infinite, ambBreathe 10s ease-in-out infinite 3s;
 }
 
 @keyframes glowDriftA {
@@ -412,7 +524,12 @@
 .d5 { animation-delay: 0.37s; }
 .d6 { animation-delay: 0.45s; }
 
-/* スクロール連動（IntersectionObserver で is-in を付与） */
+/* =============================================================
+   REVEAL — スクロール連動の登場アニメーション
+   IntersectionObserver（useInView）で is-in が付与される。
+   数字 → 見出し → 説明文 → 画像 → CTA のように意味の単位ごとに
+   delay を1段階ずつ上げ、0.12s刻みで時間差をつける。
+   ============================================================= */
 .reveal {
   opacity: 0;
   transform: translate3d(0, 16px, 0);
@@ -422,10 +539,17 @@
   opacity: 1;
   transform: none;
 }
-.reveal-1 { transition-delay: 0.05s; }
-.reveal-2 { transition-delay: 0.10s; }
-.reveal-3 { transition-delay: 0.15s; }
-.reveal-4 { transition-delay: 0.20s; }
+
+/* 左右交互のフェードイン（制作実績など） */
+.reveal.reveal-left  { transform: translate3d(-28px, 0, 0); }
+.reveal.reveal-right { transform: translate3d(28px, 0, 0); }
+
+.reveal-1 { transition-delay: 0.04s; }
+.reveal-2 { transition-delay: 0.16s; }
+.reveal-3 { transition-delay: 0.28s; }
+.reveal-4 { transition-delay: 0.40s; }
+.reveal-5 { transition-delay: 0.52s; }
+.reveal-6 { transition-delay: 0.64s; }
 
 /* 罫線を描画する演出（Process の接続線など） */
 .draw-x {
@@ -534,16 +658,23 @@
   .amb-glow,
   .amb-line,
   .amb-dot,
-  .amb-grain {
+  .amb-grain,
+  .sec-glow,
+  .sec-node,
+  .sec-packet {
     animation: none !important;
   }
 
   /* 粒子は動かさず、静かに置いておく */
   .amb-dot { opacity: 0.25 !important; }
+  .sec-node { opacity: 0.4 !important; }
 
   /* 視差も無効化（フック側でも変数を設定しないが、二重に止める） */
   .hero-amb,
-  .hero-fg {
+  .hero-fg,
+  .sec-amb-back,
+  .sec-amb-mid,
+  .img-parallax {
     transform: none !important;
     will-change: auto !important;
   }

@@ -3,12 +3,12 @@ import { useEffect, useState } from 'react'
 // =============================================================
 // スクリーンショット表示
 //
-// public/ に画像を置けば自動で表示され、無ければワイヤーフレームで
-// レイアウトが成立する。実在しない機能や架空の画面は作らず、
-// 中立的な枠・行・ラベルのみで構成する。
+// public/ に画像を置けば自動で表示される。まだ置いていない場合は、
+// 偽のUIを模したワイヤーフレームではなく、ブランドの一部として
+// 成立する上品なプレースホルダーを表示する（「未完成」に見せない）。
 // =============================================================
 
-/** 画像が存在するかを確認する（読み込み失敗ならワイヤーフレームへ） */
+/** 画像が存在するかを確認する（読み込み失敗ならプレースホルダーへ） */
 function useImageExists(src: string): boolean | null {
   const [exists, setExists] = useState<boolean | null>(null)
 
@@ -25,65 +25,26 @@ function useImageExists(src: string): boolean | null {
 }
 
 // -------------------------------------------------------------
-// ワイヤーフレーム（PC）
+// プレースホルダー（画像未配置時）
+// ダミーのUI線ではなく、ロゴマーク＋ラベルのみで静かに成立させる
 // -------------------------------------------------------------
-function WireDesktop() {
+function Placeholder({ compact = false }: { compact?: boolean }) {
   return (
-    <div className="aspect-[16/10] p-5 sm:p-7 flex flex-col gap-4" aria-hidden="true">
-      {/* 見出し行と操作 */}
-      <div className="flex items-center justify-between">
-        <span className="h-2.5 w-28 rounded-sm bg-white/16" />
-        <span className="flex gap-2">
-          <span className="h-6 w-14 rounded-sm bg-white/8" />
-          <span className="h-6 w-16 rounded-sm bg-gold/25" />
-        </span>
-      </div>
-
-      {/* 検索行 */}
-      <span className="h-8 rounded-sm bg-white/6 border border-white/10" />
-
-      {/* 一覧 */}
-      <div className="flex-1 flex flex-col gap-2.5">
-        {[0, 1, 2, 3, 4].map(i => (
-          <div key={i}
-            className="flex items-center gap-3 rounded-sm border border-white/8
-              bg-white/[0.03] px-3 py-3">
-            <span className={`w-1 h-6 rounded-full shrink-0
-              ${i === 1 ? 'bg-gold/70' : 'bg-white/15'}`} />
-            <span className="flex-1 flex flex-col gap-1.5">
-              <span className="h-2 rounded-sm bg-white/14"
-                style={{ width: `${70 - i * 7}%` }} />
-              <span className="h-1.5 rounded-sm bg-white/8"
-                style={{ width: `${46 - i * 5}%` }} />
-            </span>
-            <span className="h-4 w-12 rounded-sm bg-white/8 shrink-0" />
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-// -------------------------------------------------------------
-// ワイヤーフレーム（スマートフォン）
-// -------------------------------------------------------------
-function WirePhone() {
-  return (
-    <div className="aspect-[9/19] p-3 flex flex-col gap-2.5" aria-hidden="true">
-      <span className="h-2 w-14 rounded-sm bg-white/16" />
-      <span className="h-6 rounded-sm bg-white/6 border border-white/10" />
-      {[0, 1, 2, 3].map(i => (
-        <div key={i}
-          className="rounded-sm border border-white/8 bg-white/[0.03] px-2.5 py-2.5
-            flex flex-col gap-1.5">
-          <span className="flex items-center gap-2">
-            <span className={`w-0.5 h-4 rounded-full shrink-0
-              ${i === 0 ? 'bg-gold/70' : 'bg-white/15'}`} />
-            <span className="h-1.5 flex-1 rounded-sm bg-white/14" />
-          </span>
-          <span className="h-1.5 w-2/3 ml-2.5 rounded-sm bg-white/8" />
-        </div>
-      ))}
+    <div
+      className={`aspect-[16/10] flex flex-col items-center justify-center gap-3
+        ${compact ? 'gap-2' : 'gap-3'}`}
+      aria-hidden="true"
+    >
+      <span className={`grid place-items-center rounded-[3px] border border-gold/40
+        text-gold font-en ${compact ? 'w-7 h-7 text-[13px]' : 'w-11 h-11 text-[18px]'}`}>
+        F
+      </span>
+      {!compact && (
+        <p className="font-en text-[9.5px] text-white/35 uppercase"
+          style={{ letterSpacing: '0.3em' }}>
+          Screenshot Coming Soon
+        </p>
+      )}
     </div>
   )
 }
@@ -111,7 +72,7 @@ export function DesktopScreen({
         <img src={src} alt={alt} loading="lazy" decoding="async"
           className="block w-full h-auto" />
       ) : (
-        <WireDesktop />
+        <Placeholder />
       )}
     </figure>
   )
@@ -137,7 +98,9 @@ export function PhoneScreen({
         <img src={src} alt={alt} loading="lazy" decoding="async"
           className="block w-full h-auto" />
       ) : (
-        <WirePhone />
+        <div className="aspect-[9/19]">
+          <Placeholder compact />
+        </div>
       )}
     </figure>
   )

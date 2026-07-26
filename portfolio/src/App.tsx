@@ -1,4 +1,5 @@
 import { FEATURES } from './data/site'
+import { useSectionParallax } from './hooks/useSectionParallax'
 
 import BrandIntro from './components/BrandIntro'
 import Header    from './components/Header'
@@ -23,6 +24,9 @@ import ChatWidget from './components/ChatWidget'
  * 背景は 濃紺 / オフホワイト を交互に切り替え、スクロールにリズムを作る。
  */
 export default function App() {
+  // セクションをまたぐ軽量パララックス（背景装飾・画像のみ。文字は動かさない）
+  useSectionParallax()
+
   return (
     <>
       {FEATURES.brandIntro && <BrandIntro />}

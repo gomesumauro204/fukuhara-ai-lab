@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { BOOKING } from '../data/site'
+import SectionAmbience from './SectionAmbience'
 
 // =============================================================
 // スクロール連動アニメーション
@@ -36,23 +37,36 @@ export function useInView<T extends HTMLElement = HTMLDivElement>() {
   return { ref, inView }
 }
 
-type Stagger = 1 | 2 | 3 | 4
+export type Stagger = 1 | 2 | 3 | 4 | 5 | 6
+type RevealDir = 'up' | 'left' | 'right'
 
-/** 画面に入ったら軽くフェードアップする薄いラッパー */
+/**
+ * 画面に入ったら軽くフェードして現れる薄いラッパー。
+ *
+ * delay: 1〜6 の段差（各 0.12s 刻み）。数字→見出し→説明文→画像→CTA のように
+ *        意味のある単位ごとに delay を1つずつ上げて時間差をつける。
+ * dir:   'up'（既定・下から）/ 'left'（右から）/ 'right'（左から）
+ *        制作実績など左右交互のレイアウトで使う。
+ */
 export function Reveal({
-  children, delay, className = '', as: Tag = 'div',
+  children, delay, dir = 'up', className = '', as: Tag = 'div', ...rest
 }: {
   children: ReactNode
   delay?: Stagger
+  dir?: RevealDir
   className?: string
   as?: 'div' | 'li' | 'article'
+  /** data-* など、追加でDOMへ渡したい属性 */
+  [key: string]: unknown
 }) {
   const { ref, inView } = useInView<HTMLDivElement>()
+  const dirClass = dir === 'up' ? '' : `reveal-${dir}`
 
   return (
     <Tag
       ref={ref as never}
-      className={`reveal ${delay ? `reveal-${delay}` : ''} ${inView ? 'is-in' : ''} ${className}`}
+      className={`reveal ${dirClass} ${delay ? `reveal-${delay}` : ''} ${inView ? 'is-in' : ''} ${className}`}
+      {...rest}
     >
       {children}
     </Tag>
@@ -125,17 +139,29 @@ const TONE_CLASS: Record<Tone, string> = {
   paper: 'bg-paper text-ink',
 }
 
+// id から 0〜9 の擬似ランダムな種を作る（呼び出し側に seed を渡させない）
+function seedFromId(id?: string) {
+  if (!id) return 0
+  let h = 0
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 10
+  return h
+}
+
 export function Section({
-  id, children, tone = 'navy', className = '',
+  id, children, tone = 'navy', className = '', ambience = true,
 }: {
   id?: string
   children: ReactNode
   tone?: Tone
   className?: string
+  /** 背景の光・データラインを表示するか（既定 true） */
+  ambience?: boolean
 }) {
   return (
-    <section id={id} className={`${TONE_CLASS[tone]} ${className}`}>
-      <div className="max-w-content mx-auto px-5 sm:px-8 lg:px-12
+    <section id={id}
+      className={`relative overflow-hidden ${TONE_CLASS[tone]} ${className}`}>
+      {ambience && <SectionAmbience tone={tone} seed={seedFromId(id)} />}
+      <div className="relative z-10 max-w-content mx-auto px-5 sm:px-8 lg:px-12
         py-section lg:py-section-lg">
         {children}
       </div>
@@ -143,7 +169,12 @@ export function Section({
   )
 }
 
-/** 通し番号 + 英字ラベル + 日本語見出し */
+/**
+ * 通し番号 + 英字ラベル + 日本語見出し + 説明文
+ *
+ * 数字 → 見出し → 説明文 の順に 0.12s 刻みで時間差表示する
+ * （それぞれ独立した Reveal にして段階的に現れるようにしている）。
+ */
 export function SectionHead({
   num, en, title, lead, dark = false, className = '',
 }: {
@@ -155,30 +186,32 @@ export function SectionHead({
   className?: string
 }) {
   return (
-    <Reveal className={`mb-12 lg:mb-16 ${className}`}>
+    <div className={`mb-12 lg:mb-16 ${className}`}>
       <div className="flex items-start gap-5 sm:gap-8">
         {/* 通し番号は装飾。内容は英字ラベルと日本語見出しで伝える */}
-        <span aria-hidden="true"
+        <Reveal delay={1} as="div"
           className={`section-num ${dark ? 'text-white/10' : 'text-ink/10'}`}>
-          {num}
-        </span>
+          <span aria-hidden="true">{num}</span>
+        </Reveal>
         <div className="pt-2 sm:pt-4 min-w-0">
-          <p className={dark ? 'label-en' : 'label-en-dark'}>{en}</p>
-          <h2 className={`font-mincho mt-2
-            text-[1.7rem] sm:text-[2.1rem] lg:text-[2.5rem]
-            ${dark ? 'text-white' : 'text-ink'}`}>
-            {title}
-          </h2>
+          <Reveal delay={2}>
+            <p className={dark ? 'label-en' : 'label-en-dark'}>{en}</p>
+            <h2 className={`font-mincho mt-2
+              text-[1.7rem] sm:text-[2.1rem] lg:text-[2.5rem]
+              ${dark ? 'text-white' : 'text-ink'}`}>
+              {title}
+            </h2>
+          </Reveal>
         </div>
       </div>
 
       {lead && (
-        <p className={`mt-6 max-w-2xl text-[15px] leading-[1.95]
+        <Reveal delay={3} className={`mt-6 max-w-2xl text-[15px] leading-[1.95]
           ${dark ? 'text-white/60' : 'text-ink-mid'}`}>
-          {lead}
-        </p>
+          <p>{lead}</p>
+        </Reveal>
       )}
-    </Reveal>
+    </div>
   )
 }
 

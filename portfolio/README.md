@@ -63,29 +63,34 @@ npm run build && npm run preview
 ```
 src/
   data/
-    site.ts         サイト全体の文言・リンク・データ
-    works.ts        制作実績データ
+    site.ts             サイト全体の文言・リンク・データ
+    works.ts            制作実績データ
+  hooks/
+    useHeroMotion.ts       Hero専用の視差（マウス・スクロール）
+    useSectionParallax.ts  全セクション共通の軽量パララックス
   components/
-    ui.tsx          共通UI（Section / SectionHead / ボタン / Reveal / アイコン）
-    Logo.tsx        ロゴ
-    BrandIntro.tsx  初回のみの短いブランド表示
-    Header.tsx      ヘッダー・スマホメニュー
-    Hero.tsx        ファーストビュー
-    HeroVisual.tsx  中央の「光の柱」（CSSのみ）
-    ScreenFrame.tsx スクリーンショット枠／ワイヤーフレーム
-    Works.tsx       制作実績
-    Problem.tsx     課題
-    Service.tsx     支援内容
-    Strengths.tsx   特徴
-    Process.tsx     制作の流れ
-    Team.tsx        専門体制
-    Profile.tsx     プロフィール
-    Faq.tsx         よくある質問
-    Contact.tsx     お問い合わせ
-    Footer.tsx      フッター
-    ChatWidget.tsx  ご相談案内（選択式）
-  App.tsx           ページ構成
-  index.css         デザイントークン・アニメーション
+    ui.tsx              共通UI（Section / SectionHead / ボタン / Reveal / アイコン）
+    Logo.tsx            ロゴ
+    BrandIntro.tsx      初回のみの短いブランド表示
+    Header.tsx          ヘッダー・スマホメニュー
+    Hero.tsx            ファーストビュー
+    HeroVisual.tsx      中央の「光の柱」（CSSのみ）
+    HeroAmbience.tsx    Hero背景の光・データライン・粒子
+    SectionAmbience.tsx Hero以外の各セクション共通の背景装飾
+    ScreenFrame.tsx     スクリーンショット枠／未配置時のプレースホルダー
+    Works.tsx           制作実績
+    Problem.tsx         課題
+    Service.tsx         支援内容
+    Strengths.tsx       特徴
+    Process.tsx         制作の流れ
+    Team.tsx            専門体制
+    Profile.tsx         プロフィール
+    Faq.tsx             よくある質問
+    Contact.tsx         お問い合わせ
+    Footer.tsx          フッター
+    ChatWidget.tsx      ご相談案内（選択式）
+  App.tsx               ページ構成
+  index.css             デザイントークン・アニメーション
 ```
 
 ---
@@ -125,6 +130,7 @@ src/
 {
   title: '物件管理サポートツール',
   badge: '自主開発／デモ公開中',
+  target: '不動産業の物件管理業務',
   summary: '不動産業の物件情報管理を題材に制作したデモツールです。',
   problem: '物件情報や対応状況の管理が分散し、確認に時間がかかる。',
   solution: '一覧表示、対応状況の管理、検索機能を備えたWebツールとして整理。',
@@ -143,7 +149,8 @@ src/
 ```
 
 - `demoUrl` が空なら「準備中」と表示され、ボタンは無効になります
-- `images` の画像が `public/` にあれば自動表示、無ければワイヤーフレーム表示
+- `images` の画像が `public/` にあれば自動表示、無ければ上品なプレースホルダー（ロゴマーク＋「Screenshot Coming Soon」）を表示します。ダミーのUI線は使いません
+- 実績は2件目以降、画像が左右交互になるレイアウトへ自動で切り替わります
 
 ---
 
@@ -175,7 +182,13 @@ src/
 | 絵文字 | 使用しない（すべてSVGアイコン） |
 
 **アニメーション方針**：`transform` と `opacity` のみを動かし、描画コストを抑えています。
-登場は 0.55 秒、遅延は最大 0.45 秒。`prefers-reduced-motion` で全停止します。
+
+- **登場**：数字 → 見出し → 説明文 → 画像 → CTA の順に 0.12s 刻みで時間差表示（`Reveal` の `delay` 1〜6）
+- **左右交互**：制作実績など画像を含むブロックは `Reveal` の `dir="left" / "right"` で交互にフェードイン
+- **背景の生命感**：`SectionAmbience` が全セクションに、呼吸する光とデータライン（ノード＋パケット）を配置。色味はセクションの背景色（濃紺／オフホワイト）に合わせて変化する
+- **パララックス**：`useSectionParallax` が背景装飾と画像だけをスクロール速度違いで動かす。本文・見出しは動かさず可読性を優先
+- スマートフォンでは粒子・データライン・画像パララックスを間引き、PCより軽くしている
+- `prefers-reduced-motion` で上記すべてを停止
 
 ---
 

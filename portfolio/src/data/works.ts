@@ -3,7 +3,8 @@
 // =============================================================
 // 新しい実績を追加する場合は、この配列に1件追加するだけで
 // カードが増えます。images に指定したファイルを public/ に置くと
-// 自動で表示され、無い場合はワイヤーフレーム表示になります。
+// 自動で表示され、無い場合は上品なプレースホルダー表示になります
+// （ワイヤーフレーム風のダミー画面は使いません）。
 // =============================================================
 
 export interface Work {
@@ -11,13 +12,15 @@ export interface Work {
   title: string
   /** 位置づけを正確に示すラベル（例：自主開発／デモ公開中） */
   badge: string
+  /** 対象業務（例：介護施設の申し送り業務） */
+  target: string
   /** 何を題材にしたか（1〜2文） */
   summary: string
-  /** 解決したい課題 */
+  /** 解決する課題 */
   problem: string
   /** どう解決したか */
   solution: string
-  /** 主な機能（画面上は2列で表示） */
+  /** 主な機能 */
   features: readonly { name: string; note: string }[]
   /** 担当した範囲 */
   scope: readonly string[]
@@ -25,7 +28,7 @@ export interface Work {
   stack: readonly string[]
   /** 公開URL（空文字なら準備中扱い） */
   demoUrl: string
-  /** スクリーンショット（public/ 配下のパス。未配置ならワイヤーフレーム） */
+  /** スクリーンショット（public/ 配下のパス。未配置なら自動でプレースホルダー表示） */
   images: {
     pc: string
     sp: string
@@ -36,6 +39,7 @@ export const WORKS: readonly Work[] = [
   {
     title: '介護現場向け 申し送り管理ツール',
     badge: '自主開発／デモ公開中',
+    target: '介護施設の申し送り業務',
     summary:
       '介護現場の申し送り業務を題材に、実務運用を想定して設計・開発したデモツールです。',
     problem:
