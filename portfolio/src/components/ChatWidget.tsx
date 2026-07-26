@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { SITE, BOOKING, CONTACT } from '../data/site'
 import { WORKS } from '../data/works'
+import ChatCat from './ChatCat'
 
 // =============================================================
 // ご相談案内（選択式）
@@ -67,6 +68,16 @@ const GREETING = [
   'ご用件を下からお選びください。',
 ]
 
+/**
+ * 起動タブの上に、数秒に一度だけ短く現れる吹き出し。
+ * 常時表示ではなく「たまに思い出させる」頻度に留める
+ * （CSS側で20秒周期・1回あたり約5秒だけ表示）。
+ */
+const TEASER_MESSAGES = [
+  'まずはお気軽にご相談ください',
+  '30分・無料でご相談できます',
+] as const
+
 export default function ChatWidget() {
   const [open, setOpen]   = useState(false)
   const [reply, setReply] = useState<string | null>(null)
@@ -110,41 +121,75 @@ export default function ChatWidget() {
 
   return (
     <>
-      {/* ── 起動：PC は右端の縦書きティーザー ── */}
+      {/* ── 起動：PC は右端の「ボタン＋案内する猫」──
+          ボタンは独立したCTA（ソリッドゴールドで目立たせる）。
+          猫はボタンの下に立ち、前足で上のボタンを指し示す
+          （キャラクターの一部ではなく別要素として配置）。 */}
       {!open && (
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          aria-expanded={false}
-          aria-controls="chat-panel"
-          className="chat-teaser hidden lg:flex flex-col items-center gap-3
-            border-y border-l border-gold/40 bg-navy-lift/90 backdrop-blur-sm
-            rounded-l-md px-3 py-6 text-gold
-            hover:bg-navy-lift hover:border-gold/70 transition-colors"
-        >
-          <span className="w-1 h-1 rounded-full bg-gold" aria-hidden="true" />
-          <span className="text-[12px] font-semibold tracking-[0.28em]"
-            style={{ writingMode: 'vertical-rl' }}>
-            ご相談案内
+        <div className="chat-teaser-wrap hidden lg:flex flex-col items-center">
+          <div className="chat-bubble-stack" aria-hidden="true">
+            {TEASER_MESSAGES.map((msg, i) => (
+              <span key={msg} className={`chat-bubble chat-bubble-${i}`}>{msg}</span>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            aria-expanded={false}
+            aria-controls="chat-panel"
+            className="chat-cta-standalone"
+          >
+            ご相談はこちら
+          </button>
+          <span className="text-[9px] text-white/50 leading-tight whitespace-nowrap mt-1.5">
+            30分・無料でご相談できます
           </span>
-        </button>
+
+          <svg className="chat-point-arrow chat-point-arrow-up" width="14" height="14"
+            viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M3 9l4-4 4 4" stroke="currentColor" strokeWidth="1.4"
+              strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+
+          <div className="chat-cat-wrap relative w-28 h-28" aria-hidden="true">
+            <ChatCat />
+            <span className="chat-online-dot chat-online-dot-cat" />
+          </div>
+        </div>
       )}
 
-      {/* ── 起動：スマホは右下のコンパクトなタブ ── */}
+      {/* ── 起動：スマホは右下の「ボタン＋案内する猫」── */}
       {!open && (
-        <button
-          ref={launchRef}
-          type="button"
-          onClick={() => setOpen(true)}
-          aria-expanded={false}
-          aria-controls="chat-panel"
-          className="chat-launcher-sp lg:hidden inline-flex items-center gap-2.5
-            rounded-full border border-gold/50 bg-navy-lift/95 backdrop-blur-sm
-            px-4 py-3 text-[12.5px] font-semibold text-gold shadow-lg"
-        >
-          <span className="w-1 h-1 rounded-full bg-gold" aria-hidden="true" />
-          ご相談案内
-        </button>
+        <div className="chat-launcher-sp-wrap lg:hidden flex flex-col items-center">
+          <div className="chat-bubble-stack chat-bubble-stack-sp" aria-hidden="true">
+            {TEASER_MESSAGES.map((msg, i) => (
+              <span key={msg} className={`chat-bubble chat-bubble-${i}`}>{msg}</span>
+            ))}
+          </div>
+
+          <button
+            ref={launchRef}
+            type="button"
+            onClick={() => setOpen(true)}
+            aria-expanded={false}
+            aria-controls="chat-panel"
+            className="chat-cta-standalone chat-cta-standalone-sp"
+          >
+            ご相談はこちら
+          </button>
+
+          <svg className="chat-point-arrow chat-point-arrow-up" width="12" height="12"
+            viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M3 9l4-4 4 4" stroke="currentColor" strokeWidth="1.5"
+              strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+
+          <div className="chat-cat-wrap relative w-16 h-16" aria-hidden="true">
+            <ChatCat />
+            <span className="chat-online-dot chat-online-dot-cat" />
+          </div>
+        </div>
       )}
 
       {/* ── パネル ── */}
