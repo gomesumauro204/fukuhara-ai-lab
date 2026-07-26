@@ -168,7 +168,7 @@ function seedFromId(id?: string) {
 }
 
 export function Section({
-  id, children, tone = 'navy', className = '', ambience = true, bare = false,
+  id, children, tone = 'navy', className = '', ambience = true,
 }: {
   id?: string
   children: ReactNode
@@ -176,22 +176,15 @@ export function Section({
   className?: string
   /** 背景の光・データラインを表示するか（既定 true） */
   ambience?: boolean
-  /**
-   * true の場合、通常の余白付きラッパーを省略し children をそのまま描画する。
-   * スクロールシーン（ピン留めして内部で独自にレイアウトを組む場合）に使う。
-   */
-  bare?: boolean
 }) {
   return (
     <section id={id}
       className={`relative overflow-hidden ${TONE_CLASS[tone]} ${className}`}>
       {ambience && <SectionAmbience tone={tone} seed={seedFromId(id)} />}
-      {bare ? children : (
-        <div className="relative z-10 max-w-content mx-auto px-5 sm:px-8 lg:px-12
-          py-section lg:py-section-lg">
-          {children}
-        </div>
-      )}
+      <div className="relative z-10 max-w-content mx-auto px-5 sm:px-8 lg:px-12
+        py-section lg:py-section-lg">
+        {children}
+      </div>
     </section>
   )
 }
