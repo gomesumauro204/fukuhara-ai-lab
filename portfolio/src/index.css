@@ -111,6 +111,204 @@
 }
 
 /* =============================================================
+   HERO — 奥行き（パララックス）
+   useHeroMotion が --mx / --my / --sy を Hero 要素に設定する。
+   3つの層を異なる量で動かして自然な奥行きをつくる。
+   変数が無い場合は 0 になるため、JSが動かなくても崩れない。
+   ============================================================= */
+
+/* 第1層：背景アンビエンス（最も大きく遅れて動く） */
+.hero-amb {
+  position: absolute;
+  inset: -8% -5%;
+  z-index: 0;
+  pointer-events: none;
+  transform: translate3d(
+    calc(var(--mx, 0) * 4px),
+    calc(var(--my, 0) * 4px + var(--sy, 0) * 80px),
+    0
+  );
+  will-change: transform;
+}
+
+/* 第2層：中央の縦長ビジュアル（中間） */
+/* 中央寄せの -50% も transform に含める（Tailwind の translate と競合させない） */
+.hero-pillar-wrap {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  z-index: 0;
+  width: 62vw;
+  max-width: 400px;
+  opacity: 0.7;
+  pointer-events: none;
+  transform: translate3d(
+    calc(-50% + var(--mx, 0) * -2.5px),
+    calc(var(--sy, 0) * 45px),
+    0
+  );
+  will-change: transform;
+}
+@media (min-width: 640px) {
+  .hero-pillar-wrap {
+    width: 34vw;
+    max-width: 380px;
+    opacity: 1;
+  }
+}
+
+/* 第3層：前景（ごくわずかに動く＝手前に見える） */
+.hero-fg {
+  transform: translate3d(0, calc(var(--sy, 0) * 14px), 0);
+}
+
+/* =============================================================
+   HERO — 背景アンビエンス
+   ============================================================= */
+.amb {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* ---- 広い背景光（ぼかしは静的。動かすのは transform のみ） ---- */
+.amb-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  will-change: transform;
+}
+.amb-glow-a {
+  width: 52vw; height: 52vw;
+  max-width: 760px; max-height: 760px;
+  top: -14%; left: 4%;
+  background: radial-gradient(circle, rgba(92, 142, 222, 0.20) 0%, transparent 70%);
+  animation: ambDriftA 24s ease-in-out infinite;
+}
+.amb-glow-b {
+  width: 44vw; height: 44vw;
+  max-width: 620px; max-height: 620px;
+  bottom: -12%; right: 2%;
+  background: radial-gradient(circle, rgba(70, 112, 190, 0.17) 0%, transparent 70%);
+  animation: ambDriftB 19s ease-in-out infinite;
+}
+@keyframes ambDriftA {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(3%, 4%, 0) scale(1.06); }
+}
+@keyframes ambDriftB {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(-4%, -3%, 0) scale(0.95); }
+}
+
+/* ---- 情報の流れを思わせる細い線 ---- */
+.amb-line {
+  position: absolute;
+  pointer-events: none;
+}
+.amb-line-v1 {
+  top: 0; bottom: 0; left: 21%; width: 1px;
+  background: linear-gradient(180deg,
+    transparent, rgba(150, 190, 245, 0.16) 42%, transparent 78%);
+  animation: ambLineV 26s ease-in-out infinite;
+}
+.amb-line-v2 {
+  top: 0; bottom: 0; right: 17%; width: 1px;
+  background: linear-gradient(180deg,
+    transparent 18%, rgba(201, 169, 97, 0.14) 56%, transparent);
+  animation: ambLineV 21s ease-in-out infinite reverse;
+}
+.amb-line-h1 {
+  left: 0; right: 0; top: 37%; height: 1px;
+  background: linear-gradient(90deg,
+    transparent, rgba(150, 190, 245, 0.11) 46%, transparent 82%);
+  animation: ambLineH 28s ease-in-out infinite;
+}
+@keyframes ambLineV {
+  0%, 100% { transform: translate3d(0, -7%, 0); }
+  50%      { transform: translate3d(0, 7%, 0); }
+}
+@keyframes ambLineH {
+  0%, 100% { transform: translate3d(-5%, 0, 0); }
+  50%      { transform: translate3d(5%, 0, 0); }
+}
+
+/* ---- 微細な粒子 ---- */
+.amb-dust {
+  position: absolute;
+  inset: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.amb-dot {
+  position: absolute;
+  width: 2px; height: 2px;
+  border-radius: 50%;
+  background: rgba(206, 226, 255, 0.55);
+  opacity: 0;
+  animation-name: ambDust;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+@keyframes ambDust {
+  0%   { transform: translate3d(0, 24px, 0);    opacity: 0; }
+  18%  { opacity: 0.5; }
+  82%  { opacity: 0.3; }
+  100% { transform: translate3d(16px, -130px, 0); opacity: 0; }
+}
+
+/* ---- 薄いノイズ ---- */
+/* タイル1枚ぶん移動させることで継ぎ目なくループする */
+.amb-grain {
+  position: absolute;
+  inset: -240px;
+  opacity: 0.05;
+  background-repeat: repeat;
+  background-size: 180px 180px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: ambGrain 44s linear infinite;
+  will-change: transform;
+}
+@keyframes ambGrain {
+  0%   { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(180px, -180px, 0); }
+}
+
+/* ---- Hero が画面外にあるあいだは背景の動きを止める ---- */
+/* is-off は useHeroMotion が IntersectionObserver で付け外しする */
+.hero-root.is-off .amb-glow,
+.hero-root.is-off .amb-line,
+.hero-root.is-off .amb-dot,
+.hero-root.is-off .amb-grain,
+.hero-root.is-off .pillar-glow,
+.hero-root.is-off .pillar-scan {
+  animation-play-state: paused;
+}
+
+/* ---- スマートフォン：粒子と横線を止め、動きを弱める ---- */
+@media (max-width: 1023px) {
+  .amb-dot,
+  .amb-line-h1 { display: none; }
+
+  .amb-glow  { opacity: 0.45; }
+  .amb-grain { opacity: 0.035; }
+
+  .amb-line-v1 { animation-duration: 34s; }
+  .amb-line-v2 { animation-duration: 30s; }
+
+  /* スクロール視差も控えめにする */
+  .hero-amb {
+    transform: translate3d(0, calc(var(--sy, 0) * 40px), 0);
+  }
+  .hero-pillar-wrap {
+    transform: translate3d(-50%, calc(var(--sy, 0) * 22px), 0);
+  }
+  .hero-fg { transform: none; }
+}
+
+/* =============================================================
    HERO — 中央の縦長ビジュアル（光の柱）
    外部画像を使わず、CSSグラデーションのみで構成
    アニメーションは transform / opacity のみ（描画コストを抑制）
@@ -141,7 +339,7 @@
 .pillar-glow-b {
   inset: 44% -16% 8% -20%;
   background: radial-gradient(circle, rgba(120, 165, 230, 0.22) 0%, transparent 68%);
-  animation: glowDriftB 34s ease-in-out infinite;
+  animation: glowDriftB 27s ease-in-out infinite;
 }
 
 @keyframes glowDriftA {
@@ -330,9 +528,28 @@
     transition: none !important;
   }
 
+  /* 背景の常時アニメーションをすべて停止 */
   .pillar-glow,
-  .pillar-scan {
+  .pillar-scan,
+  .amb-glow,
+  .amb-line,
+  .amb-dot,
+  .amb-grain {
     animation: none !important;
+  }
+
+  /* 粒子は動かさず、静かに置いておく */
+  .amb-dot { opacity: 0.25 !important; }
+
+  /* 視差も無効化（フック側でも変数を設定しないが、二重に止める） */
+  .hero-amb,
+  .hero-fg {
+    transform: none !important;
+    will-change: auto !important;
+  }
+  .hero-pillar-wrap {
+    transform: translate3d(-50%, 0, 0) !important;
+    will-change: auto !important;
   }
 
   .faq-panel { transition: none !important; }

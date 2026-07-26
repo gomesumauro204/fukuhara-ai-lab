@@ -1,5 +1,8 @@
+import { useRef } from 'react'
 import { HERO, BOOKING } from '../data/site'
+import { useHeroMotion } from '../hooks/useHeroMotion'
 import { BookingButton, LinkButton, MarkStar } from './ui'
+import HeroAmbience from './HeroAmbience'
 import HeroVisual from './HeroVisual'
 
 /**
@@ -7,27 +10,39 @@ import HeroVisual from './HeroVisual'
  *
  * 構図：中央の縦長ビジュアル（光の柱）を軸に、巨大な明朝の見出しが
  * その前を横断する。柱に差しかかる位置で文字色が白→ゴールドへ変わる。
- * 四隅には極小の英字ラベルを配置し、ポスターのような画面をつくる。
+ *
+ * 奥行き：背景アンビエンス・柱・前景の3層を異なる量で動かす。
+ * 量は useHeroMotion が設定する --mx / --my / --sy を CSS 側で使う。
+ *   背景  … 最も大きく遅れて動く（遠景）
+ *   柱    … 中間
+ *   前景  … ごくわずか（手前）
  */
 export default function Hero() {
-  return (
-    <section id="top"
-      className="relative isolate overflow-hidden bg-navy
-        min-h-[100svh] flex flex-col justify-center
-        pt-20 sm:pt-24 pb-12">
+  const rootRef = useRef<HTMLElement>(null)
+  useHeroMotion(rootRef)
 
-      {/* ── 中央の縦長ビジュアル（背面） ── */}
-      <div aria-hidden="true"
-        className="absolute inset-y-0 left-1/2 -translate-x-1/2 z-0
-          w-[62vw] max-w-[400px] sm:w-[34vw] sm:max-w-[380px]
-          opacity-70 sm:opacity-100">
+  return (
+    <section
+      id="top"
+      ref={rootRef}
+      className="hero-root relative isolate overflow-hidden bg-navy
+        min-h-[100svh] flex flex-col justify-center
+        pt-20 sm:pt-24 pb-12"
+    >
+      {/* ── 第1層：背景アンビエンス（最も遅れて動く） ── */}
+      <div className="hero-amb">
+        <HeroAmbience />
+      </div>
+
+      {/* ── 第2層：中央の縦長ビジュアル ── */}
+      <div className="hero-pillar-wrap" aria-hidden="true">
         <div className="enter-fade d3 h-full">
           <HeroVisual />
         </div>
       </div>
 
-      {/* ── 前景コンテンツ ── */}
-      <div className="relative z-10 max-w-content mx-auto w-full
+      {/* ── 第3層：前景コンテンツ ── */}
+      <div className="hero-fg relative z-10 max-w-content mx-auto w-full
         px-5 sm:px-8 lg:px-12">
 
         {/* 右上のコーナーアンカー */}
