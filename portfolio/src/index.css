@@ -135,14 +135,18 @@
 /* 中央寄せの -50% も transform に含める（Tailwind の translate と競合させない） */
 .hero-pillar-wrap {
   position: absolute;
-  top: 0;
-  bottom: 0;
+  /* 高さいっぱいではなく上寄りの帯に収め、CTAボタンの行と
+     重ならないようにする（画面が低いときに中央寄せがCTAへ
+     ずれ込むのを防ぐ） */
+  top: 6%;
+  height: 62%;
   left: 50%;
   z-index: 0;
-  width: 62vw;
-  max-width: 400px;
-  opacity: 0.7;
+  width: 38vw;
+  max-width: 440px;
+  opacity: 0;
   pointer-events: none;
+  display: none;
   transform: translate3d(
     calc(-50% + var(--mx, 0) * -2.5px),
     calc(var(--sy, 0) * 60px),
@@ -152,10 +156,24 @@
 }
 @media (min-width: 640px) {
   .hero-pillar-wrap {
-    width: 34vw;
-    max-width: 380px;
+    display: block;
     opacity: 1;
   }
+}
+
+/* スマホ専用のオープニング演出（PC版の縮小ではなく別レイアウト）。
+   横に長い大型装置の断面が画面に収まっている見せ方（chip-formation-sm側の
+   mask-imageで上下をフェードし、画面外へ続いている印象にする）。
+   ヘッダー直下の余白に収め、見出し・本文とは重ならない高さに収める。 */
+.hero-formation-mobile {
+  position: absolute;
+  top: 3.5rem;
+  left: 50%;
+  transform: translate3d(-50%, 0, 0);
+  width: min(74vw, 300px);
+  aspect-ratio: 320 / 90;
+  z-index: 0;
+  pointer-events: none;
 }
 
 /* 第3層：前景（背景・柱より控えめに動く＝手前に見える） */
@@ -245,6 +263,43 @@
   50%      { transform: translate3d(5%, 0, 0); }
 }
 
+/* ---- 流れ星のように斜めへ走る光の筋（脇役の背景ディテール） ----
+   親(.hero-streak)は角度だけ固定し、子(.hero-streak-line)が
+   ローカルX軸方向へ移動することで画面上は斜めの光跡になる。
+   主役はAIチップ→見出しの視線リレーなので、この光は「たまに
+   存在を感じる」程度の弱さ・低頻度に留める（強さはHeroAmbience.tsx
+   のdelay/durationで調整）。 */
+.hero-streak {
+  position: absolute;
+  height: 2px;
+  transform-origin: left center;
+  pointer-events: none;
+  z-index: 1;
+}
+.hero-streak-line {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4) 40%,
+    rgba(255, 255, 255, 0.75) 75%,
+    rgba(212, 184, 122, 0.8) 94%,
+    rgba(212, 184, 122, 0) 100%);
+  box-shadow: 0 0 6px 0.5px rgba(255, 255, 255, 0.3);
+  opacity: 0;
+  transform: translate3d(-30%, 0, 0);
+  animation: heroStreakFly var(--streak-duration, 9s) cubic-bezier(0.3, 0, 0.2, 1) var(--streak-delay, 6.5s) infinite;
+  will-change: transform, opacity;
+}
+@keyframes heroStreakFly {
+  0%   { opacity: 0;    transform: translate3d(-30%, 0, 0); }
+  8%   { opacity: 0.75; }
+  30%  { opacity: 0.75; }
+  42%  { opacity: 0;    transform: translate3d(480%, 0, 0); }
+  100% { opacity: 0;    transform: translate3d(480%, 0, 0); }
+}
+
 /* ---- 微細な粒子 ---- */
 .amb-dust {
   position: absolute;
@@ -297,7 +352,8 @@
 .hero-root.is-off .amb-network .sec-packet,
 .hero-root.is-off .sec-chip,
 .hero-root.is-off .pillar-glow,
-.hero-root.is-off .pillar-scan {
+.hero-root.is-off .pillar-scan,
+.hero-root.is-off .hero-streak-line {
   animation-play-state: paused;
 }
 
@@ -311,6 +367,11 @@
 
   .amb-line-v1 { animation-duration: 34s; }
   .amb-line-v2 { animation-duration: 30s; }
+
+  /* 光の筋：本数はJS側(hidden sm:block)で3〜4本に絞り、
+     周期はPCよりやや長めにして負荷を抑える */
+  .hero-streak-line { animation-duration: 11s; }
+  .hero-streak { height: 1.5px; }
 
   /* スクロール視差はPCの55〜65%程度に */
   .hero-amb {
@@ -565,6 +626,242 @@
 }
 
 /* =============================================================
+   HERO — オープニング演出（5秒でAIチップが組み上がる）
+   0.0-1.0s 輪郭が現れる → 1.0-3.0s 回路・ピンが組み上がる →
+   2.2-3.3s コアが点灯する → 3.3-5.0s 一度だけ強く息づいて落ち着く →
+   5.0s以降は弱い待機発光のみ（無限ループ）。
+   すべて transform/opacity のみ、forwardsで完成形に確定するため、
+   途中でアニメーションが止まっても崩れず完成形のまま表示される。
+   ============================================================= */
+.chip-formation { overflow: visible; }
+
+/* コンテナ全体：少し縮んだ位置から拡大しながら手前へ現れる
+   （個々のパーツの組み上がりとは別に、全体の「立ち上がり」を作る） */
+.chip-formation-wrap {
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transform: scale(0.62);
+  animation: chipFormationIn 1.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes chipFormationIn {
+  0%   { opacity: 0; transform: scale(0.62); }
+  70%  { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* スマホ版：上下をフェードさせ、大型装置の断面が画面外まで
+   続いている印象にする（左右はSVGのviewBox外へ出して自然にクリップ） */
+.chip-formation-wrap-sm {
+  mask-image: linear-gradient(180deg, transparent, #000 22%, #000 78%, transparent);
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 22%, #000 78%, transparent);
+}
+
+.chip-outline {
+  fill: rgba(15, 36, 80, 0.42);
+  stroke: rgba(212, 184, 122, 0.85);
+  stroke-width: 1.8;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: chipOutlineIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.05s forwards;
+}
+@keyframes chipOutlineIn {
+  from { opacity: 0; transform: scale(0.86); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* 内部パネル（面）：外郭の少し後に浮かび上がり、二重の面で厚みを作る */
+.chip-panel {
+  fill: rgba(150, 190, 245, 0.07);
+  stroke: rgba(150, 190, 245, 0.28);
+  stroke-width: 1.2;
+  opacity: 0;
+  transform: scale(0.9);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: chipPanelIn 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
+}
+@keyframes chipPanelIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.chip-trace {
+  fill: none;
+  stroke: rgba(160, 196, 248, 0.65);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  opacity: 0;
+  transform: scaleX(0.3);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation-name: chipTraceIn;
+  animation-duration: 0.55s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+}
+@keyframes chipTraceIn {
+  from { opacity: 0; transform: scaleX(0.3); }
+  to   { opacity: 1; transform: scaleX(1); }
+}
+
+.chip-pin {
+  fill: rgba(212, 184, 122, 0.9);
+  opacity: 0;
+  transform: scale(0.3);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation-name: chipPinIn;
+  animation-duration: 0.4s;
+  animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation-fill-mode: forwards;
+}
+@keyframes chipPinIn {
+  from { opacity: 0; transform: scale(0.3); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.chip-core-glow {
+  fill: rgba(212, 184, 122, 0.55);
+  filter: blur(16px);
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation:
+    chipCoreGlowIn 1.1s ease-out 2.2s forwards,
+    chipCoreGlowIdle 3.6s ease-in-out 5s infinite;
+}
+@keyframes chipCoreGlowIn {
+  0%   { opacity: 0;    transform: scale(0.5); }
+  60%  { opacity: 0.9;  transform: scale(1.18); }
+  100% { opacity: 0.55; transform: scale(1); }
+}
+/* 単純なサイン波の呼吸ではなく、不揃いなステップで
+   「ゆらぎ」を感じる明滅にする（生命感を出すため）。 */
+@keyframes chipCoreGlowIdle {
+  0%   { opacity: 0.48; transform: scale(1);    }
+  20%  { opacity: 0.7;  transform: scale(1.07); }
+  35%  { opacity: 0.55; transform: scale(1.02); }
+  58%  { opacity: 0.8;  transform: scale(1.1);  }
+  78%  { opacity: 0.54; transform: scale(1.02); }
+  100% { opacity: 0.48; transform: scale(1);    }
+}
+
+.chip-core {
+  fill: rgba(255, 255, 255, 0.94);
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation:
+    chipCoreIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) 2.3s forwards,
+    chipCorePulse 3.6s ease-in-out 5s infinite;
+}
+@keyframes chipCoreIn {
+  0%   { opacity: 0;    transform: scale(0.4); }
+  70%  { opacity: 1;    transform: scale(1.12); }
+  100% { opacity: 0.95; transform: scale(1); }
+}
+/* chip-core-glowのゆらぎと同じ間隔で、コア本体もわずかに明滅させる */
+@keyframes chipCorePulse {
+  0%   { opacity: 0.88; }
+  20%  { opacity: 0.98; }
+  35%  { opacity: 0.90; }
+  58%  { opacity: 1;    }
+  78%  { opacity: 0.91; }
+  100% { opacity: 0.88; }
+}
+
+/* 完成時に一度だけ広がって消えるエネルギーリング（明確な点灯反応） */
+.chip-core-flash {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.9);
+  stroke-width: 2.5;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: chipFlashOut 0.75s ease-out 3.0s forwards;
+}
+@keyframes chipFlashOut {
+  0%   { opacity: 0.85; transform: scale(0.65); }
+  100% { opacity: 0;    transform: scale(2.4); }
+}
+
+/* Heroが画面外にあるあいだはコアの待機発光も止める */
+.hero-root.is-off .chip-core,
+.hero-root.is-off .chip-core-glow {
+  animation-play-state: paused;
+}
+
+/* =============================================================
+   HERO — 視線の受け渡し（AIチップ → 見出し）
+   チップの点灯とほぼ同時に、光の帯が一度だけ現れて消える。
+   「次はこちらを見て」という視線のバトンタッチ役。
+   PCは横方向（チップ→見出し開始位置）、スマホは縦方向
+   （チップ→見出し開始位置の上から下）に向きを変える。
+   ============================================================= */
+.hero-handoff-beam {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  /* PC：チップの左側から見出し開始位置あたりまでの横方向の帯 */
+  top: 34%;
+  bottom: 34%;
+  left: 4%;
+  right: 46%;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(212, 184, 122, 0.05) 30%,
+    rgba(212, 184, 122, 0.14) 70%,
+    rgba(255, 255, 255, 0.1) 92%,
+    transparent);
+  animation: handoffBeamIn 1.0s ease-out 2.5s forwards;
+}
+@keyframes handoffBeamIn {
+  0%   { opacity: 0; }
+  45%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+.hero-root.is-off .hero-handoff-beam {
+  animation-play-state: paused;
+}
+
+@media (max-width: 767px) {
+  .hero-handoff-beam {
+    /* スマホ：チップ（上部）から見出し開始位置（下）への縦方向の帯 */
+    top: 3.5rem;
+    bottom: auto;
+    height: 96px;
+    left: 12%;
+    right: 12%;
+    background: linear-gradient(180deg,
+      rgba(212, 184, 122, 0.16) 0%,
+      rgba(255, 255, 255, 0.08) 55%,
+      transparent 100%);
+  }
+}
+
+/* =============================================================
+   HERO — CTAの弱い呼吸（視線リレーの最後の受け皿）
+   CTAの登場（3.7〜4.2秒）が落ち着いた直後から、7秒周期で
+   ごく弱くグローが膨らむ。5秒以降の「待機状態」を作る一部。
+   BookingButton自体（他セクションでも使う共通部品）は変更せず、
+   Hero側のラッパーにだけ掛ける。
+   ============================================================= */
+.hero-cta-breathe {
+  border-radius: 999px;
+  animation: ctaBreathe 7s ease-in-out 4.8s infinite;
+}
+@keyframes ctaBreathe {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(212, 184, 122, 0); }
+  50%      { box-shadow: 0 0 20px 3px rgba(212, 184, 122, 0.22); }
+}
+.hero-root.is-off .hero-cta-breathe {
+  animation-play-state: paused;
+}
+
+/* =============================================================
    ENTRANCE — Hero専用、初回表示時の一度きりの登場アニメーション
    数字・ラベル・見出し・本文・画像・CTAで異なる移動量にし、
    「全部同じフェードアップ」にならないようにしている。
@@ -574,15 +871,15 @@
   to   { opacity: 1; }
 }
 @keyframes riseLabel {
-  from { opacity: 0; transform: translate3d(-14px, 0, 0); }
+  from { opacity: 0; transform: translate3d(-26px, 0, 0); }
   to   { opacity: 1; transform: none; }
 }
 @keyframes riseHeading {
-  from { opacity: 0; transform: translate3d(0, 40px, 0); }
+  from { opacity: 0; transform: translate3d(0, 72px, 0); }
   to   { opacity: 1; transform: none; }
 }
 @keyframes riseBody {
-  from { opacity: 0; transform: translate3d(0, 22px, 0); }
+  from { opacity: 0; transform: translate3d(0, 40px, 0); }
   to   { opacity: 1; transform: none; }
 }
 @keyframes riseImage {
@@ -590,27 +887,36 @@
   to   { opacity: 1; transform: none; }
 }
 @keyframes riseCta {
-  from { opacity: 0; transform: translate3d(0, 18px, 0); }
+  from { opacity: 0; transform: translate3d(0, 32px, 0); }
   to   { opacity: 1; transform: none; }
 }
 
-.enter-fade    { opacity: 0; animation: fadeIn    0.7s ease-out forwards; }
-.enter-label   { opacity: 0; animation: riseLabel   0.6s cubic-bezier(0.22,1,0.36,1) forwards; }
-.enter-heading { opacity: 0; animation: riseHeading 0.9s cubic-bezier(0.16,1,0.3,1)  forwards; }
-.enter-body    { opacity: 0; animation: riseBody    0.7s cubic-bezier(0.22,1,0.36,1) forwards; }
-.enter-image   { opacity: 0; animation: riseImage   0.95s cubic-bezier(0.16,1,0.3,1) forwards; }
-.enter-cta     { opacity: 0; animation: riseCta     0.6s cubic-bezier(0.22,1,0.36,1) forwards; }
+.enter-fade    { opacity: 0; animation: fadeIn    0.6s ease-out forwards; }
+.enter-label   { opacity: 0; animation: riseLabel   0.55s cubic-bezier(0.22,1,0.36,1) forwards; }
+.enter-heading { opacity: 0; animation: riseHeading 0.72s cubic-bezier(0.16,1,0.3,1)  forwards; }
+.enter-body    { opacity: 0; animation: riseBody    0.58s cubic-bezier(0.22,1,0.36,1) forwards; }
+.enter-image   { opacity: 0; animation: riseImage   0.8s cubic-bezier(0.16,1,0.3,1) forwards; }
+.enter-cta     { opacity: 0; animation: riseCta     0.5s cubic-bezier(0.22,1,0.36,1) forwards; }
 
-.d1 { animation-delay: 0.05s; }
-.d2 { animation-delay: 0.20s; }
-.d3 { animation-delay: 0.35s; }
-.d4 { animation-delay: 0.50s; }
-.d5 { animation-delay: 0.65s; }
-.d6 { animation-delay: 0.80s; }
+/* AIチップ→見出し→本文→CTAへの「視線のリレー」に合わせた遅延。
+   0〜2.5秒はチップだけが動く単独の間を作り、2.5秒の受け渡し
+   （hero-handoff-beam）を経て見出しが受け取る。以降は各要素の
+   登場が前の要素の終わり切る20〜30%前から始まるよう重ね、
+   完全な静止→静止のバトンタッチにならないようにしている。
+     見出し   2.8s〜3.52s（チップのコアがまだ点灯中に重なる）
+     本文     3.3s〜3.88s（見出しの終わり約30%手前で重なる）
+     CTA      3.7s〜4.2s（本文の終わり約25%手前で重なる）
+     補足文言 4.1s〜　　（CTAの終わり約25%手前で重なる） */
+.d1 { animation-delay: 2.8s; }
+.d2 { animation-delay: 2.8s; }
+.d3 { animation-delay: 3.3s; }
+.d4 { animation-delay: 3.7s; }
+.d5 { animation-delay: 4.1s; }
+.d6 { animation-delay: 4.1s; }
 
 @media (max-width: 767px) {
-  @keyframes riseHeadingSm { from { opacity: 0; transform: translate3d(0, 24px, 0); } to { opacity: 1; transform: none; } }
-  @keyframes riseBodySm    { from { opacity: 0; transform: translate3d(0, 14px, 0); } to { opacity: 1; transform: none; } }
+  @keyframes riseHeadingSm { from { opacity: 0; transform: translate3d(0, 44px, 0); } to { opacity: 1; transform: none; } }
+  @keyframes riseBodySm    { from { opacity: 0; transform: translate3d(0, 26px, 0); } to { opacity: 1; transform: none; } }
   @keyframes riseImageSm   { from { opacity: 0; transform: translate3d(0, 34px, 0) scale3d(0.97,0.97,1); } to { opacity: 1; transform: none; } }
   .enter-heading { animation-name: riseHeadingSm; }
   .enter-body    { animation-name: riseBodySm; }
@@ -804,13 +1110,43 @@
   .sec-glow,
   .sec-node,
   .sec-packet,
-  .sec-chip {
+  .sec-chip,
+  .hero-streak-line,
+  .chip-formation-wrap,
+  .chip-outline,
+  .chip-panel,
+  .chip-trace,
+  .chip-pin,
+  .chip-core,
+  .chip-core-glow,
+  .chip-core-flash,
+  .hero-handoff-beam,
+  .hero-cta-breathe {
     animation: none !important;
   }
 
   /* 粒子は動かさず、静かに置いておく */
   .amb-dot { opacity: 0.25 !important; }
   .sec-node { opacity: 0.4 !important; }
+  .hero-streak-line { opacity: 0 !important; }
+
+  /* AIチップは組み上がる過程を飛ばし、完成形を即座に表示する */
+  .chip-formation-wrap,
+  .chip-outline,
+  .chip-panel,
+  .chip-trace,
+  .chip-pin,
+  .chip-core-glow {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .chip-core {
+    opacity: 0.95 !important;
+    transform: none !important;
+  }
+  .chip-core-flash { opacity: 0 !important; }
+  .hero-handoff-beam { opacity: 0 !important; }
+  .hero-cta-breathe { box-shadow: none !important; }
 
   /* セクションの一度きりの立ち上がりも即時表示に */
   .sec-amb-in {

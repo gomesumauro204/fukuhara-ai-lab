@@ -4,6 +4,7 @@ import { useHeroMotion } from '../hooks/useHeroMotion'
 import { BookingButton, LinkButton, MarkStar } from './ui'
 import HeroAmbience from './HeroAmbience'
 import HeroVisual from './HeroVisual'
+import { HeroFormationMobile } from './HeroFormation'
 
 /**
  * ファーストビュー
@@ -37,12 +38,23 @@ export default function Hero() {
         <HeroAmbience />
       </div>
 
-      {/* ── 第2層：中央の縦長ビジュアル ── */}
+      {/* ── 第2層：中央の縦長ビジュアル（PC/タブレット。sm未満は非表示） ──
+          チップ自身が完成までの登場演出を持つため、外側のenter-image
+          フェードは掛けない（掛けると開始が遅れて二重になるため）。 */}
       <div className="hero-pillar-wrap" aria-hidden="true">
-        <div className="enter-image d3 h-full">
-          <HeroVisual />
-        </div>
+        <HeroVisual />
       </div>
+
+      {/* スマホ専用：ヘッダー直下の余白に収まる小型のオープニング演出
+          （PC版の縮小ではなく別レイアウト。見出し・本文とは重ならない） */}
+      <div className="hero-formation-mobile sm:hidden" aria-hidden="true">
+        <HeroFormationMobile />
+      </div>
+
+      {/* AIチップ→見出しへの「視線の受け渡し」を示す光の帯。
+          チップの点灯（約2.5秒）と同時に一度だけ現れて消える。
+          PCは横方向、スマホは縦方向（index.cssのメディアクエリで切替）。 */}
+      <div className="hero-handoff-beam" aria-hidden="true" />
 
       {/* ── 第3層：前景コンテンツ ── */}
       <div className="hero-fg relative z-10 max-w-content mx-auto w-full
@@ -82,7 +94,10 @@ export default function Hero() {
           </p>
 
           <div className="enter-cta d4 flex flex-col sm:flex-row gap-3 mb-7">
-            <BookingButton tone="gold" className="w-full sm:w-auto" />
+            {/* 視線リレーの最後の受け皿。5.6秒以降、ごく弱く呼吸させる */}
+            <div className="hero-cta-breathe w-full sm:w-auto">
+              <BookingButton tone="gold" className="w-full sm:w-auto" />
+            </div>
             <LinkButton href="#works" tone="outline" className="w-full sm:w-auto">
               制作実績を見る
             </LinkButton>

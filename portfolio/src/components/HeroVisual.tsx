@@ -1,54 +1,31 @@
+import { HeroFormationDesktop } from './HeroFormation'
+
 /**
- * ファーストビュー中央の「光の柱」
+ * ファーストビュー中央の「光の柱」＝オープニング演出の主役。
  *
  * 設計方針
- * - 外部画像・動画を使わず CSS のみで構成（追加の転送量ゼロ）
- * - 主役は柔らかい光。ただし完全な抽象で終わらせず、
- *   「記録が積み上がり、整理されていく」ことが伝わる控えめな具象要素
- *   （記録の行・走査線・工程ラベル）を重ねる
+ * - 外部画像・動画を使わず CSS/SVG のみで構成（追加の転送量ゼロ）
+ * - ページを開いてからの5秒間で、AIチップの輪郭・回路・ピンが
+ *   段階的に組み上がり、中心のコアが点灯して静かな待機発光へ落ち着く
+ *   （詳細タイムラインは index.css の chip-* を参照）
  * - 実在しない画面やテキストは作らない
  */
 
 /** 柱に沿って並ぶ工程ラベル */
 const STEPS = ['記録', '整理', '検索', '共有'] as const
 
-/** 記録の行：上ほど薄く、下ほどはっきり（積み上がりを示す） */
-const ROWS = [
-  { top: '20%', opacity: 0.25 },
-  { top: '30%', opacity: 0.40 },
-  { top: '40%', opacity: 0.55 },
-  { top: '50%', opacity: 0.75 },
-  { top: '60%', opacity: 0.55 },
-  { top: '70%', opacity: 0.40 },
-  { top: '80%', opacity: 0.25 },
-] as const
-
 export default function HeroVisual() {
   return (
     <div className="relative h-full w-full" aria-hidden="true">
-      <div className="pillar h-full w-full">
-        {/* 柔らかい光 */}
+      <div className="pillar h-full w-full flex items-center justify-center">
+        {/* 柔らかい光（背景の呼吸） */}
         <span className="pillar-glow pillar-glow-a" />
         <span className="pillar-glow pillar-glow-b" />
 
-        {/* 記録の行 */}
-        {ROWS.map(row => (
-          <span
-            key={row.top}
-            className="pillar-row"
-            style={{ top: row.top, opacity: row.opacity }}
-          />
-        ))}
-
-        {/* 中央の1件だけ状態が切り替わっている（重要フラグの示唆） */}
-        <span className="absolute left-[14%] top-[calc(50%-9px)]
-          w-[3px] h-[18px] rounded-full bg-gold/70" />
-
-        {/* 下から上へ通過する走査線 */}
-        <span className="pillar-scan" />
-
-        {/* 縦の枠線 */}
-        <span className="pillar-frame" />
+        {/* AIチップ（演算コア）が組み上がるオープニング演出 */}
+        <div className="relative w-[92%] max-w-[300px] aspect-[240/220]">
+          <HeroFormationDesktop />
+        </div>
       </div>
 
       {/*
