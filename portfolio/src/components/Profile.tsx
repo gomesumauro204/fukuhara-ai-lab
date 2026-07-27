@@ -1,9 +1,34 @@
 import { PROFILE, SITE } from '../data/site'
 import { Section, SectionHead, Reveal } from './ui'
 
+/**
+ * プロフィール：業務にあたっている様子の写真をセクション背景の
+ * 右側へ大きく配置する。本人写真として断定はせず、あくまで
+ * 「業務にあたっている様子」の一場面として扱う。
+ */
 export default function Profile() {
   return (
-    <Section id="about" tone="navy">
+    <Section
+      id="about"
+      tone="navy"
+      background={
+        <div className="prof-photo-wrap" aria-hidden="true">
+          <picture>
+            <source media="(max-width: 767px)" srcSet="/profile-work-sm.webp" />
+            <img
+              src="/profile-work.webp"
+              alt=""
+              width={1600}
+              height={901}
+              loading="lazy"
+              decoding="async"
+              className="prof-photo"
+            />
+          </picture>
+          <div className="prof-photo-overlay" />
+        </div>
+      }
+    >
       <SectionHead
         num="07"
         en="Profile"

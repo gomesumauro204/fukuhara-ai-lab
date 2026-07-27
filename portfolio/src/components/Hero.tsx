@@ -3,8 +3,6 @@ import { HERO, BOOKING } from '../data/site'
 import { useHeroMotion } from '../hooks/useHeroMotion'
 import { BookingButton, LinkButton, MarkStar } from './ui'
 import HeroAmbience from './HeroAmbience'
-import HeroVisual from './HeroVisual'
-import { HeroFormationMobile } from './HeroFormation'
 
 /**
  * ファーストビュー
@@ -33,30 +31,19 @@ export default function Hero() {
         min-h-[100svh] flex flex-col justify-center
         pt-20 sm:pt-24 pb-12"
     >
+      {/* ── 第0層：背景写真（人物・ダッシュボードのあるオフィス） ──
+          世界観・信頼感・業務改善感を補強するための背景。
+          アンビエンス・文字より必ず背面に置く（最初の子要素）。
+          初回表示時のみゆっくりズームし、ループはしない。 */}
+      <div className="hero-photo" aria-hidden="true" />
+      <div className="hero-photo-overlay" aria-hidden="true" />
+
       {/* ── 第1層：背景アンビエンス（最も遅れて動く） ── */}
       <div className="hero-amb">
         <HeroAmbience />
       </div>
 
-      {/* ── 第2層：中央の縦長ビジュアル（PC/タブレット。sm未満は非表示） ──
-          チップ自身が完成までの登場演出を持つため、外側のenter-image
-          フェードは掛けない（掛けると開始が遅れて二重になるため）。 */}
-      <div className="hero-pillar-wrap" aria-hidden="true">
-        <HeroVisual />
-      </div>
-
-      {/* スマホ専用：ヘッダー直下の余白に収まる小型のオープニング演出
-          （PC版の縮小ではなく別レイアウト。見出し・本文とは重ならない） */}
-      <div className="hero-formation-mobile sm:hidden" aria-hidden="true">
-        <HeroFormationMobile />
-      </div>
-
-      {/* AIチップ→見出しへの「視線の受け渡し」を示す光の帯。
-          チップの点灯（約2.5秒）と同時に一度だけ現れて消える。
-          PCは横方向、スマホは縦方向（index.cssのメディアクエリで切替）。 */}
-      <div className="hero-handoff-beam" aria-hidden="true" />
-
-      {/* ── 第3層：前景コンテンツ ── */}
+      {/* ── 第2層：前景コンテンツ ── */}
       <div className="hero-fg relative z-10 max-w-content mx-auto w-full
         px-5 sm:px-8 lg:px-12">
 

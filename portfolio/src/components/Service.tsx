@@ -1,10 +1,37 @@
 import { SERVICES } from '../data/site'
 import { Section, SectionHead, Reveal } from './ui'
 
-/** 支援内容：巨大な番号を主役にし、カードの反復を避ける */
+/**
+ * 支援内容：ヒアリング風景の写真をセクション全体の背景として使い、
+ * 「その場に立ち会っているような」世界観を作る。
+ *
+ * 写真は右寄せで人物・PCが見える位置に配置し、左側は濃いネイビーの
+ * グラデーションで覆って文章を最優先で読める状態にする
+ * （画像レイヤー→オーバーレイ→コンテンツの3層構造）。
+ */
 export default function Service() {
   return (
-    <Section id="service" tone="navy">
+    <Section
+      id="service"
+      tone="navy"
+      background={
+        <div className="svc-photo-wrap" aria-hidden="true">
+          <picture>
+            <source media="(max-width: 767px)" srcSet="/service-consulting-sm.webp" />
+            <img
+              src="/service-consulting.webp"
+              alt=""
+              width={1600}
+              height={901}
+              loading="lazy"
+              decoding="async"
+              className="svc-photo"
+            />
+          </picture>
+          <div className="svc-photo-overlay" />
+        </div>
+      }
+    >
       <SectionHead
         num="03"
         en="Service"
@@ -13,12 +40,12 @@ export default function Service() {
         dark
       />
 
-      <div className="border-t border-white/10">
+      <div className="max-w-2xl border-t border-white/10">
         {SERVICES.map((service, i) => (
           <Reveal key={service.num}
             kind="body"
             delay={((i % 4) + 1) as 1 | 2 | 3 | 4}
-            className="grid sm:grid-cols-[auto_1fr] lg:grid-cols-[8rem_18rem_1fr]
+            className="grid sm:grid-cols-[auto_1fr]
               gap-x-8 gap-y-3 items-baseline
               border-b border-white/10 py-8 lg:py-10">
             <span aria-hidden="true"
@@ -27,13 +54,14 @@ export default function Service() {
               {service.num}
             </span>
 
-            <h3 className="font-mincho text-[1.15rem] lg:text-[1.35rem] text-white">
-              {service.title}
-            </h3>
-
-            <p className="text-[14px] leading-[2] text-white/65 max-w-xl">
-              {service.body}
-            </p>
+            <div>
+              <h3 className="font-mincho text-[1.15rem] lg:text-[1.35rem] text-white mb-3">
+                {service.title}
+              </h3>
+              <p className="text-[14px] leading-[2] text-white/65 max-w-xl">
+                {service.body}
+              </p>
+            </div>
           </Reveal>
         ))}
       </div>

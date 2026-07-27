@@ -168,7 +168,7 @@ function seedFromId(id?: string) {
 }
 
 export function Section({
-  id, children, tone = 'navy', className = '', ambience = true,
+  id, children, tone = 'navy', className = '', ambience = true, background,
 }: {
   id?: string
   children: ReactNode
@@ -176,10 +176,14 @@ export function Section({
   className?: string
   /** 背景の光・データラインを表示するか（既定 true） */
   ambience?: boolean
+  /** セクション全幅いっぱいに敷く背景（写真など）。paddingの外側、
+      SectionAmbienceより背面に置く。既定は無し */
+  background?: ReactNode
 }) {
   return (
     <section id={id}
       className={`relative overflow-hidden ${TONE_CLASS[tone]} ${className}`}>
+      {background}
       {ambience && <SectionAmbience tone={tone} seed={seedFromId(id)} />}
       <div className="relative z-10 max-w-content mx-auto px-5 sm:px-8 lg:px-12
         py-section lg:py-section-lg">
