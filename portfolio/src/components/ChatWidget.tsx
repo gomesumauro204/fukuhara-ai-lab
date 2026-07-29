@@ -68,16 +68,6 @@ const GREETING = [
   'ご用件を下からお選びください。',
 ]
 
-/**
- * 起動タブの上に、数秒に一度だけ短く現れる吹き出し。
- * 常時表示ではなく「たまに思い出させる」頻度に留める
- * （CSS側で20秒周期・1回あたり約5秒だけ表示）。
- */
-const TEASER_MESSAGES = [
-  'まずはお気軽にご相談ください',
-  '30分・無料でご相談できます',
-] as const
-
 export default function ChatWidget() {
   const [open, setOpen]   = useState(false)
   const [reply, setReply] = useState<string | null>(null)
@@ -127,12 +117,6 @@ export default function ChatWidget() {
           （キャラクターの一部ではなく別要素として配置）。 */}
       {!open && (
         <div className="chat-teaser-wrap hidden lg:flex flex-col items-center">
-          <div className="chat-bubble-stack" aria-hidden="true">
-            {TEASER_MESSAGES.map((msg, i) => (
-              <span key={msg} className={`chat-bubble chat-bubble-${i}`}>{msg}</span>
-            ))}
-          </div>
-
           <button
             type="button"
             onClick={() => setOpen(true)}

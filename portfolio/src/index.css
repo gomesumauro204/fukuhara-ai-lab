@@ -1202,8 +1202,10 @@
   right: 0.75rem;
   bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
   z-index: 60;
-  /* 本文・画像の上に大きく乗らないよう、占有面積そのものを抑える */
-  max-width: 64px;
+  /* ボタンの幅より内側に絞らない（絞ると中央寄せの子要素が
+     左右にはみ出し、右端が画面外に切れる原因になるため）。
+     万一の極小画面向けの安全な上限のみ設定する。 */
+  max-width: calc(100vw - 1.5rem);
 }
 
 /* ---- 小型AIアバター（Heroの中央コアと同じ意匠を縮小して転用） ----
@@ -1445,45 +1447,10 @@
 .chat-cta-standalone-sp {
   padding: 8px 16px;
   font-size: 11.5px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
-/* ---- 起動タブ上の吹き出し：数秒に一度だけ、短く現れて消える ----
-   2つの文言を同じ位置に重ね、20秒周期の中で交互に約5秒だけ表示
-   （常時表示にはしない）。パネルが開いている間は描画されない。 */
-.chat-bubble-stack {
-  position: relative;
-  height: 34px;
-  margin-bottom: 10px;
-  min-width: 1px;
-}
-.chat-bubble-stack-sp {
-  height: 30px;
-  margin-bottom: 8px;
-}
-.chat-bubble {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  white-space: nowrap;
-  padding: 7px 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(212, 184, 122, 0.35);
-  background: rgba(15, 36, 80, 0.95);
-  color: rgba(255, 255, 255, 0.88);
-  font-size: 11.5px;
-  letter-spacing: 0.02em;
-  box-shadow: 0 8px 20px -8px rgba(0, 0, 0, 0.6);
-  opacity: 0;
-  pointer-events: none;
-  animation: chatBubbleCycle 20s ease-in-out infinite;
-}
-.chat-bubble-0 { animation-delay: 0s; }
-.chat-bubble-1 { animation-delay: 10s; }
-@keyframes chatBubbleCycle {
-  0%, 10%   { opacity: 0; transform: translateY(4px); }
-  16%, 40%  { opacity: 1; transform: translateY(0); }
-  50%, 100% { opacity: 0; transform: translateY(4px); }
-}
 .chat-panel {
   position: fixed;
   right: 1rem;
@@ -1568,11 +1535,10 @@
   .problem-star-far  { opacity: 0.22 !important; transform: translate3d(0, -8px, 0) !important; }
   .problem-star-near { opacity: 0.3 !important; transform: translate3d(0, -26px, 0) !important; }
 
-  /* ご相談導線のアバター・オンライン表示・吹き出しも静止表示に */
+  /* ご相談導線のアバター・オンライン表示も静止表示に */
   .chat-avatar-glow,
   .chat-avatar-core,
   .chat-online-dot,
-  .chat-bubble,
   .cat-eye-group,
   .cat-body-group,
   .cat-tail,
@@ -1583,7 +1549,6 @@
   }
   .chat-avatar-glow { opacity: 0.6 !important; }
   .chat-avatar-core { opacity: 0.95 !important; }
-  .chat-bubble { opacity: 0 !important; }
   .cat-greet { opacity: 1 !important; transform: none !important; }
 
   /* 背景の常時アニメーションをすべて停止 */
