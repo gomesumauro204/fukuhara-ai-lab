@@ -159,15 +159,11 @@ export default function ChatWidget() {
         </div>
       )}
 
-      {/* ── 起動：スマホは右下の「ボタン＋案内する猫」── */}
+      {/* ── 起動：スマホは右下の「ボタン＋案内する猫」──
+          スマホでは吹き出しを表示しない・サイズを控えめにし、
+          本文やCTAとの重なりを避ける（PC版は変更しない）。 */}
       {!open && (
         <div className="chat-launcher-sp-wrap lg:hidden flex flex-col items-center">
-          <div className="chat-bubble-stack chat-bubble-stack-sp" aria-hidden="true">
-            {TEASER_MESSAGES.map((msg, i) => (
-              <span key={msg} className={`chat-bubble chat-bubble-${i}`}>{msg}</span>
-            ))}
-          </div>
-
           <button
             ref={launchRef}
             type="button"
@@ -179,13 +175,13 @@ export default function ChatWidget() {
             ご相談はこちら
           </button>
 
-          <svg className="chat-point-arrow chat-point-arrow-up" width="12" height="12"
+          <svg className="chat-point-arrow chat-point-arrow-up" width="10" height="10"
             viewBox="0 0 14 14" fill="none" aria-hidden="true">
             <path d="M3 9l4-4 4 4" stroke="currentColor" strokeWidth="1.5"
               strokeLinecap="round" strokeLinejoin="round" />
           </svg>
 
-          <div className="chat-cat-wrap relative w-16 h-16" aria-hidden="true">
+          <div className="chat-cat-wrap relative w-11 h-11" aria-hidden="true">
             <ChatCat />
             <span className="chat-online-dot chat-online-dot-cat" />
           </div>
