@@ -66,7 +66,7 @@ export default function Hero() {
             タブレット以上では1行にまとめて右へオフセットする。
           */}
           <span className="enter-heading d2 block hero-line-bottom
-            sm:pl-[10vw] lg:pl-[15vw] sm:whitespace-nowrap">
+            sm:pl-[10vw] lg:pl-[min(15vw,18rem)] sm:whitespace-nowrap">
             {HERO.headlineBottom.map(part => (
               <span key={part} className="block sm:inline">{part}</span>
             ))}
