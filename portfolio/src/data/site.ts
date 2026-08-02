@@ -24,10 +24,7 @@ export const HERO = {
   headlineBottom: ['仕組みで', '終わらせる。'],
   lead:
     '紙・口頭・複雑なExcelで続いている業務を整理し、現場に合ったWebツールとして設計・開発します。',
-  // 四隅の極小英字ラベル
-  labelTopRight: ['BUSINESS OPERATIONS', 'DESIGNED INTO SYSTEMS'],
-  labelBottom:   ['BUSINESS IMPROVEMENT', 'TOOL DEVELOPMENT'],
-  labelNote:     '小規模な業務改善から対応',
+  labelNote: '小規模な業務改善から対応',
 } as const
 
 // ---- 連絡先 ----
@@ -54,9 +51,9 @@ export const FEATURES = {
 
 // ---- ナビゲーション ----
 export const NAV = [
-  { label: '制作実績',   href: '#works' },
   { label: '支援内容',   href: '#service' },
   { label: '専門体制',   href: '#team' },
+  { label: '制作実績',   href: '#works' },
   { label: '制作の流れ', href: '#process' },
   { label: 'プロフィール', href: '#about' },
   { label: 'よくある質問', href: '#faq' },

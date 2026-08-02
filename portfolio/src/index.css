@@ -78,9 +78,9 @@
 .hero-headline {
   font-family: theme('fontFamily.mincho');
   font-weight: 500;
-  line-height: 1.18;
+  line-height: 1.3;
   letter-spacing: 0.02em;
-  font-size: clamp(2.4rem, 8.2vw, 8rem);
+  font-size: clamp(1.9rem, 6.4vw, 5.8rem);
 }
 
 /* 1行目：左は白、柱に差しかかる位置からゴールド */

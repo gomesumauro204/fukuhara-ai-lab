@@ -51,11 +51,8 @@ export default function Contact() {
       {/* 無料相談（主導線） */}
       <Reveal kind="cta" delay={2} className="max-w-lg border border-gold/35
         bg-navy-deep/40 backdrop-blur-sm rounded-sm p-8 sm:p-11">
-        <p className="label-en" style={{ color: '#D9BE83' }}>
-          Online Meeting
-        </p>
         <p className="font-mincho text-[1.4rem] sm:text-[1.7rem] text-white
-          mt-4 mb-8">
+          mb-8">
           30分の無料相談
         </p>
 

@@ -47,7 +47,6 @@ export default function Profile() {
             {PROFILE.role}
           </p>
           <div className="w-10 h-px bg-gold my-6" aria-hidden="true" />
-          <p className="label-en mb-3">Role</p>
           <p className="text-[13px] leading-[1.95] text-white/65">
             {PROFILE.taskLine}
           </p>

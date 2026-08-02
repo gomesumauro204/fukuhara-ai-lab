@@ -6,7 +6,7 @@ export default function Strengths() {
   return (
     <Section id="strengths" tone="paper">
       <SectionHead
-        num="04"
+        num="03"
         en="Strengths"
         title={`${SITE.name}が大切にしていること`}
         lead="作ることを目的にせず、導入後に迷わず使える状態まで見据えて進めます。"

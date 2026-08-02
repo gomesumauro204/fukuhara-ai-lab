@@ -33,7 +33,7 @@ export default function Service() {
       }
     >
       <SectionHead
-        num="03"
+        num="02"
         en="Service"
         title="支援内容"
         lead="業務の整理から、ツールの設計・開発、導入後の改善までを一貫して担当します。"

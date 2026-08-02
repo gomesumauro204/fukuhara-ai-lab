@@ -12,7 +12,7 @@ export default function Team() {
   return (
     <Section id="team" tone="paper">
       <SectionHead
-        num="06"
+        num="04"
         en="Project Team"
         title="案件に合わせた専門体制"
       />
@@ -31,9 +31,6 @@ export default function Team() {
 
         {/* ── 窓口（常に福原が担当） ── */}
         <Reveal className="border border-gold/50 bg-white/60 p-7 rounded-sm">
-          <p className="label-en-dark mb-4" style={{ color: '#7A5F26' }}>
-            Contact Window
-          </p>
           <p className="font-mincho text-[1.5rem] text-ink mb-1">
             {TEAM.core.name}
           </p>
@@ -52,8 +49,6 @@ export default function Team() {
 
         {/* ── 案件に応じて連携する専門分野 ── */}
         <div>
-          <p className="label-en-dark mb-6">Connected Specialists</p>
-
           <ul className="border-t border-ink/12">
             {TEAM.partners.map((partner, i) => (
               <Reveal key={partner.field} as="li"

@@ -4,7 +4,7 @@ import { Section, SectionHead, IconChevron } from './ui'
 
 export default function Faq() {
   // 開いている項目のindex（nullなら全て閉じている）
-  const [openIndex, setOpenIndex] = useState<number | null>(0)
+  const [openIndex, setOpenIndex] = useState<number | null>(null)
 
   return (
     <Section id="faq" tone="paper">

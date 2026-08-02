@@ -33,7 +33,7 @@ export default function Process() {
       }
     >
       <SectionHead
-        num="05"
+        num="06"
         en="Process"
         title="制作・相談の流れ"
         lead="無料相談からご提案・お見積もりを経て、内容にご納得いただいた上で制作へ進みます。"

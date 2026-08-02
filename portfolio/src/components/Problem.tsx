@@ -26,7 +26,7 @@ export default function Problem() {
       background={<ProblemBackground />}
     >
       <SectionHead
-        num="02"
+        num="01"
         en="Issues"
         title="こんな業務が、そのままになっていませんか。"
         lead="どれか一つでも当てはまる場合、業務の整理とツール化で改善できる余地があります。"

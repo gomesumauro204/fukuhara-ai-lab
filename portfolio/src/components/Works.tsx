@@ -22,7 +22,7 @@ export default function Works() {
   return (
     <Section id="works" tone="navy">
       <SectionHead
-        num="01"
+        num="05"
         en="Works"
         title="制作実績"
         lead="実際の業務を題材に、記録・共有・管理を効率化するWebツールを設計・開発しています。公開中のものはデモから操作いただけます。"

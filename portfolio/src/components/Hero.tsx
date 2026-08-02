@@ -47,15 +47,6 @@ export default function Hero() {
       <div className="hero-fg relative z-10 max-w-content mx-auto w-full
         px-5 sm:px-8 lg:px-12">
 
-        {/* 右上のコーナーアンカー */}
-        <div className="enter-label d2 hidden sm:block absolute right-8 lg:right-12
-          -top-4 text-right">
-          <MarkStar className="text-gold" />
-          {HERO.labelTopRight.map(line => (
-            <p key={line} className="label-en">{line}</p>
-          ))}
-        </div>
-
         {/* 巨大見出し：柱の前を横断する */}
         <h1 className="hero-headline mb-8 sm:mb-10">
           <span className="enter-heading d1 block hero-line-top">
@@ -103,10 +94,7 @@ export default function Hero() {
         {/* 左下のコーナーアンカー */}
         <div className="enter-label d6 mt-14 sm:mt-20">
           <MarkStar className="text-gold" />
-          {HERO.labelBottom.map(line => (
-            <p key={line} className="label-en">{line}</p>
-          ))}
-          <p className="label-en mt-1">— {HERO.labelNote}</p>
+          <p className="label-en mt-1.5">— {HERO.labelNote}</p>
         </div>
       </div>
 
