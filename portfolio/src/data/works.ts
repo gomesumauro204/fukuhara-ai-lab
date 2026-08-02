@@ -33,6 +33,16 @@ export interface Work {
     pc: string
     sp: string
   }
+  /**
+   * 実画面ギャラリー（任意）。指定するとカードの右側（PC）／説明の下（スマホ）に
+   * 実画面を主役にしたギャラリーを表示する。mainが最も大きく、secondaryは
+   * その下または右下に小さく並ぶ。指定が無い場合は images.pc/sp を使った
+   * 従来のレイアウトにフォールバックする。
+   */
+  gallery?: {
+    main: { src: string; alt: string; caption: string }
+    secondary: readonly { src: string; alt: string; caption: string }[]
+  }
 }
 
 export const WORKS: readonly Work[] = [
@@ -60,6 +70,25 @@ export const WORKS: readonly Work[] = [
     images: {
       pc: '/works-kaigo-pc.png',
       sp: '/works-kaigo-sp.png',
+    },
+    gallery: {
+      main: {
+        src: '/works/kaigo-handover/01-record-list.jpeg',
+        alt: '介護現場向け申し送り管理ツールの一覧画面（登録後）',
+        caption: '記録した申し送りを一覧で共有する',
+      },
+      secondary: [
+        {
+          src: '/works/kaigo-handover/02-create-modal.jpeg',
+          alt: '新規申し送りを入力する画面',
+          caption: '申し送りを記録する',
+        },
+        {
+          src: '/works/kaigo-handover/03-empty-list.jpeg',
+          alt: '初期状態（登録前）の一覧画面',
+          caption: '状態別に管理する（初期状態）',
+        },
+      ],
     },
   },
 

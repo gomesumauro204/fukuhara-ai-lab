@@ -3,7 +3,7 @@ import {
   Section, SectionHead, Reveal,
   BookingButton, LinkButton, IconExternal,
 } from './ui'
-import { DesktopScreen, PhoneScreen, useImageExists } from './ScreenFrame'
+import { DesktopScreen, PhoneScreen, BrowserScreen, useImageExists } from './ScreenFrame'
 
 /**
  * 制作実績
@@ -11,9 +11,13 @@ import { DesktopScreen, PhoneScreen, useImageExists } from './ScreenFrame'
  * このサイトで最も重要なセクション。スクリーンショット・ツール名・
  * 対象業務・解決する課題・主な機能・デモ導線を一目で伝える。
  *
- * 画像の有無でカードの構成そのものを切り替える。
- * ・画像あり → 2カラムで画像を大きく見せる（左右交互）
- * ・画像なし → 単カラムの「説明中心カード」。空の大枠は作らない
+ * 各実績（WORKS配列の1件）がそれぞれ独立した左右2カラムのブロックに
+ * なっており、実績が増えれば配列に1件追加するだけで下に積み上がる。
+ *
+ * 画像の指定方法でカードの構成を切り替える。
+ * ・gallery指定あり → 左38%説明／右62%実画面ギャラリー（実画面が主役）
+ * ・images.pcのみ    → 従来の2カラム（左右交互・画像1枚を大きく表示）
+ * ・どちらも無し     → 単カラムの「説明中心カード」。空の大枠は作らない
  *
  * スマートフォンでは常に完全な縦並びにし、絶対配置要素が
  * 本文・ボタンへ重ならないよう十分な余白を確保している。
@@ -41,9 +45,55 @@ export default function Works() {
 function WorkItem({ work, index }: { work: Work; index: number }) {
   const hasImage = useImageExists(work.images.pc) === true
 
+  if (work.gallery) return <WorkItemWithGallery work={work} index={index} />
+
   return hasImage
     ? <WorkItemWithImage work={work} index={index} />
     : <WorkItemCompact work={work} index={index} />
+}
+
+// =================================================================
+// 実画面ギャラリー：左38%説明／右62%実画面（主役はスクリーンショット）
+// 右側は「登録する→一覧で共有する→状態を管理する」という業務の流れが
+// 一目で伝わるよう、メイン画像1枚＋サブ画像2枚の構成にする。
+// =================================================================
+function WorkItemWithGallery({ work, index }: { work: Work; index: number }) {
+  const gallery = work.gallery!
+
+  return (
+    <article className="grid lg:grid-cols-[38%_1fr] gap-10 lg:gap-12 items-start">
+      <div className="min-w-0">
+        <WorkContent work={work} index={index} dir="left" />
+      </div>
+
+      <div data-parallax className="img-parallax min-w-0">
+        <Reveal kind="image" dir="right">
+          {/* 記録する → 一覧で共有する → 状態を管理する、という流れの目印 */}
+          <p className="text-[12px] text-gold-bright/80 tracking-wide mb-4">
+            記録する → 一覧で共有する → 状態を管理する
+          </p>
+
+          <BrowserScreen
+            src={gallery.main.src}
+            alt={gallery.main.alt}
+            caption={gallery.main.caption}
+            className="w-full lg:max-w-[680px] mb-5"
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:max-w-[680px]">
+            {gallery.secondary.map(shot => (
+              <BrowserScreen
+                key={shot.src}
+                src={shot.src}
+                alt={shot.alt}
+                caption={shot.caption}
+              />
+            ))}
+          </div>
+        </Reveal>
+      </div>
+    </article>
+  )
 }
 
 // =================================================================
