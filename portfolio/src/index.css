@@ -212,8 +212,8 @@
 .hero-showcase-grid {
   position: absolute;
   top: -25%;
-  right: -8%;
-  width: 58%;
+  right: -6%;
+  width: 98%;
   height: 150%;
   display: flex;
   gap: 16px;
@@ -235,9 +235,8 @@
   animation-iteration-count: infinite;
   will-change: transform;
 }
-/* 列ごとに開始位置をずらし、同時に揃って動く不自然さを避ける */
-.hero-showcase-col-1 .hero-showcase-track { animation-delay: -9s; }
-.hero-showcase-col-2 .hero-showcase-track { animation-delay: -21s; }
+/* 列ごとの開始位置のずらし（同時に揃って動く不自然さを避ける）は
+   コンポーネント側でanimation-delayをインラインstyleとして付与する */
 @keyframes heroShowcaseScroll {
   from { transform: translateY(0); }
   to   { transform: translateY(-50%); }
@@ -388,18 +387,22 @@
   background: rgba(212, 184, 122, 0.4);
 }
 
-/* タブレット以下：3列目を隠し2列に */
+/* タブレット以下：3〜4列目を隠し2列に */
 @media (max-width: 1023px) {
-  .hero-showcase-col-2 { display: none; }
-  .hero-showcase-grid { width: 66%; right: -6%; }
+  .hero-showcase-col-2,
+  .hero-showcase-col-3 { display: none; }
+  .hero-showcase-grid { width: 74%; right: -6%; }
 }
-/* スマホ：1列のみ。右下寄りに小さく配置し、横スクロールを起こさない */
+/* スマホ：1列のみ。右下寄りに配置しつつ、以前より少し幅を持たせて
+   画面上での存在感を出す（横スクロールは起こさない範囲で調整） */
 @media (max-width: 639px) {
-  .hero-showcase-col-1 { display: none; }
+  .hero-showcase-col-1,
+  .hero-showcase-col-2,
+  .hero-showcase-col-3 { display: none; }
   .hero-showcase-grid {
     top: -10%;
-    right: -18%;
-    width: 58%;
+    right: -14%;
+    width: 68%;
     height: 120%;
     transform: rotate(-12deg);
   }
@@ -702,24 +705,31 @@
 .problem-checkline {
   position: absolute;
   inset: 0;
-  width: 2px;
+  width: 3px;
   background: linear-gradient(180deg, var(--accent, #C9A961), rgba(201, 169, 97, 0.15));
   transform: scaleY(var(--p, 0));
   transform-origin: top;
 }
 .problem-checkline-dot {
   position: absolute;
-  left: 1px;
+  left: 1.5px;
   top: calc(var(--p, 0) * 100%);
-  width: 7px;
-  height: 7px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  transform: translate3d(-50%, -50%, 0);
   background: var(--accent, #C9A961);
-  box-shadow: 0 0 10px 2px rgba(201, 169, 97, 0.55);
+  box-shadow: 0 0 16px 4px rgba(201, 169, 97, 0.65);
+  animation: trackDotPulse 1.8s ease-in-out infinite;
 }
 @media (max-width: 639px) {
-  .problem-checkline-wrap { left: -2px; }
+  .problem-checkline-wrap { left: -1px; }
+}
+
+/* 先端の光点が常にごく軽く脈打つ（スクロールが止まっていても
+   「これは動く要素だ」と一目でわかるようにする） */
+@keyframes trackDotPulse {
+  0%, 100% { transform: translate3d(-50%, -50%, 0) scale(1); }
+  50%      { transform: translate3d(-50%, -50%, 0) scale(1.35); }
 }
 
 /* 静的な微細ノイズ（動かさない・点滅させない） */
@@ -861,8 +871,10 @@
   object-fit: cover;
   object-position: 78% 32%;
   opacity: 0.85;
-  /* スクロール量に応じて縦方向にはっきり動く視差ドリフト（奥行き） */
-  transform: scale(1.12) translate3d(0, calc((var(--p, 0.5) - 0.5) * -7%), 0);
+  /* スクロール量に応じて縦方向にはっきり動く視差ドリフト（奥行き）。
+     % ではなく px の実距離で指定し、画面上で誰の目にも動きが
+     わかる大きさにする。 */
+  transform: scale(1.3) translate3d(0, calc((var(--p, 0.5) - 0.5) * -140px), 0);
   will-change: transform;
 }
 .svc-photo-overlay {
@@ -978,10 +990,10 @@
   object-fit: cover;
   object-position: 76% 30%;
   opacity: 0.85;
-  /* Serviceとは違う質感にするため、縦だけでなく横にもわずかに動く
+  /* Serviceとは違う質感にするため、縦だけでなく横にもはっきり動く
      斜めドリフトにする（同じ動きの繰り返しに見えないように） */
-  transform: scale(1.14)
-    translate3d(calc((var(--p, 0.5) - 0.5) * 4%), calc((var(--p, 0.5) - 0.5) * -7%), 0);
+  transform: scale(1.34)
+    translate3d(calc((var(--p, 0.5) - 0.5) * 90px), calc((var(--p, 0.5) - 0.5) * -130px), 0);
   will-change: transform;
 }
 .prof-photo-overlay {
@@ -1028,10 +1040,10 @@
   height: 100%;
   object-fit: cover;
   object-position: 78% 24%;
-  /* 視差の動きに加えて、スクロールで中央に近づくほどわずかに
+  /* 視差の動きに加えて、スクロールで中央に近づくほどはっきり
      明るくなる「浮かび上がる」質感にし、Service/Profileと差をつける */
-  opacity: calc(0.55 + var(--p, 0.5) * 0.35);
-  transform: scale(1.12) translate3d(0, calc((var(--p, 0.5) - 0.5) * -7%), 0);
+  opacity: calc(0.4 + var(--p, 0.5) * 0.55);
+  transform: scale(1.3) translate3d(0, calc((var(--p, 0.5) - 0.5) * -140px), 0);
   will-change: transform, opacity;
 }
 .contact-photo-overlay {
@@ -1438,6 +1450,12 @@
 .reveal-left:not(.is-in)  { transform: translate3d(-40px, 0, 0); }
 .reveal-right:not(.is-in) { transform: translate3d(40px, 0, 0); }
 
+/* 大切にしていること：他の左右フェードインより大きく・ゆっくりスライド
+   させ、スクロールしながら見たときにはっきり動きとしてわかるようにする */
+.strength-card.reveal-left:not(.is-in)  { transform: translate3d(-110px, 0, 0); }
+.strength-card.reveal-right:not(.is-in) { transform: translate3d(110px, 0, 0); }
+.strength-card { transition-duration: 0.9s; }
+
 /* CTA：最後に控えめに下から */
 .reveal-cta:not(.is-in)     { transform: translate3d(0, 20px, 0); }
 
@@ -1445,7 +1463,8 @@
 .team-connect {
   transform: scaleX(0);
   transform-origin: left;
-  transition: transform 0.6s ease-out 0.15s;
+  transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.15s;
+  box-shadow: 0 0 6px 0 var(--accent-ink, rgba(92, 58, 82, 0.5));
 }
 .reveal.is-in .team-connect { transform: scaleX(1); }
 
@@ -1480,12 +1499,12 @@
   position: absolute;
   top: 50%;
   left: calc(var(--p, 0) * 100%);
-  width: 9px;
-  height: 9px;
+  width: 13px;
+  height: 13px;
   border-radius: 50%;
-  transform: translate3d(-50%, -50%, 0);
   background: #E0CB96;
-  box-shadow: 0 0 12px 3px rgba(224, 203, 150, 0.6);
+  box-shadow: 0 0 18px 4px rgba(224, 203, 150, 0.7);
+  animation: trackDotPulse 1.8s ease-in-out infinite;
 }
 
 /* 制作の流れ：接続線（スマホ・縦方向）。考え方はPC版と同じ */
@@ -1498,12 +1517,12 @@
   position: absolute;
   left: 50%;
   top: calc(var(--p, 0) * 100%);
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  transform: translate3d(-50%, -50%, 0);
   background: #E0CB96;
-  box-shadow: 0 0 10px 3px rgba(224, 203, 150, 0.6);
+  box-shadow: 0 0 16px 4px rgba(224, 203, 150, 0.7);
+  animation: trackDotPulse 1.8s ease-in-out infinite;
 }
 
 /* =============================================================
@@ -1844,6 +1863,11 @@
 
   /* スクロール連動の演出はすべて「静止した完成形」で固定表示にする */
   .problem-checkline { transform: scaleY(1) !important; }
+  .problem-checkline-dot,
+  .proc-flowline-dot,
+  .proc-flowline-v-dot {
+    animation: none !important;
+  }
   .problem-checkline-dot { top: 100% !important; }
   .proc-flowline { transform: scaleX(1) !important; }
   .proc-flowline-dot { left: 100% !important; }

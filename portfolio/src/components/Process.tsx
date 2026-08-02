@@ -50,7 +50,7 @@ export default function Process() {
         {/* 接続線（PC・横方向）：スクロール量にそのまま連動して伸び、
             先端に現在地を示す光点が付く */}
         <div data-parallax aria-hidden="true"
-          className="hidden lg:block absolute top-[9px] left-0 right-0 h-[2px]">
+          className="hidden lg:block absolute top-[9px] left-0 right-0 h-[3px]">
           <span className="proc-flowline absolute inset-0"
             style={{ background: 'linear-gradient(90deg, #C9A961, #82C4BC, #A79CD1, #C79BB6)' }} />
           <span className="proc-flowline-dot" />
@@ -59,7 +59,7 @@ export default function Process() {
         {/* 接続線（スマホ・縦方向）：カードが縦1列に並ぶため、
             同じ考え方を縦の線に置き換える */}
         <div data-parallax aria-hidden="true"
-          className="sm:hidden absolute top-1 bottom-1 left-[9px] w-[2px]">
+          className="sm:hidden absolute top-1 bottom-1 left-[9px] w-[3px]">
           <span className="proc-flowline-v absolute inset-0"
             style={{ background: 'linear-gradient(180deg, #C9A961, #82C4BC, #A79CD1, #C79BB6)' }} />
           <span className="proc-flowline-v-dot" />

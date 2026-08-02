@@ -60,7 +60,7 @@ export default function Team() {
                   border-b border-ink/12 py-5">
                 {/* 接続を示す短い横線：行が現れるタイミングで左から描画される */}
                 <span aria-hidden="true"
-                  className="team-connect w-6 sm:w-10 h-[2px] shrink-0 translate-y-[-3px]"
+                  className="team-connect w-10 sm:w-16 h-[3px] shrink-0 translate-y-[-3px]"
                   style={{ background: 'var(--accent-ink, #5C3A52)' }} />
                 <span className="min-w-0 flex-1 flex flex-wrap
                   items-baseline gap-x-4 gap-y-1">
