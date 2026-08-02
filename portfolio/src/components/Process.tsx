@@ -47,15 +47,25 @@ export default function Process() {
       />
 
       <div className="relative">
-        {/* 接続線（PCのみ）：スクロール量にそのまま連動して伸びる */}
-        <div
-          data-parallax
-          aria-hidden="true"
-          className="proc-flowline hidden lg:block absolute top-[9px] left-0 right-0 h-px"
-          style={{ background: 'linear-gradient(90deg, #C9A961, #82C4BC, #A79CD1, #C79BB6)' }}
-        />
+        {/* 接続線（PC・横方向）：スクロール量にそのまま連動して伸び、
+            先端に現在地を示す光点が付く */}
+        <div data-parallax aria-hidden="true"
+          className="hidden lg:block absolute top-[9px] left-0 right-0 h-[2px]">
+          <span className="proc-flowline absolute inset-0"
+            style={{ background: 'linear-gradient(90deg, #C9A961, #82C4BC, #A79CD1, #C79BB6)' }} />
+          <span className="proc-flowline-dot" />
+        </div>
 
-        <ol className="relative grid gap-5 sm:grid-cols-2 lg:grid-cols-5 lg:gap-5">
+        {/* 接続線（スマホ・縦方向）：カードが縦1列に並ぶため、
+            同じ考え方を縦の線に置き換える */}
+        <div data-parallax aria-hidden="true"
+          className="sm:hidden absolute top-1 bottom-1 left-[9px] w-[2px]">
+          <span className="proc-flowline-v absolute inset-0"
+            style={{ background: 'linear-gradient(180deg, #C9A961, #82C4BC, #A79CD1, #C79BB6)' }} />
+          <span className="proc-flowline-v-dot" />
+        </div>
+
+        <ol className="relative grid gap-5 pl-8 sm:pl-0 sm:grid-cols-2 lg:grid-cols-5 lg:gap-5">
           {PROCESS.map((step, i) => (
             <Reveal key={step.num} as="li"
               delay={((i % 4) + 1) as 1 | 2 | 3 | 4}

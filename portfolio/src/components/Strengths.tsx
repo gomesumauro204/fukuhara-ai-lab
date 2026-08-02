@@ -18,8 +18,11 @@ export default function Strengths() {
             kind="body"
             dir={i % 2 === 0 ? 'left' : 'right'}
             delay={((i % 2) + 1) as 1 | 2}
-            className="strength-card rounded-sm bg-white/55 px-6 sm:px-8 py-7 sm:py-8"
-            style={{ borderTop: '2px solid var(--accent, #C9A961)' }}>
+            className="strength-card relative rounded-sm bg-white/55 px-6 sm:px-8 py-7 sm:py-8">
+            {/* 上部のアクセント帯：カードが現れると同時に左から描画される
+                （ホバー不要・スマホでも見える） */}
+            <span aria-hidden="true" className="strength-bar absolute top-0 left-0 right-0 h-[2px]"
+              style={{ background: 'var(--accent, #C9A961)' }} />
             <p className="font-en text-[11px] mb-3"
               style={{ letterSpacing: '0.3em', color: 'var(--accent-ink, #7A5F26)' }}>
               {item.num}

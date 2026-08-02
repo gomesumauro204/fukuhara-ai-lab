@@ -35,8 +35,13 @@ export default function Problem() {
 
       <div className="relative">
         {/* チェックリストを一つずつ確認していく感覚を出す、
-            スクロール量にそのまま連動して伸びる縦線 */}
-        <span aria-hidden="true" data-parallax className="problem-checkline" />
+            スクロール量にそのまま連動して伸びる縦線＋先端の光点。
+            data-parallaxで書き込む --p を、線（scaleY）と光点（top位置）の
+            両方が子要素として継承して使う。 */}
+        <span aria-hidden="true" data-parallax className="problem-checkline-wrap">
+          <span className="problem-checkline" />
+          <span className="problem-checkline-dot" />
+        </span>
 
         <ul className="relative space-y-5 sm:space-y-6">
           {PROBLEMS.map((problem, i) => (

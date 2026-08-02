@@ -687,22 +687,39 @@
   transition-delay: 0.08s;
 }
 
-/* 課題チェックリスト：スクロール量にそのまま連動して伸びる縦線。
-   data-parallax が書き込む --p（0〜1）をそのまま高さの割合として使う。
-   一度きりの演出ではなく、スクロールを戻せば線も縮む。 */
-.problem-checkline {
+/* 課題チェックリスト：スクロール量にそのまま連動して伸びる縦線＋先端の光点。
+   data-parallax が書き込む --p（0〜1）を、線の高さと光点の位置の両方に使う。
+   一度きりの演出ではなく、スクロールを戻せば線も光点も戻る。
+   スマホでも同じ--pを共有するため、ホバーできない端末でも変化が伝わる。 */
+.problem-checkline-wrap {
   position: absolute;
   left: 1px;
   top: 4px;
   bottom: 4px;
   width: 1px;
+  pointer-events: none;
+}
+.problem-checkline {
+  position: absolute;
+  inset: 0;
+  width: 2px;
   background: linear-gradient(180deg, var(--accent, #C9A961), rgba(201, 169, 97, 0.15));
   transform: scaleY(var(--p, 0));
   transform-origin: top;
-  pointer-events: none;
+}
+.problem-checkline-dot {
+  position: absolute;
+  left: 1px;
+  top: calc(var(--p, 0) * 100%);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  transform: translate3d(-50%, -50%, 0);
+  background: var(--accent, #C9A961);
+  box-shadow: 0 0 10px 2px rgba(201, 169, 97, 0.55);
 }
 @media (max-width: 639px) {
-  .problem-checkline { display: none; }
+  .problem-checkline-wrap { left: -2px; }
 }
 
 /* 静的な微細ノイズ（動かさない・点滅させない） */
@@ -844,8 +861,8 @@
   object-fit: cover;
   object-position: 78% 32%;
   opacity: 0.85;
-  /* スクロール量に応じてごくわずかに動く視差ドリフト（奥行き） */
-  transform: scale(1.06) translate3d(0, calc((var(--p, 0.5) - 0.5) * -3%), 0);
+  /* スクロール量に応じて縦方向にはっきり動く視差ドリフト（奥行き） */
+  transform: scale(1.12) translate3d(0, calc((var(--p, 0.5) - 0.5) * -7%), 0);
   will-change: transform;
 }
 .svc-photo-overlay {
@@ -906,6 +923,15 @@
       rgba(11, 27, 58, 0.35) 68%,
       rgba(11, 27, 58, 0.72) 100%);
 }
+/* 大切にしていること：上部のアクセント帯がカードの出現に合わせて
+   左から描画される（is-in はホバーに依存しないため、スマホでも見える） */
+.strength-bar {
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.7s ease-out 0.2s;
+}
+.reveal.is-in .strength-bar { transform: scaleX(1); }
+
 /* 大切にしていること：カードがマウスに反応してごく軽く浮く
    （タッチ端末では hover が無いため何も起きない＝安全） */
 @media (hover: hover) and (pointer: fine) {
@@ -952,7 +978,10 @@
   object-fit: cover;
   object-position: 76% 30%;
   opacity: 0.85;
-  transform: scale(1.06) translate3d(0, calc((var(--p, 0.5) - 0.5) * -3%), 0);
+  /* Serviceとは違う質感にするため、縦だけでなく横にもわずかに動く
+     斜めドリフトにする（同じ動きの繰り返しに見えないように） */
+  transform: scale(1.14)
+    translate3d(calc((var(--p, 0.5) - 0.5) * 4%), calc((var(--p, 0.5) - 0.5) * -7%), 0);
   will-change: transform;
 }
 .prof-photo-overlay {
@@ -999,9 +1028,11 @@
   height: 100%;
   object-fit: cover;
   object-position: 78% 24%;
-  opacity: 0.8;
-  transform: scale(1.06) translate3d(0, calc((var(--p, 0.5) - 0.5) * -3%), 0);
-  will-change: transform;
+  /* 視差の動きに加えて、スクロールで中央に近づくほどわずかに
+     明るくなる「浮かび上がる」質感にし、Service/Profileと差をつける */
+  opacity: calc(0.55 + var(--p, 0.5) * 0.35);
+  transform: scale(1.12) translate3d(0, calc((var(--p, 0.5) - 0.5) * -7%), 0);
+  will-change: transform, opacity;
 }
 .contact-photo-overlay {
   position: absolute;
@@ -1439,11 +1470,40 @@
   .reveal-cta:not(.is-in)     { transform: translate3d(0, 14px, 0); }
 }
 
-/* 制作の流れ：接続線がスクロール量にそのまま連動して伸びる */
+/* 制作の流れ：接続線がスクロール量にそのまま連動して伸びる（PC・横方向） */
 .proc-flowline {
   transform: scaleX(var(--p, 0));
   transform-origin: left;
   will-change: transform;
+}
+.proc-flowline-dot {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--p, 0) * 100%);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  transform: translate3d(-50%, -50%, 0);
+  background: #E0CB96;
+  box-shadow: 0 0 12px 3px rgba(224, 203, 150, 0.6);
+}
+
+/* 制作の流れ：接続線（スマホ・縦方向）。考え方はPC版と同じ */
+.proc-flowline-v {
+  transform: scaleY(var(--p, 0));
+  transform-origin: top;
+  will-change: transform;
+}
+.proc-flowline-v-dot {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--p, 0) * 100%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  transform: translate3d(-50%, -50%, 0);
+  background: #E0CB96;
+  box-shadow: 0 0 10px 3px rgba(224, 203, 150, 0.6);
 }
 
 /* =============================================================
@@ -1784,7 +1844,11 @@
 
   /* スクロール連動の演出はすべて「静止した完成形」で固定表示にする */
   .problem-checkline { transform: scaleY(1) !important; }
+  .problem-checkline-dot { top: 100% !important; }
   .proc-flowline { transform: scaleX(1) !important; }
+  .proc-flowline-dot { left: 100% !important; }
+  .proc-flowline-v { transform: scaleY(1) !important; }
+  .proc-flowline-v-dot { top: 100% !important; }
   .team-connect { transform: scaleX(1) !important; }
 
   .hero-photo {
