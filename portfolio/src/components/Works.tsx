@@ -80,13 +80,20 @@ function WorkItemWithGallery({ work, index }: { work: Work; index: number }) {
             className="w-full lg:max-w-[680px] mb-5"
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:max-w-[680px]">
+          {/* 下段2枚は元画像の縦横比がわずかに異なるため、imgAspectで
+              表示比率を揃えて高さ・下端の位置を一致させる。
+              captionMinHeightで、キャプションの行数差による
+              ズレも防ぐ（メイン画像は対象外＝大小差はそのまま維持）。 */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:max-w-[680px]
+            items-start">
             {gallery.secondary.map(shot => (
               <BrowserScreen
                 key={shot.src}
                 src={shot.src}
                 alt={shot.alt}
                 caption={shot.caption}
+                imgAspect="7 / 4"
+                captionMinHeight
               />
             ))}
           </div>

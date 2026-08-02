@@ -74,10 +74,25 @@ export function DesktopScreen({
 // ブラウザ画面風のフレーム（制作実績のギャラリー用）
 // 上部にブラウザのウィンドウ操作ボタン風のドットを置き、
 // 「実際の画面である」ことが一目で伝わるようにする。
+//
+// imgAspect を指定すると、画像を指定の縦横比でトリミング表示する
+// （object-fit: cover）。並べて表示する画像同士の「表示の高さ」と
+// 「下端の位置」を、元画像の縦横比の微妙な違いに関わらず揃えたい
+// 場合に使う（例：制作実績ギャラリーの下段2枚）。
+// captionMinHeight を指定すると、キャプションの行数差（1行/2行）で
+// カード全体の高さがズレないよう、キャプション欄の高さを固定する。
 // -------------------------------------------------------------
 export function BrowserScreen({
-  src, alt, caption, className = '',
-}: { src: string; alt: string; caption?: string; className?: string }) {
+  src, alt, caption, className = '', imgAspect, captionMinHeight = false,
+}: {
+  src: string
+  alt: string
+  caption?: string
+  className?: string
+  /** 例: '3 / 2'。指定時は object-fit: cover でこの比率に揃える */
+  imgAspect?: string
+  captionMinHeight?: boolean
+}) {
   const exists = useImageExists(src)
 
   return (
@@ -92,15 +107,23 @@ export function BrowserScreen({
         </div>
 
         {exists ? (
-          <img src={src} alt={alt} loading="lazy" decoding="async"
-            className="block w-full h-auto" />
+          imgAspect ? (
+            <div style={{ aspectRatio: imgAspect }}>
+              <img src={src} alt={alt} loading="lazy" decoding="async"
+                className="block w-full h-full object-cover" />
+            </div>
+          ) : (
+            <img src={src} alt={alt} loading="lazy" decoding="async"
+              className="block w-full h-auto" />
+          )
         ) : (
           <Placeholder />
         )}
       </div>
 
       {caption && (
-        <figcaption className="mt-2.5 text-[11.5px] text-white/50">
+        <figcaption className={`mt-2.5 text-[11.5px] leading-[1.5] text-white/50
+          ${captionMinHeight ? 'min-h-[3em]' : ''}`}>
           {caption}
         </figcaption>
       )}
