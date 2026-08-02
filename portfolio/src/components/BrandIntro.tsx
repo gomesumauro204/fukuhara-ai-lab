@@ -45,7 +45,7 @@ export default function BrandIntro() {
     >
       <div className="brand-intro-inner">
         <img src="/logo/fa-logo.png" alt="" className="brand-intro-logo" />
-        <p className="brand-intro-label font-en text-[11px] sm:text-[12px] uppercase text-gold">
+        <p className="brand-intro-label font-en text-[15px] sm:text-[17px] uppercase text-gold">
           Now Loading
         </p>
         <span className="brand-intro-bar">

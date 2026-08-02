@@ -31,7 +31,7 @@ export default function Header() {
         h-14 sm:h-16 flex items-center justify-between gap-4">
 
         <a href="#top" onClick={close} aria-label="ページ先頭へ">
-          <Logo />
+          <Logo emphasize />
         </a>
 
         {/* PCナビ */}
