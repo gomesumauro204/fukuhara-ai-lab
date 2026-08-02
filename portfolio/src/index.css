@@ -1386,17 +1386,21 @@
 
 /* 見出し→本文→CTAへの登場に合わせた遅延。
    各要素の登場が前の要素の終わり切る20〜30%前から始まるよう重ね、
-   完全な静止→静止のバトンタッチにならないようにしている。
-     見出し   2.8s〜3.52s（チップのコアがまだ点灯中に重なる）
-     本文     3.3s〜3.88s（見出しの終わり約30%手前で重なる）
-     CTA      3.7s〜4.2s（本文の終わり約25%手前で重なる）
-     補足文言 4.1s〜　　（CTAの終わり約25%手前で重なる） */
-.d1 { animation-delay: 2.8s; }
-.d2 { animation-delay: 2.8s; }
-.d3 { animation-delay: 3.3s; }
-.d4 { animation-delay: 3.7s; }
-.d5 { animation-delay: 4.1s; }
-.d6 { animation-delay: 4.1s; }
+   完全な静止→静止のバトンタッチにならないようにしている（相対関係は
+   従来のまま）。以前は見出しの開始自体が2.8s後という大きな空白があり
+   （廃止済みの旧演出向けに調整された値が残っていた）、NOW LOADING
+   演出（0.9s）よりずっと長く「見出しが出るまでの空白」を生んでいた
+   ため、起点を0秒に詰めた。
+     見出し   0s〜0.72s
+     本文     0.5s〜1.08s（見出しの終わり約30%手前で重なる）
+     CTA      0.9s〜1.4s（本文の終わり約25%手前で重なる）
+     補足文言 1.3s〜　　（CTAの終わり約25%手前で重なる） */
+.d1 { animation-delay: 0s; }
+.d2 { animation-delay: 0s; }
+.d3 { animation-delay: 0.5s; }
+.d4 { animation-delay: 0.9s; }
+.d5 { animation-delay: 1.3s; }
+.d6 { animation-delay: 1.3s; }
 
 @media (max-width: 767px) {
   @keyframes riseHeadingSm { from { opacity: 0; transform: translate3d(0, 44px, 0); } to { opacity: 1; transform: none; } }
@@ -1853,23 +1857,80 @@
 }
 
 /* =============================================================
-   ブランドイントロ（初回のみ・0.8秒）
-   Hero は背後で描画済み。読み込みを待たせません。
+   NOW LOADING（初回のみ・0.9秒）
+   Hero は背後ですでに描画・アニメーション開始済み（.d1〜.d6は
+   ごく短いディレイのみ）。この画面はそれを覆い隠しているだけで、
+   読み込みそのものを待たせているわけではない。
    ============================================================= */
 @keyframes introOut {
   0%, 62%  { opacity: 1; }
   100%     { opacity: 0; visibility: hidden; }
 }
+@keyframes introLogoIn {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
 @keyframes introMark {
-  from { opacity: 0; letter-spacing: 0.7em; }
-  to   { opacity: 1; letter-spacing: 0.34em; }
+  from { opacity: 0; letter-spacing: 0.6em; }
+  to   { opacity: 1; letter-spacing: 0.32em; }
+}
+@keyframes introBarFill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
 }
 .brand-intro {
   @apply fixed inset-0 z-[100] flex items-center justify-center bg-navy-deep;
-  animation: introOut 1s ease-out forwards;
+  animation: introOut 0.9s ease-out forwards;
 }
-.brand-intro-mark {
-  animation: introMark 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+.brand-intro-inner {
+  @apply flex flex-col items-center;
+}
+.brand-intro-logo {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  opacity: 0;
+  animation: introLogoIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.brand-intro-label {
+  margin-top: 16px;
+  opacity: 0;
+  animation: introMark 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.1s forwards;
+}
+.brand-intro-bar {
+  display: block;
+  width: 96px;
+  height: 2px;
+  margin-top: 18px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+.brand-intro-bar-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: theme('colors.gold.DEFAULT');
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: introBarFill 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.15s forwards;
+}
+
+/* prefers-reduced-motion：ロゴ・文字・進捗ラインの動きは止め、
+   全体の短いフェードだけで即時表示に近い形にする（非表示にはしない） */
+.brand-intro-reduced {
+  animation: introOutReduced 250ms ease-out forwards;
+}
+.brand-intro-reduced .brand-intro-logo,
+.brand-intro-reduced .brand-intro-label,
+.brand-intro-reduced .brand-intro-bar-fill {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+@keyframes introOutReduced {
+  0%, 40% { opacity: 1; }
+  100%    { opacity: 0; visibility: hidden; }
 }
 
 /* =============================================================
@@ -1880,8 +1941,7 @@
   html { scroll-behavior: auto; }
 
   .enter,
-  .enter-fade,
-  .brand-intro-mark {
+  .enter-fade {
     opacity: 1 !important;
     animation: none !important;
   }
@@ -1991,5 +2051,4 @@
   }
 
   .faq-panel { transition: none !important; }
-  .brand-intro { display: none !important; }
 }
