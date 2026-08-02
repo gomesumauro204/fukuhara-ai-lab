@@ -17,7 +17,7 @@ export default function Team() {
         title="案件に合わせた専門体制"
       />
 
-      <Reveal className="mb-14 max-w-3xl">
+      <Reveal delay={1} className="mb-14 max-w-3xl">
         <p className="font-mincho text-[1.35rem] sm:text-[1.7rem] text-ink mb-6
           leading-[1.55]">
           {TEAM.headline}
@@ -30,7 +30,7 @@ export default function Team() {
       <div className="grid lg:grid-cols-[20rem_1fr] gap-10 lg:gap-16 items-start">
 
         {/* ── 窓口（常に福原が担当） ── */}
-        <Reveal className="bg-white/60 p-7 rounded-sm border border-ink/8"
+        <Reveal delay={2} className="bg-white/60 p-7 rounded-sm border border-ink/8"
           style={{ borderTopWidth: '2px', borderTopColor: 'var(--accent, #C9A961)' }}>
           <p className="font-mincho text-[1.5rem] text-ink mb-1">
             {TEAM.core.name}
@@ -55,7 +55,7 @@ export default function Team() {
             {TEAM.partners.map((partner, i) => (
               <Reveal key={partner.field} as="li"
                 kind="body"
-                delay={((i % 4) + 1) as 1 | 2 | 3 | 4}
+                delay={((i % 4) + 2) as 2 | 3 | 4 | 5}
                 className="flex items-baseline gap-5 sm:gap-8
                   border-b border-ink/12 py-5">
                 {/* 接続を示す短い横線：行が現れるタイミングで左から描画され、
@@ -80,7 +80,7 @@ export default function Team() {
           </ul>
 
           {/* 誤解を避けるための注記 */}
-          <Reveal className="mt-7 flex items-start gap-3">
+          <Reveal delay={6} className="mt-7 flex items-start gap-3">
             <span aria-hidden="true"
               className="w-1 self-stretch bg-ink/15 shrink-0" />
             <p className="text-[12.5px] leading-[1.9] text-ink-soft">

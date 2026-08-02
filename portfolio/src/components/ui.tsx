@@ -199,9 +199,12 @@ export function Section({
 /**
  * 通し番号 + 英字ラベル + 日本語見出し + 説明文
  *
- * 数字（拡大しながら）→ 英字ラベル（横移動）→ 大見出し（下から）→
- * 説明文（見出しより控えめに）の順に時間差表示する。4つとも独立した
- * Reveal にして、それぞれ違う動き方をするようにしている。
+ * 番号・ラベル・見出し・説明文は「1つのまとまり」として画面に入った
+ * タイミングで同時に現れる（＝単一のReveal・単一の監視）。以前は4つに
+ * 分かれた独立のRevealで役割ごとに時間差を付けていたが、見出しの
+ * transition-durationが長いため本文側が先に表示完了して見える逆転が
+ * 起きていた。現在は1グループとして扱い、その直後に続く本文・カード側
+ * （各セクション側のReveal）だけが少し遅れて現れるようにしている。
  */
 export function SectionHead({
   num, en, title, lead, dark = false, className = '',
@@ -214,34 +217,30 @@ export function SectionHead({
   className?: string
 }) {
   return (
-    <div className={`mb-12 lg:mb-16 ${className}`}>
+    <Reveal kind="heading" className={`mb-12 lg:mb-16 ${className}`}>
       <div className="flex items-start gap-5 sm:gap-8">
         {/* 通し番号は装飾。内容は英字ラベルと日本語見出しで伝える */}
-        <Reveal kind="num" delay={1} as="div"
+        <div aria-hidden="true"
           className={`section-num ${dark ? 'text-white/10' : 'text-ink/10'}`}>
-          <span aria-hidden="true">{num}</span>
-        </Reveal>
+          {num}
+        </div>
         <div className="pt-2 sm:pt-4 min-w-0">
-          <Reveal kind="label" delay={2}>
-            <p className={dark ? 'label-en' : 'label-en-dark'}>{en}</p>
-          </Reveal>
-          <Reveal kind="heading" delay={3}>
-            <h2 className={`font-mincho mt-2
-              text-[1.7rem] sm:text-[2.1rem] lg:text-[2.5rem]
-              ${dark ? 'text-white' : 'text-ink'}`}>
-              {title}
-            </h2>
-          </Reveal>
+          <p className={dark ? 'label-en' : 'label-en-dark'}>{en}</p>
+          <h2 className={`font-mincho mt-2
+            text-[1.7rem] sm:text-[2.1rem] lg:text-[2.5rem]
+            ${dark ? 'text-white' : 'text-ink'}`}>
+            {title}
+          </h2>
         </div>
       </div>
 
       {lead && (
-        <Reveal kind="body" delay={4} className={`mt-6 max-w-2xl text-[15px] leading-[1.95]
+        <p className={`mt-6 max-w-2xl text-[15px] leading-[1.95]
           ${dark ? 'text-white/60' : 'text-ink-mid'}`}>
-          <p>{lead}</p>
-        </Reveal>
+          {lead}
+        </p>
       )}
-    </div>
+    </Reveal>
   )
 }
 

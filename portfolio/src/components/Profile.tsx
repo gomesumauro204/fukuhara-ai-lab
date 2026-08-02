@@ -41,7 +41,7 @@ export default function Profile() {
       <div className="grid lg:grid-cols-[18rem_1fr] gap-10 lg:gap-16">
 
         {/* 名称・担当 */}
-        <Reveal>
+        <Reveal delay={1}>
           <p className="font-mincho text-[1.8rem] text-white mb-1">
             {PROFILE.name}
           </p>

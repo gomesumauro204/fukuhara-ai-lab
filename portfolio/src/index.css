@@ -1503,13 +1503,17 @@
   50%      { transform: translate3d(50%, -50%, 0) scale(1.4); }
 }
 
-/* ---- 段差（delay）0.12〜0.25s刻み ---- */
-.reveal-1 { transition-delay: 0.05s; }
-.reveal-2 { transition-delay: 0.20s; }
-.reveal-3 { transition-delay: 0.35s; }
-.reveal-4 { transition-delay: 0.50s; }
-.reveal-5 { transition-delay: 0.65s; }
-.reveal-6 { transition-delay: 0.80s; }
+/* ---- 段差（delay）0.12s刻み ----
+   SectionHead（番号・見出し・導入文のグループ）はdelayなし＝0sで開始し、
+   duration 0.85sで表示が整う。本文・カード・画像側はここで0.28s以降から
+   始まるようにし、グループが動き出した「直後」に追従する形に統一する
+   （＝本文がタイトルより先に表示完了してしまう逆転を防ぐ）。 */
+.reveal-1 { transition-delay: 0.28s; }
+.reveal-2 { transition-delay: 0.40s; }
+.reveal-3 { transition-delay: 0.52s; }
+.reveal-4 { transition-delay: 0.64s; }
+.reveal-5 { transition-delay: 0.76s; }
+.reveal-6 { transition-delay: 0.88s; }
 
 /* ---- スマートフォン：移動量をPCの55〜65%程度に ---- */
 @media (max-width: 767px) {

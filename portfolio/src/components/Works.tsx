@@ -67,7 +67,7 @@ function WorkItemWithGallery({ work, index }: { work: Work; index: number }) {
       </div>
 
       <div data-parallax className="img-parallax min-w-0">
-        <Reveal kind="image" dir="right">
+        <Reveal kind="image" dir="right" delay={2}>
           {/* 記録する → 一覧で共有する → 状態を管理する、という流れの目印 */}
           <p className="text-[12px] text-gold-bright/80 tracking-wide mb-4">
             記録する → 一覧で共有する → 状態を管理する
@@ -122,7 +122,7 @@ function WorkItemWithImage({ work, index }: { work: Work; index: number }) {
       */}
       <div data-parallax
         className={`img-parallax pb-10 sm:pb-12 ${imageOnRight ? 'lg:order-2' : 'lg:order-1'}`}>
-        <Reveal kind="image" dir={imageDir} className="relative">
+        <Reveal kind="image" dir={imageDir} delay={2} className="relative">
           <div className="relative w-full max-w-sm mx-auto lg:mx-0">
             <DesktopScreen
               src={work.images.pc}

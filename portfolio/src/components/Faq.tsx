@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { FAQS } from '../data/site'
-import { Section, SectionHead, IconChevron } from './ui'
+import { Section, SectionHead, Reveal, IconChevron } from './ui'
 
 export default function Faq() {
   // 開いている項目のindex（nullなら全て閉じている）
@@ -16,10 +16,14 @@ export default function Faq() {
       />
 
       {/*
-        アコーディオンの max-height 計算に transform が干渉するため、
-        この一覧には reveal アニメーションを適用しない。
+        質問一覧は個別ではなく「まとめて1つ」として軽くフェードさせる。
+        Revealはこの外側ラッパーにだけ適用し、各行・各faq-panel（開閉時に
+        max-heightで伸縮する要素）には適用しない。個々の行にRevealを
+        付けるとtransformがmax-height計算と干渉するため、この一覧全体を
+        1グループとして扱うことで干渉を避けつつ、SectionHeadの直後に
+        少し遅れて表示されるようにしている。
       */}
-      <div className="max-w-3xl border-t border-ink/12">
+      <Reveal kind="body" delay={1} className="max-w-3xl border-t border-ink/12">
         {FAQS.map((faq, i) => {
           const isOpen  = openIndex === i
           const panelId = `faq-panel-${i}`
@@ -73,7 +77,7 @@ export default function Faq() {
             </div>
           )
         })}
-      </div>
+      </Reveal>
     </Section>
   )
 }
