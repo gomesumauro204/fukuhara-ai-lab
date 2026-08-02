@@ -30,7 +30,7 @@ export default function Profile() {
       }
     >
       <SectionHead
-        num="07"
+        num="06"
         en="Profile"
         title={`${SITE.name}について`}
         dark

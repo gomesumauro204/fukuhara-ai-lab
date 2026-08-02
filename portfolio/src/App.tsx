@@ -1,5 +1,6 @@
 import { FEATURES } from './data/site'
 import { useSectionParallax } from './hooks/useSectionParallax'
+import { useScrollToTop } from './hooks/useScrollToTop'
 
 import BrandIntro from './components/BrandIntro'
 import Header    from './components/Header'
@@ -25,6 +26,8 @@ import ChatWidget from './components/ChatWidget'
  * 背景は 濃紺 / オフホワイト を交互に切り替え、スクロールにリズムを作る。
  */
 export default function App() {
+  // 通常のトップURLでは必ずページ最上部（Hero）から表示させる
+  useScrollToTop()
   // セクションをまたぐ軽量パララックス（背景装飾・画像のみ。文字は動かさない）
   useSectionParallax()
 
@@ -41,8 +44,8 @@ export default function App() {
         <Strengths />  {/* 03  特徴                淡色  */}
         <Team />       {/* 04  専門体制            淡色  */}
         <Works />      {/* 05  制作実績            濃紺  */}
-        <Process />    {/* 06  制作の流れ          濃紺  */}
-        <Profile />    {/* 07  プロフィール        濃紺  */}
+        <Profile />    {/* 06  プロフィール        濃紺  */}
+        <Process />    {/* 07  制作の流れ          濃紺  */}
         <Faq />        {/* 08  よくある質問        淡色  */}
         <Contact />    {/*     お問い合わせ        最暗  */}
       </main>

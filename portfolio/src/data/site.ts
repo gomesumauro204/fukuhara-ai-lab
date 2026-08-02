@@ -54,8 +54,8 @@ export const NAV = [
   { label: '支援内容',   href: '#service' },
   { label: '専門体制',   href: '#team' },
   { label: '制作実績',   href: '#works' },
-  { label: '制作の流れ', href: '#process' },
   { label: 'プロフィール', href: '#about' },
+  { label: '制作の流れ', href: '#process' },
   { label: 'よくある質問', href: '#faq' },
 ] as const
 
