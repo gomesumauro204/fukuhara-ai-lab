@@ -18,14 +18,14 @@ export default function Logo({ dark = true, emphasize = false }: { dark?: boolea
   return (
     <span className="flex items-center gap-3">
       {emphasize ? (
-        <span className="relative grid place-items-center w-[30px] h-[30px] sm:w-9 sm:h-9
+        <span className="relative grid place-items-center w-[33px] h-[33px] sm:w-10 sm:h-10
           shrink-0 rounded-[8px] border border-gold/30 bg-navy-deep/55
           shadow-[0_0_9px_rgba(212,175,55,0.22)]">
           <img
             src="/logo/fa-logo.png"
             alt=""
             aria-hidden="true"
-            className="w-[22px] h-[22px] sm:w-[26px] sm:h-[26px] object-contain"
+            className="w-[24px] h-[24px] sm:w-[29px] sm:h-[29px] object-contain"
             style={{
               filter: 'brightness(0) invert(1) sepia(0.35) saturate(2.4) '
                 + 'drop-shadow(0 0 2px rgba(212,175,55,0.4))',
