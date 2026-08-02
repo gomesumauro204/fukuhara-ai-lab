@@ -117,12 +117,11 @@
    変数が無い場合は 0 になるため、JSが動かなくても崩れない。
    ============================================================= */
 
-/* 第0層：背景写真（人物・ダッシュボードのある夜のオフィス）
-   世界観・信頼感・業務改善感を補強するための背景。
-   あくまで背景であり、上に重なるアンビエンス・文字より手前には
-   出さない（すべてz-index:0で、DOM順で最背面に置く）。
-   PCは右側に写真が見える構成、左側はテキスト用に濃いグラデーションで
-   ほぼ完全に覆う。スマホは全体を淡くし、テキストの可読性を最優先する。
+/* 第0層：会議室写真（人物・ダッシュボードのある夜のオフィス）
+   ショーケース（業務画面）を主役にするため、写真は奥へ薄く沈める
+   「土台」の役割に縮小する。あくまで背景であり、上に重なる
+   ショーケース・アンビエンス・文字より手前には出さない
+   （すべてz-index:0で、DOM順で最背面に置く）。
    初回表示のみ20〜30秒かけてごくゆっくりズームし、ループはしない。 */
 .hero-photo {
   position: absolute;
@@ -133,7 +132,7 @@
   background-size: cover;
   background-position: 78% 32%;
   background-repeat: no-repeat;
-  opacity: 0.5;
+  opacity: 0.22;
   transform: scale(1);
   animation: heroPhotoZoom 26s ease-out forwards;
   will-change: transform;
@@ -143,22 +142,22 @@
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  /* 見出し2行目（15vwオフセットで右へ張り出す）が右端近くまで
-     達するため、文字が乗る範囲は強めに覆い、人物・モニターが
-     はっきり見えるのはさらに右（見出しの外側）のみにする。 */
+  /* 会議室写真とショーケース（業務画面）の両方の上に重ねる暗幕。
+     見出し2行目が右へ張り出すため、文字が乗る左〜中央は強めに覆い、
+     ショーケースが主役として見えるのは右側のみにする。 */
   background:
     linear-gradient(90deg,
       rgba(11, 27, 58, 0.99) 0%,
-      rgba(11, 27, 58, 0.97) 45%,
-      rgba(11, 27, 58, 0.88) 65%,
-      rgba(11, 27, 58, 0.55) 82%,
-      rgba(11, 27, 58, 0.22) 94%,
-      rgba(11, 27, 58, 0.12) 100%),
+      rgba(11, 27, 58, 0.97) 42%,
+      rgba(11, 27, 58, 0.86) 60%,
+      rgba(11, 27, 58, 0.5) 78%,
+      rgba(11, 27, 58, 0.22) 92%,
+      rgba(11, 27, 58, 0.14) 100%),
     linear-gradient(180deg,
-      rgba(11, 27, 58, 0.25) 0%,
+      rgba(11, 27, 58, 0.3) 0%,
       rgba(11, 27, 58, 0) 22%,
       rgba(11, 27, 58, 0) 78%,
-      rgba(11, 27, 58, 0.35) 100%);
+      rgba(11, 27, 58, 0.4) 100%);
 }
 @keyframes heroPhotoZoom {
   from { transform: scale(1); }
@@ -169,7 +168,7 @@
 }
 @media (max-width: 767px) {
   .hero-photo {
-    opacity: 0.32;
+    opacity: 0.14;
     background-image: url('/hero-office-sm.webp');
     background-position: 72% 20%;
     animation-duration: 20s;
@@ -177,11 +176,223 @@
   .hero-photo-overlay {
     background:
       linear-gradient(180deg,
-        rgba(11, 27, 58, 0.8) 0%,
-        rgba(11, 27, 58, 0.68) 38%,
-        rgba(11, 27, 58, 0.82) 62%,
+        rgba(11, 27, 58, 0.72) 0%,
+        rgba(11, 27, 58, 0.6) 34%,
+        rgba(11, 27, 58, 0.78) 60%,
         rgba(11, 27, 58, 0.92) 100%);
   }
+}
+
+/* =============================================================
+   HERO — 業務画面ショーケース（斜めに流れる無限ループ）
+   グリッド全体を斜めに回転させ、各列の中身だけを縦方向に
+   等速ループさせることで、画面上は斜め方向へ流れて見える。
+   カード自体は回転させず、列を2セット連結して50%移動で
+   継ぎ目のないループにする。右側〜背景側に配置し、
+   左〜中央のテキスト側には被らないようにする。
+   ============================================================= */
+.hero-showcase {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.hero-showcase-grid {
+  position: absolute;
+  top: -25%;
+  right: -8%;
+  width: 58%;
+  height: 150%;
+  display: flex;
+  gap: 16px;
+  transform: rotate(-15deg);
+  transform-origin: center;
+}
+.hero-showcase-col {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+}
+.hero-showcase-track {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  animation-name: heroShowcaseScroll;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+/* 列ごとに開始位置をずらし、同時に揃って動く不自然さを避ける */
+.hero-showcase-col-1 .hero-showcase-track { animation-delay: -9s; }
+.hero-showcase-col-2 .hero-showcase-track { animation-delay: -21s; }
+@keyframes heroShowcaseScroll {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-50%); }
+}
+.hero-root.is-off .hero-showcase-track {
+  animation-play-state: paused;
+}
+
+.hero-showcase-card {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(212, 184, 122, 0.16);
+  background: rgba(15, 36, 80, 0.55);
+  box-shadow: 0 14px 30px -18px rgba(0, 0, 0, 0.65);
+}
+
+/* ---- 簡易モック画面（仮素材。実画像が置かれるまでの代替表示） ---- */
+.showcase-mock {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+.showcase-mock-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 8px;
+  border-bottom: 1px solid rgba(212, 184, 122, 0.14);
+}
+.showcase-mock-bar span {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: rgba(212, 184, 122, 0.4);
+}
+.showcase-mock-body {
+  flex: 1;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+}
+.showcase-mock-line {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(224, 232, 250, 0.22);
+  width: 70%;
+}
+.showcase-mock-line.short { width: 42%; }
+.showcase-mock-field {
+  height: 14px;
+  border-radius: 4px;
+  border: 1px solid rgba(150, 190, 245, 0.25);
+  background: rgba(150, 190, 245, 0.06);
+}
+.showcase-mock-pill {
+  align-self: flex-start;
+  width: 40%;
+  height: 14px;
+  border-radius: 999px;
+  background: rgba(212, 184, 122, 0.35);
+}
+.showcase-mock-kpi {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.showcase-mock-ring {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  border: 4px solid rgba(150, 190, 245, 0.2);
+  border-top-color: rgba(212, 184, 122, 0.7);
+  flex-shrink: 0;
+}
+.showcase-mock-bars {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  height: 34px;
+}
+.showcase-mock-bars i {
+  flex: 1;
+  border-radius: 2px 2px 0 0;
+  background: rgba(150, 190, 245, 0.32);
+}
+.showcase-mock-rows { display: flex; flex-direction: column; gap: 7px; }
+.showcase-mock-rows div { display: flex; align-items: center; gap: 7px; }
+.showcase-mock-rows i {
+  width: 10px; height: 10px;
+  border-radius: 3px;
+  border: 1px solid rgba(212, 184, 122, 0.4);
+  flex-shrink: 0;
+}
+.showcase-mock-rows b {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: rgba(212, 184, 122, 0.65);
+  flex-shrink: 0;
+}
+.showcase-mock-rows span {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(224, 232, 250, 0.18);
+  flex: 1;
+}
+.showcase-mock-progress { display: flex; flex-direction: column; gap: 9px; }
+.showcase-mock-track {
+  display: block;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(224, 232, 250, 0.12);
+  overflow: hidden;
+}
+.showcase-mock-track i {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: rgba(212, 184, 122, 0.6);
+}
+.showcase-mock-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+}
+.showcase-mock-grid i {
+  aspect-ratio: 1;
+  border-radius: 2px;
+  background: rgba(150, 190, 245, 0.16);
+}
+.showcase-mock-flow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.showcase-mock-flow span {
+  width: 20px; height: 20px;
+  border-radius: 4px;
+  border: 1px solid rgba(150, 190, 245, 0.35);
+  flex-shrink: 0;
+}
+.showcase-mock-flow i {
+  flex: 1;
+  height: 1px;
+  background: rgba(212, 184, 122, 0.4);
+}
+
+/* タブレット以下：3列目を隠し2列に */
+@media (max-width: 1023px) {
+  .hero-showcase-col-2 { display: none; }
+  .hero-showcase-grid { width: 66%; right: -6%; }
+}
+/* スマホ：1列のみ。右下寄りに小さく配置し、横スクロールを起こさない */
+@media (max-width: 639px) {
+  .hero-showcase-col-1 { display: none; }
+  .hero-showcase-grid {
+    top: -10%;
+    right: -18%;
+    width: 58%;
+    height: 120%;
+    transform: rotate(-12deg);
+  }
+  .hero-showcase-card { border-radius: 6px; }
 }
 
 /* 第1層：背景アンビエンス（最も大きく遅れて動く） */
@@ -1508,7 +1719,12 @@
     transition: none !important;
   }
 
-  .hero-photo,
+  .hero-photo {
+    /* opacityは薄い土台のまま維持し、ズームのみ止める
+       （ショーケースを主役にするデザイン意図を崩さないため） */
+    animation: none !important;
+    transform: none !important;
+  }
   .svc-photo-wrap,
   .proc-photo-wrap,
   .prof-photo-wrap,
@@ -1562,6 +1778,7 @@
   .sec-node,
   .sec-packet,
   .sec-chip,
+  .hero-showcase-track,
   .hero-cta-breathe {
     animation: none !important;
   }

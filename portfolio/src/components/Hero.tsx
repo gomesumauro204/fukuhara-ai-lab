@@ -3,21 +3,22 @@ import { HERO, BOOKING } from '../data/site'
 import { useHeroMotion } from '../hooks/useHeroMotion'
 import { BookingButton, LinkButton, MarkStar } from './ui'
 import HeroAmbience from './HeroAmbience'
+import HeroShowcase from './HeroShowcase'
 
 /**
  * ファーストビュー
  *
- * 構図：中央の縦長ビジュアル（光の柱）を軸に、巨大な明朝の見出しが
- * その前を横断する。柱に差しかかる位置で文字色が白→ゴールドへ変わる。
+ * 構図：右側〜背景側に「業務画面が斜めに流れるショーケース」を配置し、
+ * 会議室写真は薄く残す土台として奥に沈める。見出し・本文・CTAは
+ * 左〜中央に置き、.hero-photo-overlay の暗幕で可読性を確保する。
  *
  * 登場：数字/ラベル・見出し・本文・画像・CTAで異なる移動量・時間を使う
  * （enter-label / enter-heading / enter-body / enter-image / enter-cta）。
  *
- * 奥行き：背景アンビエンス・柱・前景の3層を異なる量で動かす。
+ * 奥行き：背景アンビエンス・前景の2層を異なる量で動かす。
  * 量は useHeroMotion が設定する --mx / --my / --sy を CSS 側で使う。
  *   背景  … 最も大きく遅れて動く（遠景）
- *   柱    … 中間
- *   前景  … 背景・柱より控えめ（手前）
+ *   前景  … 背景より控えめ（手前）
  */
 export default function Hero() {
   const rootRef = useRef<HTMLElement>(null)
@@ -31,11 +32,22 @@ export default function Hero() {
         min-h-[100svh] flex flex-col justify-center
         pt-20 sm:pt-24 pb-12"
     >
-      {/* ── 第0層：背景写真（人物・ダッシュボードのあるオフィス） ──
-          世界観・信頼感・業務改善感を補強するための背景。
-          アンビエンス・文字より必ず背面に置く（最初の子要素）。
+      {/* ── 第0層：会議室写真（うっすら奥に残す土台） ──
+          世界観・信頼感を補強する程度に薄く残し、主役にはしない。
+          アンビエンス・ショーケース・文字より必ず背面に置く。
           初回表示時のみゆっくりズームし、ループはしない。 */}
       <div className="hero-photo" aria-hidden="true" />
+
+      {/* ── 第0.5層：斜めに流れる業務画面ショーケース（新しい主役） ──
+          ダッシュボード・入力フォーム・一覧・進捗管理・通知UIなどが
+          斜め方向へゆっくり無限ループし、業務改善サービスであることを
+          直感的に伝える。実画像は public/hero-showcase/ に置くと
+          自動で差し替わる（無い間は簡易モック＝仮素材を表示）。 */}
+      <HeroShowcase />
+
+      {/* 会議室写真とショーケースの上に重ねる暗幕。
+          左〜中央（テキストが乗る範囲）を強く覆い、右側だけ
+          ショーケースがうっすら透けて見えるようにする。 */}
       <div className="hero-photo-overlay" aria-hidden="true" />
 
       {/* ── 第1層：背景アンビエンス（最も遅れて動く） ── */}
