@@ -613,7 +613,6 @@
 .hero-root.is-off .amb-grain,
 .hero-root.is-off .amb-network .sec-node,
 .hero-root.is-off .amb-network .sec-packet,
-.hero-root.is-off .sec-chip,
 .hero-root.is-off .pillar-glow,
 .hero-root.is-off .pillar-scan {
   animation-play-state: paused;
@@ -1229,54 +1228,11 @@
   100% { transform: translate3d(var(--line-len, 120px), -50%, 0); opacity: 0; }
 }
 
-/* ---- AIチップ：小さな矩形＋内部のピン（回路基板の部品を連想） ---- */
-.sec-chip {
-  position: absolute;
-  width: 15px; height: 11px;
-  border-radius: 2px;
-  border-width: 1px;
-  border-style: solid;
-  animation: secNodePulse 7s ease-in-out infinite 1.2s;
-}
-.sec-chip::before,
-.sec-chip::after {
-  content: '';
-  position: absolute;
-  left: 3px; right: 3px;
-  height: 1px;
-  background: currentColor;
-  opacity: 0.7;
-}
-.sec-chip::before { top: 3px; }
-.sec-chip::after   { top: 6px; }
-
-/* ---- 処理フローカード：半透明パネル＋内部の2本の細い行 ---- */
-.sec-card {
-  position: absolute;
-  width: 54px; height: 34px;
-  border-radius: 3px;
-  border-width: 1px;
-  border-style: solid;
-  overflow: hidden;
-}
-.sec-card::before,
-.sec-card::after {
-  content: '';
-  position: absolute;
-  left: 8px;
-  height: 1px;
-  background: currentColor;
-  opacity: 0.55;
-}
-.sec-card::before { top: 11px; width: 30px; }
-.sec-card::after   { top: 20px; width: 18px; }
-
 /* スマートフォン：パケットの動きを止め、光を軽くする */
 @media (max-width: 767px) {
   .sec-packet { display: none; }
   .sec-glow   { opacity: 0.7; }
   .sec-glow-parallax { width: 60vw; height: 60vw; }
-  .sec-chip, .sec-card { transform: scale(0.85); }
 }
 
 /* =============================================================
@@ -2006,7 +1962,6 @@
   .sec-glow,
   .sec-node,
   .sec-packet,
-  .sec-chip,
   .hero-showcase-track,
   .hero-cta-breathe,
   .contact-cta-glow {

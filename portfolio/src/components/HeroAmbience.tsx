@@ -32,12 +32,6 @@ const NETWORK = [
   { left: '58%', top: '30%', len: 100, angle: 34,  duration: '10s' },
 ] as const
 
-/** AIチップ（小さな矩形＋ピン）。回路基板の部品を連想させる */
-const CHIPS = [
-  { left: '15%', top: '48%' },
-  { left: '86%', top: '38%' },
-] as const
-
 export default function HeroAmbience() {
   return (
     <div className="amb" aria-hidden="true">
@@ -74,25 +68,6 @@ export default function HeroAmbience() {
           </span>
         </span>
       ))}
-
-      {/* AIチップ（回路基板の部品を連想させる小さな矩形）タブレット以上 */}
-      {CHIPS.map(chip => (
-        <span
-          key={chip.left + chip.top}
-          className="sec-chip hidden sm:block"
-          style={{ left: chip.left, top: chip.top, color: 'rgba(150,190,245,0.6)', borderColor: 'rgba(150,190,245,0.6)' }}
-        />
-      ))}
-
-      {/* 処理フローカード（半透明パネル） */}
-      <span
-        className="sec-card hidden lg:block"
-        style={{
-          left: '68%', top: '14%',
-          color: 'rgba(150,190,245,0.35)', borderColor: 'rgba(150,190,245,0.35)',
-          background: 'rgba(150,190,245,0.04)',
-        }}
-      />
 
       {/* 微細な粒子 */}
       <ul className="amb-dust">
