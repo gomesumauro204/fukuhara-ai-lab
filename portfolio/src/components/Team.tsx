@@ -58,10 +58,14 @@ export default function Team() {
                 delay={((i % 4) + 1) as 1 | 2 | 3 | 4}
                 className="flex items-baseline gap-5 sm:gap-8
                   border-b border-ink/12 py-5">
-                {/* 接続を示す短い横線：行が現れるタイミングで左から描画される */}
+                {/* 接続を示す短い横線：行が現れるタイミングで左から描画され、
+                    先端に小さく脈打つ光点が付く */}
                 <span aria-hidden="true"
-                  className="team-connect w-10 sm:w-16 h-[3px] shrink-0 translate-y-[-3px]"
-                  style={{ background: 'var(--accent-ink, #5C3A52)' }} />
+                  className="relative w-10 sm:w-16 h-[3px] shrink-0 translate-y-[-3px]">
+                  <span className="team-connect absolute inset-0"
+                    style={{ background: 'var(--accent-ink, #5C3A52)' }} />
+                  <span className="team-connect-dot" />
+                </span>
                 <span className="min-w-0 flex-1 flex flex-wrap
                   items-baseline gap-x-4 gap-y-1">
                   <span className="text-[15px] font-semibold text-ink">

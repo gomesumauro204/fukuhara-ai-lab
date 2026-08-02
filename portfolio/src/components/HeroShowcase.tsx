@@ -24,12 +24,14 @@ import { HERO_SHOWCASE, type ShowcaseItem, type ShowcaseKind } from '../data/her
  *   開始位置をずらした同じ画像セットを巡回させる（各列で全画像が
  *   一巡するので、列間で完全に同じ並びにはならない）
  * - 右側だけに寄せると画面の半分が静止して見えるため、列を4本に
- *   増やし中央〜左側の文字の背後にも広げる（暗幕は Hero.tsx 側の
- *   .hero-photo-overlay が担うため、文字の可読性は保たれる）
+ *   増やし画面の左端〜右端まで広げる（可読性は Hero.tsx 側の
+ *   薄い全体暗幕＋文字まわりの局所的な暗がり・text-shadowで確保する）
+ * - 列ごとの速度差を大きくつけ（22秒〜74秒）、「同じ速さで一様に
+ *   流れている」印象にならないようにする
  */
 
-const COLUMN_COUNT = 4
-const COLUMN_DURATIONS = ['46s', '58s', '40s', '52s']
+const COLUMN_COUNT = 5
+const COLUMN_DURATIONS = ['62s', '28s', '74s', '38s', '50s']
 /** 1列あたりに並べる枚数（画像が少ない場合は巡回させて密度を確保） */
 const CARDS_PER_COLUMN = Math.max(5, HERO_SHOWCASE.length)
 
@@ -53,7 +55,7 @@ export default function HeroShowcase() {
               className="hero-showcase-track"
               style={{
                 animationDuration: COLUMN_DURATIONS[colIndex % COLUMN_DURATIONS.length],
-                animationDelay: `${-colIndex * 8}s`,
+                animationDelay: `${-colIndex * 11}s`,
               }}
             >
               {/* 同じカード列を2セット連結し、50%移動で継ぎ目なくループさせる */}

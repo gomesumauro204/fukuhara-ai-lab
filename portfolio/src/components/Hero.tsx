@@ -45,10 +45,17 @@ export default function Hero() {
           自動で差し替わる（無い間は簡易モック＝仮素材を表示）。 */}
       <HeroShowcase />
 
-      {/* 会議室写真とショーケースの上に重ねる暗幕。
-          左〜中央（テキストが乗る範囲）を強く覆い、右側だけ
-          ショーケースがうっすら透けて見えるようにする。 */}
+      {/* 会議室写真とショーケースの上に重ねる、画面全体では薄い暗幕。
+          左右差をほぼ無くし、業務画面が画面全体で見えるようにする
+          （以前は左〜中央を強く覆っていたが、文字の可読性は
+          hero-textzone-glow と各要素のtext-shadowで局所的に確保する）。 */}
       <div className="hero-photo-overlay" aria-hidden="true" />
+
+      {/* 見出し・本文・CTAの足元だけに効く局所的な暗がり。
+          画面全体を暗くする代わりに、文字が乗る範囲の裏側だけを
+          柔らかくぼかして沈める（輪郭のはっきりした四角には見えない
+          よう、中心から外へ滲むグラデーションにしている）。 */}
+      <div className="hero-textzone-glow" aria-hidden="true" />
 
       {/* ── 第1層：背景アンビエンス（最も遅れて動く） ── */}
       <div className="hero-amb">
@@ -59,8 +66,10 @@ export default function Hero() {
       <div className="hero-fg relative z-10 max-w-content mx-auto w-full
         px-5 sm:px-8 lg:px-12">
 
-        {/* 巨大見出し：柱の前を横断する */}
-        <h1 className="hero-headline mb-8 sm:mb-10">
+        {/* 巨大見出し：柱の前を横断する。
+            text-shadowで文字の輪郭にだけ影を落とし、背景が
+            動いていても文字自体はくっきり読めるようにする */}
+        <h1 className="hero-headline hero-text-shadow mb-8 sm:mb-10">
           <span className="enter-heading d1 block hero-line-top">
             {HERO.headlineTop}
           </span>
@@ -78,7 +87,7 @@ export default function Hero() {
 
         {/* 説明文とCTA（柱と重ならないよう左寄せ・幅を制限） */}
         <div className="max-w-[26rem]">
-          <p className="enter-body d3 text-[14px] sm:text-[15px] leading-[2]
+          <p className="enter-body d3 hero-text-shadow-soft text-[14px] sm:text-[15px] leading-[2]
             text-white/70 mb-9">
             {HERO.lead}
           </p>
@@ -88,12 +97,13 @@ export default function Hero() {
             <div className="hero-cta-breathe w-full sm:w-auto">
               <BookingButton tone="gold" className="w-full sm:w-auto" />
             </div>
-            <LinkButton href="#works" tone="outline" className="w-full sm:w-auto">
+            <LinkButton href="#works" tone="outline"
+              className="hero-cta-outline w-full sm:w-auto">
               制作実績を見る
             </LinkButton>
           </div>
 
-          <ul className="enter-fade d5 flex flex-wrap gap-x-5 gap-y-1.5">
+          <ul className="enter-fade d5 hero-text-shadow-soft flex flex-wrap gap-x-5 gap-y-1.5">
             {BOOKING.notes.map(note => (
               <li key={note} className="flex items-center gap-2 text-[11.5px] text-white/60">
                 <span className="w-1 h-1 rounded-full bg-gold/70" aria-hidden="true" />

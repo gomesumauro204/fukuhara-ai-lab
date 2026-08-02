@@ -153,22 +153,73 @@
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  /* 会議室写真とショーケース（業務画面）の両方の上に重ねる暗幕。
-     見出し2行目が右へ張り出すため、文字が乗る左〜中央は強めに覆い、
-     ショーケースが主役として見えるのは右側のみにする。 */
+  /* 会議室写真とショーケース（業務画面）の両方の上に重ねる、画面
+     全体では薄い暗幕。以前は左〜中央をほぼ不透明に覆っていたが、
+     それでは業務画面が画面の半分近くで見えなくなるため、左右差を
+     ほぼ無くし全体を均一に薄く沈める程度に留めた。文字の可読性は
+     .hero-textzone-glow と各テキストのtext-shadowで別途確保する。 */
   background:
     linear-gradient(90deg,
-      rgba(11, 27, 58, 0.99) 0%,
-      rgba(11, 27, 58, 0.97) 42%,
-      rgba(11, 27, 58, 0.86) 60%,
-      rgba(11, 27, 58, 0.5) 78%,
-      rgba(11, 27, 58, 0.22) 92%,
-      rgba(11, 27, 58, 0.14) 100%),
+      rgba(11, 27, 58, 0.5) 0%,
+      rgba(11, 27, 58, 0.42) 50%,
+      rgba(11, 27, 58, 0.34) 100%),
     linear-gradient(180deg,
-      rgba(11, 27, 58, 0.3) 0%,
-      rgba(11, 27, 58, 0) 22%,
-      rgba(11, 27, 58, 0) 78%,
-      rgba(11, 27, 58, 0.4) 100%);
+      rgba(11, 27, 58, 0.25) 0%,
+      rgba(11, 27, 58, 0) 20%,
+      rgba(11, 27, 58, 0) 80%,
+      rgba(11, 27, 58, 0.3) 100%);
+}
+
+/* 見出し・本文・CTAの裏側だけを柔らかくぼかして沈める局所的な影。
+   四角い枠に見えないよう、中心から外へ滲むradial-gradientにする。
+   PCでは左寄り（テキストの実際の位置）に、スマホでは中央上寄りに。 */
+.hero-textzone-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 46% 62% at 24% 52%,
+    rgba(8, 20, 46, 0.82) 0%,
+    rgba(8, 20, 46, 0.62) 40%,
+    rgba(8, 20, 46, 0.32) 68%,
+    transparent 100%
+  );
+}
+@media (max-width: 767px) {
+  .hero-textzone-glow {
+    background: radial-gradient(
+      ellipse 78% 54% at 44% 38%,
+      rgba(8, 20, 46, 0.82) 0%,
+      rgba(8, 20, 46, 0.6) 42%,
+      rgba(8, 20, 46, 0.3) 70%,
+      transparent 100%
+    );
+  }
+}
+
+/* 見出し・本文それぞれの文字の輪郭にだけ影を落とし、背景が動いて
+   いても文字自体はくっきり読めるようにする（面を覆うのではなく
+   文字のシルエットだけに効かせる） */
+.hero-text-shadow {
+  text-shadow:
+    0 2px 4px rgba(5, 12, 28, 0.85),
+    0 6px 18px rgba(5, 12, 28, 0.7),
+    0 2px 44px rgba(5, 12, 28, 0.55);
+}
+.hero-text-shadow-soft {
+  text-shadow:
+    0 1px 3px rgba(5, 12, 28, 0.8),
+    0 4px 14px rgba(5, 12, 28, 0.6);
+}
+
+/* ヒーローの「制作実績を見る」ボタンは背景が透明なため、動く業務
+   画面の上でも文字が読めるよう薄い暗幕とぼかしを足す
+   （ボタン自体の枠線・文字色などの見た目は変えない） */
+.hero-cta-outline {
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  background-color: rgba(8, 20, 46, 0.38);
 }
 @keyframes heroPhotoZoom {
   from { transform: scale(1); }
@@ -187,10 +238,10 @@
   .hero-photo-overlay {
     background:
       linear-gradient(180deg,
-        rgba(11, 27, 58, 0.72) 0%,
-        rgba(11, 27, 58, 0.6) 34%,
-        rgba(11, 27, 58, 0.78) 60%,
-        rgba(11, 27, 58, 0.92) 100%);
+        rgba(11, 27, 58, 0.42) 0%,
+        rgba(11, 27, 58, 0.34) 34%,
+        rgba(11, 27, 58, 0.44) 60%,
+        rgba(11, 27, 58, 0.55) 100%);
   }
 }
 
@@ -213,7 +264,8 @@
   position: absolute;
   top: -25%;
   right: -6%;
-  width: 98%;
+  left: -6%;
+  width: auto;
   height: 150%;
   display: flex;
   gap: 16px;
@@ -387,24 +439,25 @@
   background: rgba(212, 184, 122, 0.4);
 }
 
-/* タブレット以下：3〜4列目を隠し2列に */
+/* タブレット以下：3列を残し、画面の左端〜右端まで広げる */
 @media (max-width: 1023px) {
-  .hero-showcase-col-2,
-  .hero-showcase-col-3 { display: none; }
-  .hero-showcase-grid { width: 74%; right: -6%; }
+  .hero-showcase-col-3,
+  .hero-showcase-col-4 { display: none; }
+  .hero-showcase-grid { left: -8%; right: -8%; }
 }
-/* スマホ：1列のみ。右下寄りに配置しつつ、以前より少し幅を持たせて
-   画面上での存在感を出す（横スクロールは起こさない範囲で調整） */
+/* スマホ：2列。左右にまたがるよう広げ、右端だけでなく中央寄りにも
+   業務画面が見えるようにする（横スクロールは起こさない範囲で調整） */
 @media (max-width: 639px) {
-  .hero-showcase-col-1,
   .hero-showcase-col-2,
-  .hero-showcase-col-3 { display: none; }
+  .hero-showcase-col-3,
+  .hero-showcase-col-4 { display: none; }
   .hero-showcase-grid {
     top: -10%;
-    right: -14%;
-    width: 68%;
+    left: -10%;
+    right: -10%;
     height: 120%;
     transform: rotate(-12deg);
+    gap: 12px;
   }
   .hero-showcase-card { border-radius: 6px; }
 }
@@ -874,7 +927,7 @@
   /* スクロール量に応じて縦方向にはっきり動く視差ドリフト（奥行き）。
      % ではなく px の実距離で指定し、画面上で誰の目にも動きが
      わかる大きさにする。 */
-  transform: scale(1.3) translate3d(0, calc((var(--p, 0.5) - 0.5) * -140px), 0);
+  transform: scale(1.42) translate3d(0, calc((var(--p, 0.5) - 0.5) * -190px), 0);
   will-change: transform;
 }
 .svc-photo-overlay {
@@ -992,8 +1045,8 @@
   opacity: 0.85;
   /* Serviceとは違う質感にするため、縦だけでなく横にもはっきり動く
      斜めドリフトにする（同じ動きの繰り返しに見えないように） */
-  transform: scale(1.34)
-    translate3d(calc((var(--p, 0.5) - 0.5) * 90px), calc((var(--p, 0.5) - 0.5) * -130px), 0);
+  transform: scale(1.46)
+    translate3d(calc((var(--p, 0.5) - 0.5) * 130px), calc((var(--p, 0.5) - 0.5) * -180px), 0);
   will-change: transform;
 }
 .prof-photo-overlay {
@@ -1043,7 +1096,7 @@
   /* 視差の動きに加えて、スクロールで中央に近づくほどはっきり
      明るくなる「浮かび上がる」質感にし、Service/Profileと差をつける */
   opacity: calc(0.4 + var(--p, 0.5) * 0.55);
-  transform: scale(1.3) translate3d(0, calc((var(--p, 0.5) - 0.5) * -140px), 0);
+  transform: scale(1.42) translate3d(0, calc((var(--p, 0.5) - 0.5) * -190px), 0);
   will-change: transform, opacity;
 }
 .contact-photo-overlay {
@@ -1452,8 +1505,8 @@
 
 /* 大切にしていること：他の左右フェードインより大きく・ゆっくりスライド
    させ、スクロールしながら見たときにはっきり動きとしてわかるようにする */
-.strength-card.reveal-left:not(.is-in)  { transform: translate3d(-110px, 0, 0); }
-.strength-card.reveal-right:not(.is-in) { transform: translate3d(110px, 0, 0); }
+.strength-card.reveal-left:not(.is-in)  { transform: translate3d(-150px, 0, 0); }
+.strength-card.reveal-right:not(.is-in) { transform: translate3d(150px, 0, 0); }
 .strength-card { transition-duration: 0.9s; }
 
 /* CTA：最後に控えめに下から */
@@ -1467,6 +1520,28 @@
   box-shadow: 0 0 6px 0 var(--accent-ink, rgba(92, 58, 82, 0.5));
 }
 .reveal.is-in .team-connect { transform: scaleX(1); }
+
+.team-connect-dot {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  transform: translate3d(50%, -50%, 0) scale(0);
+  background: var(--accent-ink, #5C3A52);
+  box-shadow: 0 0 10px 2px var(--accent-ink, rgba(92, 58, 82, 0.55));
+  opacity: 0;
+  transition: opacity 0.3s ease-out 0.85s;
+}
+.reveal.is-in .team-connect-dot {
+  opacity: 1;
+  animation: teamDotPulse 1.8s ease-in-out 0.9s infinite;
+}
+@keyframes teamDotPulse {
+  0%, 100% { transform: translate3d(50%, -50%, 0) scale(1); }
+  50%      { transform: translate3d(50%, -50%, 0) scale(1.4); }
+}
 
 /* ---- 段差（delay）0.12〜0.25s刻み ---- */
 .reveal-1 { transition-delay: 0.05s; }
@@ -1865,7 +1940,8 @@
   .problem-checkline { transform: scaleY(1) !important; }
   .problem-checkline-dot,
   .proc-flowline-dot,
-  .proc-flowline-v-dot {
+  .proc-flowline-v-dot,
+  .team-connect-dot {
     animation: none !important;
   }
   .problem-checkline-dot { top: 100% !important; }
@@ -1874,6 +1950,7 @@
   .proc-flowline-v { transform: scaleY(1) !important; }
   .proc-flowline-v-dot { top: 100% !important; }
   .team-connect { transform: scaleX(1) !important; }
+  .team-connect-dot { opacity: 1 !important; transform: translate3d(50%, -50%, 0) scale(1) !important; }
 
   .hero-photo {
     /* opacityは薄い土台のまま維持し、ズームのみ止める
