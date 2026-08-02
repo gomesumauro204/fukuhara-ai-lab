@@ -33,20 +33,26 @@ export default function Problem() {
         dark
       />
 
-      <ul className="relative space-y-5 sm:space-y-6">
-        {PROBLEMS.map((problem, i) => (
-          <Reveal key={problem} as="li" kind="body"
-            delay={((i % 4) + 1) as 1 | 2 | 3 | 4}
-            className="flex items-baseline gap-5 sm:gap-8">
-            <span className="font-en text-[12px] text-gold-bright shrink-0">
-              {String(i + 1).padStart(2, '0')}
-            </span>
-            <span className="text-[14.5px] sm:text-[15.5px] leading-[1.8] text-white/80">
-              {problem}
-            </span>
-          </Reveal>
-        ))}
-      </ul>
+      <div className="relative">
+        {/* チェックリストを一つずつ確認していく感覚を出す、
+            スクロール量にそのまま連動して伸びる縦線 */}
+        <span aria-hidden="true" data-parallax className="problem-checkline" />
+
+        <ul className="relative space-y-5 sm:space-y-6">
+          {PROBLEMS.map((problem, i) => (
+            <Reveal key={problem} as="li" kind="body"
+              delay={((i % 4) + 1) as 1 | 2 | 3 | 4}
+              className="flex items-baseline gap-5 sm:gap-8">
+              <span className="font-en text-[12px] text-gold-bright shrink-0">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <span className="text-[14.5px] sm:text-[15.5px] leading-[1.8] text-white/80">
+                {problem}
+              </span>
+            </Reveal>
+          ))}
+        </ul>
+      </div>
     </Section>
   )
 }

@@ -25,6 +25,7 @@ export default function Contact() {
               height={901}
               loading="lazy"
               decoding="async"
+              data-parallax
               className="contact-photo"
             />
           </picture>
@@ -48,9 +49,9 @@ export default function Contact() {
         </p>
       </Reveal>
 
-      {/* 無料相談（主導線） */}
-      <Reveal kind="cta" delay={2} className="max-w-lg border border-gold/35
-        bg-navy-deep/40 backdrop-blur-sm rounded-sm p-8 sm:p-11">
+      {/* 無料相談（主導線）：最後の着地点として、控えめに呼吸する発光を添える */}
+      <Reveal kind="cta" delay={2} className="contact-cta-glow relative max-w-lg
+        border border-gold/35 bg-navy-deep/40 backdrop-blur-sm rounded-sm p-8 sm:p-11">
         <p className="font-mincho text-[1.4rem] sm:text-[1.7rem] text-white
           mb-8">
           30分の無料相談

@@ -687,6 +687,24 @@
   transition-delay: 0.08s;
 }
 
+/* 課題チェックリスト：スクロール量にそのまま連動して伸びる縦線。
+   data-parallax が書き込む --p（0〜1）をそのまま高さの割合として使う。
+   一度きりの演出ではなく、スクロールを戻せば線も縮む。 */
+.problem-checkline {
+  position: absolute;
+  left: 1px;
+  top: 4px;
+  bottom: 4px;
+  width: 1px;
+  background: linear-gradient(180deg, var(--accent, #C9A961), rgba(201, 169, 97, 0.15));
+  transform: scaleY(var(--p, 0));
+  transform-origin: top;
+  pointer-events: none;
+}
+@media (max-width: 639px) {
+  .problem-checkline { display: none; }
+}
+
 /* 静的な微細ノイズ（動かさない・点滅させない） */
 .problem-grain {
   position: absolute;
@@ -826,6 +844,9 @@
   object-fit: cover;
   object-position: 78% 32%;
   opacity: 0.85;
+  /* スクロール量に応じてごくわずかに動く視差ドリフト（奥行き） */
+  transform: scale(1.06) translate3d(0, calc((var(--p, 0.5) - 0.5) * -3%), 0);
+  will-change: transform;
 }
 .svc-photo-overlay {
   position: absolute;
@@ -885,6 +906,18 @@
       rgba(11, 27, 58, 0.35) 68%,
       rgba(11, 27, 58, 0.72) 100%);
 }
+/* 大切にしていること：カードがマウスに反応してごく軽く浮く
+   （タッチ端末では hover が無いため何も起きない＝安全） */
+@media (hover: hover) and (pointer: fine) {
+  .strength-card {
+    transition: transform 0.35s ease-out, box-shadow 0.35s ease-out;
+  }
+  .strength-card:hover {
+    transform: translate3d(0, -4px, 0);
+    box-shadow: 0 18px 34px -22px rgba(20, 25, 42, 0.35);
+  }
+}
+
 /* 工程カード：写真の上に浮かぶ半透明の板 */
 .proc-card {
   background: rgba(8, 20, 46, 0.55);
@@ -919,6 +952,8 @@
   object-fit: cover;
   object-position: 76% 30%;
   opacity: 0.85;
+  transform: scale(1.06) translate3d(0, calc((var(--p, 0.5) - 0.5) * -3%), 0);
+  will-change: transform;
 }
 .prof-photo-overlay {
   position: absolute;
@@ -965,6 +1000,8 @@
   object-fit: cover;
   object-position: 78% 24%;
   opacity: 0.8;
+  transform: scale(1.06) translate3d(0, calc((var(--p, 0.5) - 0.5) * -3%), 0);
+  will-change: transform;
 }
 .contact-photo-overlay {
   position: absolute;
@@ -1252,6 +1289,12 @@
   animation-play-state: paused;
 }
 
+/* お問い合わせ：サイト最後の着地点として、CTAカードにごく控えめな
+   呼吸する発光を添える（Heroと同じ呼吸だが、カード自体の角丸に合わせる） */
+.contact-cta-glow {
+  animation: ctaBreathe 7s ease-in-out 1s infinite;
+}
+
 /* =============================================================
    ENTRANCE — Hero専用、初回表示時の一度きりの登場アニメーション
    数字・ラベル・見出し・本文・画像・CTAで異なる移動量にし、
@@ -1367,6 +1410,14 @@
 /* CTA：最後に控えめに下から */
 .reveal-cta:not(.is-in)     { transform: translate3d(0, 20px, 0); }
 
+/* 専門体制：行が現れると同時に、接続線が左から右へ描画される */
+.team-connect {
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.6s ease-out 0.15s;
+}
+.reveal.is-in .team-connect { transform: scaleX(1); }
+
 /* ---- 段差（delay）0.12〜0.25s刻み ---- */
 .reveal-1 { transition-delay: 0.05s; }
 .reveal-2 { transition-delay: 0.20s; }
@@ -1388,13 +1439,12 @@
   .reveal-cta:not(.is-in)     { transform: translate3d(0, 14px, 0); }
 }
 
-/* 罫線を描画する演出（Process の接続線など） */
-.draw-x {
-  transform: scaleX(0);
+/* 制作の流れ：接続線がスクロール量にそのまま連動して伸びる */
+.proc-flowline {
+  transform: scaleX(var(--p, 0));
   transform-origin: left;
-  transition: transform 0.8s ease-out 0.1s;
+  will-change: transform;
 }
-.draw-x.is-in { transform: scaleX(1); }
 
 /* =============================================================
    FAQ アコーディオン
@@ -1732,6 +1782,11 @@
     transition: none !important;
   }
 
+  /* スクロール連動の演出はすべて「静止した完成形」で固定表示にする */
+  .problem-checkline { transform: scaleY(1) !important; }
+  .proc-flowline { transform: scaleX(1) !important; }
+  .team-connect { transform: scaleX(1) !important; }
+
   .hero-photo {
     /* opacityは薄い土台のまま維持し、ズームのみ止める
        （ショーケースを主役にするデザイン意図を崩さないため） */
@@ -1747,10 +1802,6 @@
     transform: none !important;
   }
 
-  .draw-x {
-    transform: scaleX(1) !important;
-    transition: none !important;
-  }
 
   .problem-layer-a,
   .problem-layer-b,
@@ -1792,7 +1843,8 @@
   .sec-packet,
   .sec-chip,
   .hero-showcase-track,
-  .hero-cta-breathe {
+  .hero-cta-breathe,
+  .contact-cta-glow {
     animation: none !important;
   }
 

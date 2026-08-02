@@ -16,8 +16,9 @@ export default function Strengths() {
         {STRENGTHS.map((item, i) => (
           <Reveal key={item.num}
             kind="body"
+            dir={i % 2 === 0 ? 'left' : 'right'}
             delay={((i % 2) + 1) as 1 | 2}
-            className="rounded-sm bg-white/55 px-6 sm:px-8 py-7 sm:py-8"
+            className="strength-card rounded-sm bg-white/55 px-6 sm:px-8 py-7 sm:py-8"
             style={{ borderTop: '2px solid var(--accent, #C9A961)' }}>
             <p className="font-en text-[11px] mb-3"
               style={{ letterSpacing: '0.3em', color: 'var(--accent-ink, #7A5F26)' }}>

@@ -58,9 +58,9 @@ export default function Team() {
                 delay={((i % 4) + 1) as 1 | 2 | 3 | 4}
                 className="flex items-baseline gap-5 sm:gap-8
                   border-b border-ink/12 py-5">
-                {/* 接続を示す短い横線 */}
+                {/* 接続を示す短い横線：行が現れるタイミングで左から描画される */}
                 <span aria-hidden="true"
-                  className="w-6 sm:w-10 h-px shrink-0 translate-y-[-3px]"
+                  className="team-connect w-6 sm:w-10 h-px shrink-0 translate-y-[-3px]"
                   style={{ background: 'var(--accent-ink, rgba(20,25,42,0.25))', opacity: 0.55 }} />
                 <span className="min-w-0 flex-1 flex flex-wrap
                   items-baseline gap-x-4 gap-y-1">

@@ -1,5 +1,5 @@
 import { PROCESS } from '../data/site'
-import { Section, SectionHead, Reveal, useInView } from './ui'
+import { Section, SectionHead, Reveal } from './ui'
 
 /**
  * 制作・相談の流れ：開発風景の写真をセクション全体の背景として使う。
@@ -8,12 +8,13 @@ import { Section, SectionHead, Reveal, useInView } from './ui'
  * 工程カードは半透明の板を敷いて画像の上に浮かぶように見せる。
  * 5工程を「流れ」として見せるため、接続線をゴールド→ティール→
  * プラムのグラデーションにし、節点の色も工程ごとに少しずつ変える。
+ * 接続線は一度きりの演出ではなく、サイト共通のスクロール連動の仕組み
+ * （data-parallax・--p）でスクロール量にそのまま比例して伸びる
+ * ＝「工程を進んでいく」感覚を強める。
  */
 const STEP_ACCENTS = ['#C9A961', '#82C4BC', '#A79CD1', '#C79BB6', '#9CCBA4']
 
 export default function Process() {
-  const line = useInView<HTMLDivElement>()
-
   return (
     <Section
       id="process"
@@ -46,12 +47,11 @@ export default function Process() {
       />
 
       <div className="relative">
-        {/* 接続線（PCのみ） */}
+        {/* 接続線（PCのみ）：スクロール量にそのまま連動して伸びる */}
         <div
-          ref={line.ref}
+          data-parallax
           aria-hidden="true"
-          className={`draw-x ${line.inView ? 'is-in' : ''}
-            hidden lg:block absolute top-[9px] left-0 right-0 h-px`}
+          className="proc-flowline hidden lg:block absolute top-[9px] left-0 right-0 h-px"
           style={{ background: 'linear-gradient(90deg, #C9A961, #82C4BC, #A79CD1, #C79BB6)' }}
         />
 

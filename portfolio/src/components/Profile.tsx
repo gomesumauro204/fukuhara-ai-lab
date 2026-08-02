@@ -23,6 +23,7 @@ export default function Profile() {
               height={901}
               loading="lazy"
               decoding="async"
+              data-parallax
               className="prof-photo"
             />
           </picture>

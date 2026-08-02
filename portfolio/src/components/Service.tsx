@@ -26,6 +26,7 @@ export default function Service() {
               height={901}
               loading="lazy"
               decoding="async"
+              data-parallax
               className="svc-photo"
             />
           </picture>
