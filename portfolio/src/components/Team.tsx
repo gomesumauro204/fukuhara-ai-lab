@@ -10,7 +10,7 @@ import { Section, SectionHead, Reveal } from './ui'
  */
 export default function Team() {
   return (
-    <Section id="team" tone="paper">
+    <Section id="team" tone="paper" accent="plum">
       <SectionHead
         num="04"
         en="Project Team"
@@ -30,7 +30,8 @@ export default function Team() {
       <div className="grid lg:grid-cols-[20rem_1fr] gap-10 lg:gap-16 items-start">
 
         {/* ── 窓口（常に福原が担当） ── */}
-        <Reveal className="border border-gold/50 bg-white/60 p-7 rounded-sm">
+        <Reveal className="bg-white/60 p-7 rounded-sm border border-ink/8"
+          style={{ borderTopWidth: '2px', borderTopColor: 'var(--accent, #C9A961)' }}>
           <p className="font-mincho text-[1.5rem] text-ink mb-1">
             {TEAM.core.name}
           </p>
@@ -40,7 +41,8 @@ export default function Team() {
             {TEAM.core.tasks.map(task => (
               <li key={task} className="flex items-center gap-3
                 text-[13.5px] text-ink-mid">
-                <span className="w-3 h-px bg-gold" aria-hidden="true" />
+                <span className="w-3 h-px" aria-hidden="true"
+                  style={{ background: 'var(--accent, #C9A961)' }} />
                 {task}
               </li>
             ))}
@@ -58,8 +60,8 @@ export default function Team() {
                   border-b border-ink/12 py-5">
                 {/* 接続を示す短い横線 */}
                 <span aria-hidden="true"
-                  className="w-6 sm:w-10 h-px bg-ink/25 shrink-0
-                    translate-y-[-3px]" />
+                  className="w-6 sm:w-10 h-px shrink-0 translate-y-[-3px]"
+                  style={{ background: 'var(--accent-ink, rgba(20,25,42,0.25))', opacity: 0.55 }} />
                 <span className="min-w-0 flex-1 flex flex-wrap
                   items-baseline gap-x-4 gap-y-1">
                   <span className="text-[15px] font-semibold text-ink">

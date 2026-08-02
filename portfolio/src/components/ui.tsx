@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { BOOKING } from '../data/site'
-import SectionAmbience from './SectionAmbience'
+import SectionAmbience, { type Accent } from './SectionAmbience'
 
 // =============================================================
 // スクロール連動アニメーション
@@ -168,7 +168,7 @@ function seedFromId(id?: string) {
 }
 
 export function Section({
-  id, children, tone = 'navy', className = '', ambience = true, background,
+  id, children, tone = 'navy', className = '', ambience = true, background, accent,
 }: {
   id?: string
   children: ReactNode
@@ -179,12 +179,15 @@ export function Section({
   /** セクション全幅いっぱいに敷く背景（写真など）。paddingの外側、
       SectionAmbienceより背面に置く。既定は無し */
   background?: ReactNode
+  /** セクションごとの差し色（背景光のみに使用。既定はゴールド＝従来通り） */
+  accent?: Accent
 }) {
   return (
     <section id={id}
-      className={`relative overflow-hidden ${TONE_CLASS[tone]} ${className}`}>
+      className={`relative overflow-hidden ${TONE_CLASS[tone]}
+        ${accent ? `accent-${accent}` : ''} ${className}`}>
       {background}
-      {ambience && <SectionAmbience tone={tone} seed={seedFromId(id)} />}
+      {ambience && <SectionAmbience tone={tone} seed={seedFromId(id)} accent={accent} />}
       <div className="relative z-10 max-w-content mx-auto px-5 sm:px-8 lg:px-12
         py-section lg:py-section-lg">
         {children}

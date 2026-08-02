@@ -23,6 +23,32 @@ export default {
           DEFAULT: '#F5F2EA',
           dim:     '#E9E4D8',
         },
+        // セクションごとの差し色（面には使わず、アクセントのみに使用）
+        plum: {
+          DEFAULT: '#9B6B8C',
+          bright:  '#C79BB6',
+          deep:    '#5C3A52',
+        },
+        purple: {
+          DEFAULT: '#7E72A8',
+          bright:  '#A79CD1',
+          deep:    '#4A4270',
+        },
+        teal: {
+          DEFAULT: '#4F9B93',
+          bright:  '#82C4BC',
+          deep:    '#2E5C56',
+        },
+        forest: {
+          DEFAULT: '#6FA377',
+          bright:  '#9CCBA4',
+          deep:    '#3E6B47',
+        },
+        charcoal: {
+          DEFAULT: '#2A2D35',
+          lift:    '#363A44',
+          deep:    '#1C1E24',
+        },
         // 淡色地の文字（soft も AA を満たす濃さにしている）
         ink: {
           DEFAULT: '#14192A',

@@ -20,11 +20,36 @@ import { useInView } from './ui'
  */
 
 type Tone = 'navy' | 'paper' | 'deep'
+export type Accent = 'gold' | 'plum' | 'purple' | 'teal' | 'forest'
 
 const PALETTE: Record<Tone, { glow: string; line: string; node: string }> = {
   navy:  { glow: 'rgba(92, 142, 222, 0.22)', line: 'rgba(150, 190, 245, 0.28)', node: 'rgba(212, 184, 122, 0.85)' },
   deep:  { glow: 'rgba(92, 142, 222, 0.19)', line: 'rgba(150, 190, 245, 0.24)', node: 'rgba(212, 184, 122, 0.75)' },
   paper: { glow: 'rgba(70, 96, 150, 0.10)',  line: 'rgba(70, 90, 130, 0.16)',   node: 'rgba(122, 95, 38, 0.55)' },
+}
+
+/* セクションごとの差し色。背景光（glow）だけをこの色に寄せ、
+   データラインのノード（gold）は全セクション共通の署名として残す。
+   ネイビー一色に見えないための、ごく控えめな色の変化。 */
+const ACCENT_GLOW: Record<Tone, Partial<Record<Accent, string>>> = {
+  navy: {
+    plum:   'rgba(199, 155, 182, 0.20)',
+    purple: 'rgba(167, 156, 209, 0.20)',
+    teal:   'rgba(130, 196, 188, 0.20)',
+    forest: 'rgba(156, 203, 164, 0.20)',
+  },
+  deep: {
+    plum:   'rgba(199, 155, 182, 0.17)',
+    purple: 'rgba(167, 156, 209, 0.17)',
+    teal:   'rgba(130, 196, 188, 0.17)',
+    forest: 'rgba(156, 203, 164, 0.17)',
+  },
+  paper: {
+    plum:   'rgba(155, 107, 140, 0.12)',
+    purple: 'rgba(126, 114, 168, 0.12)',
+    teal:   'rgba(79, 155, 147, 0.12)',
+    forest: 'rgba(111, 163, 119, 0.12)',
+  },
 }
 
 // seed から見た目のばらつきを作る簡易な擬似乱数（-1〜1）
@@ -34,9 +59,12 @@ function wobble(seed: number, salt: number) {
 }
 
 export default function SectionAmbience({
-  tone, seed = 0,
-}: { tone: Tone; seed?: number }) {
-  const c = PALETTE[tone]
+  tone, seed = 0, accent,
+}: { tone: Tone; seed?: number; accent?: Accent }) {
+  const c = {
+    ...PALETTE[tone],
+    glow: (accent && ACCENT_GLOW[tone][accent]) || PALETTE[tone].glow,
+  }
   const rich = tone !== 'paper' // 濃色セクションのみ、チップ・カード・2本目のラインを追加
   const fromRight = seed % 2 === 0
   const { ref, inView } = useInView<HTMLDivElement>()

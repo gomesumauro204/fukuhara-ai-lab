@@ -16,18 +16,26 @@ import { HERO_SHOWCASE, type ShowcaseItem, type ShowcaseKind } from '../data/her
  * - 各列は「同じカード列を2セット連結 → 50%だけ縦移動」で
  *   継ぎ目のない無限ループにする
  * - 列ごとに速度を少し変え、機械的すぎない自然な動きにする
- * - 画像は public/hero-showcase/{id}.webp を置けば自動で実画像に
+ * - 画像は public/hero-showcase/{id}.jpg を置けば自動で実画像に
  *   差し替わる。無い間はCSSのみの簡易モック画面（仮素材）を表示する
  * - テキストの可読性は Hero.tsx 側の .hero-photo-overlay が担う
  *   （このコンポーネント自身は暗幕を持たない）
+ * - 画像枚数が列数より少なくても密度が落ちないよう、列ごとに
+ *   開始位置をずらした同じ画像セットを巡回させる（各列で全画像が
+ *   一巡するので、列間で完全に同じ並びにはならない）
  */
 
 const COLUMN_COUNT = 3
 const COLUMN_DURATIONS = ['46s', '54s', '40s']
+/** 1列あたりに並べる枚数（画像が少ない場合は巡回させて密度を確保） */
+const CARDS_PER_COLUMN = Math.max(5, HERO_SHOWCASE.length)
 
 export default function HeroShowcase() {
+  const total = HERO_SHOWCASE.length
   const columns = Array.from({ length: COLUMN_COUNT }, (_, colIndex) =>
-    HERO_SHOWCASE.filter((_, i) => i % COLUMN_COUNT === colIndex),
+    Array.from({ length: CARDS_PER_COLUMN }, (_, i) =>
+      HERO_SHOWCASE[(i + colIndex * 2) % total],
+    ),
   )
 
   return (
@@ -62,7 +70,7 @@ function HeroShowcaseCard({ item }: { item: ShowcaseItem }) {
     <figure className="hero-showcase-card">
       {exists ? (
         <img
-          src={`/hero-showcase/${item.id}.webp`}
+          src={`/hero-showcase/${item.id}.jpg`}
           alt={item.alt}
           loading="lazy"
           decoding="async"
@@ -75,16 +83,41 @@ function HeroShowcaseCard({ item }: { item: ShowcaseItem }) {
   )
 }
 
+// 同じidのカードが列をまたいで何度も描画されるため、存在チェックは
+// idごとに1回だけ行い、結果をメモリ上で共有する（無駄な重複読み込みを防ぐ）
+const existsCache = new Map<string, boolean>()
+const existsListeners = new Map<string, Set<(v: boolean) => void>>()
+
 function useShowcaseImageExists(id: string): boolean {
-  const [exists, setExists] = useState(false)
+  const [exists, setExists] = useState(() => existsCache.get(id) ?? false)
+
   useEffect(() => {
-    let alive = true
-    const img = new Image()
-    img.onload = () => alive && setExists(true)
-    img.onerror = () => alive && setExists(false)
-    img.src = `/hero-showcase/${id}.webp`
-    return () => { alive = false }
+    if (existsCache.has(id)) {
+      setExists(existsCache.get(id)!)
+      return
+    }
+
+    let listeners = existsListeners.get(id)
+    if (!listeners) {
+      listeners = new Set()
+      existsListeners.set(id, listeners)
+
+      const img = new Image()
+      img.onload = () => {
+        existsCache.set(id, true)
+        listeners!.forEach(fn => fn(true))
+      }
+      img.onerror = () => {
+        existsCache.set(id, false)
+        listeners!.forEach(fn => fn(false))
+      }
+      img.src = `/hero-showcase/${id}.jpg`
+    }
+    listeners.add(setExists)
+
+    return () => { listeners!.delete(setExists) }
   }, [id])
+
   return exists
 }
 

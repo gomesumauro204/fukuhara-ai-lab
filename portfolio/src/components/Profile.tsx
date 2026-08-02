@@ -11,6 +11,7 @@ export default function Profile() {
     <Section
       id="about"
       tone="navy"
+      accent="teal"
       background={
         <div className="prof-photo-wrap" aria-hidden="true">
           <picture>
@@ -46,7 +47,8 @@ export default function Profile() {
           <p className="text-[12.5px] text-gold-bright tracking-[0.1em]">
             {PROFILE.role}
           </p>
-          <div className="w-10 h-px bg-gold my-6" aria-hidden="true" />
+          <div className="w-10 h-px my-6" aria-hidden="true"
+            style={{ background: 'var(--accent, #C9A961)' }} />
           <p className="text-[13px] leading-[1.95] text-white/65">
             {PROFILE.taskLine}
           </p>

@@ -14,6 +14,7 @@ export default function Service() {
     <Section
       id="service"
       tone="navy"
+      accent="teal"
       background={
         <div className="svc-photo-wrap" aria-hidden="true">
           <picture>
@@ -50,7 +51,8 @@ export default function Service() {
               border-b border-white/10 py-8 lg:py-10">
             <span aria-hidden="true"
               className="font-en text-[2.4rem] lg:text-[3rem] leading-none
-                text-white/12 select-none">
+                select-none"
+              style={{ color: 'var(--accent, rgba(255,255,255,0.12))', opacity: 0.35 }}>
               {service.num}
             </span>
 

@@ -6,7 +6,11 @@ import { Section, SectionHead, Reveal, useInView } from './ui'
  *
  * 情報量の多い写真のため、暗いオーバーレイと軽いぼかしで沈め、
  * 工程カードは半透明の板を敷いて画像の上に浮かぶように見せる。
+ * 5工程を「流れ」として見せるため、接続線をゴールド→ティール→
+ * プラムのグラデーションにし、節点の色も工程ごとに少しずつ変える。
  */
+const STEP_ACCENTS = ['#C9A961', '#82C4BC', '#A79CD1', '#C79BB6', '#9CCBA4']
+
 export default function Process() {
   const line = useInView<HTMLDivElement>()
 
@@ -14,6 +18,7 @@ export default function Process() {
     <Section
       id="process"
       tone="navy"
+      accent="forest"
       background={
         <div className="proc-photo-wrap" aria-hidden="true">
           <picture>
@@ -46,7 +51,8 @@ export default function Process() {
           ref={line.ref}
           aria-hidden="true"
           className={`draw-x ${line.inView ? 'is-in' : ''}
-            hidden lg:block absolute top-[9px] left-0 right-0 h-px bg-white/20`}
+            hidden lg:block absolute top-[9px] left-0 right-0 h-px`}
+          style={{ background: 'linear-gradient(90deg, #C9A961, #82C4BC, #A79CD1, #C79BB6)' }}
         />
 
         <ol className="relative grid gap-5 sm:grid-cols-2 lg:grid-cols-5 lg:gap-5">
@@ -54,16 +60,17 @@ export default function Process() {
             <Reveal key={step.num} as="li"
               delay={((i % 4) + 1) as 1 | 2 | 3 | 4}
               className="proc-card rounded-md p-5 lg:p-6">
-              {/* 節点 */}
+              {/* 節点：工程ごとに色を変え、流れを可視化する */}
               <span aria-hidden="true"
-                className="block w-[18px] h-[18px] rounded-full
-                  border border-gold/60 bg-navy mb-6
-                  grid place-items-center">
-                <span className="w-1.5 h-1.5 rounded-full bg-gold" />
+                className="block w-[18px] h-[18px] rounded-full bg-navy mb-6
+                  grid place-items-center"
+                style={{ border: `1px solid ${STEP_ACCENTS[i % STEP_ACCENTS.length]}` }}>
+                <span className="w-1.5 h-1.5 rounded-full"
+                  style={{ background: STEP_ACCENTS[i % STEP_ACCENTS.length] }} />
               </span>
 
-              <p className="font-en text-[11px] text-gold-bright mb-2"
-                style={{ letterSpacing: '0.28em' }}>
+              <p className="font-en text-[11px] mb-2"
+                style={{ letterSpacing: '0.28em', color: STEP_ACCENTS[i % STEP_ACCENTS.length] }}>
                 {step.num}
               </p>
               <h3 className="font-mincho text-[1.05rem] text-white mb-3">

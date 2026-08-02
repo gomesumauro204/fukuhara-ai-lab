@@ -1,10 +1,10 @@
 import { STRENGTHS, SITE } from '../data/site'
 import { Section, SectionHead, Reveal } from './ui'
 
-/** 特徴：左に縦線を引いた読み物型。スマホでは1列で読みやすさを優先 */
+/** 特徴：上に細いアクセント帯を引いたカード型。スマホでは1列で読みやすさを優先 */
 export default function Strengths() {
   return (
-    <Section id="strengths" tone="paper">
+    <Section id="strengths" tone="paper" accent="forest">
       <SectionHead
         num="03"
         en="Strengths"
@@ -12,14 +12,15 @@ export default function Strengths() {
         lead="作ることを目的にせず、導入後に迷わず使える状態まで見据えて進めます。"
       />
 
-      <div className="grid gap-10 sm:gap-x-14 sm:gap-y-12 lg:grid-cols-2">
+      <div className="grid gap-6 sm:gap-x-8 sm:gap-y-8 lg:grid-cols-2">
         {STRENGTHS.map((item, i) => (
           <Reveal key={item.num}
             kind="body"
             delay={((i % 2) + 1) as 1 | 2}
-            className="border-l border-gold/50 pl-6 sm:pl-8">
-            <p className="font-en text-[11px] text-gold-deep mb-3"
-              style={{ letterSpacing: '0.3em' }}>
+            className="rounded-sm bg-white/55 px-6 sm:px-8 py-7 sm:py-8"
+            style={{ borderTop: '2px solid var(--accent, #C9A961)' }}>
+            <p className="font-en text-[11px] mb-3"
+              style={{ letterSpacing: '0.3em', color: 'var(--accent-ink, #7A5F26)' }}>
               {item.num}
             </p>
             <h3 className="font-mincho text-[1.2rem] text-ink mb-3">
