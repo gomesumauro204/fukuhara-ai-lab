@@ -10,6 +10,9 @@ import { SITE } from '../data/site'
  * object-containで縦横比を保ったまま正方形の枠に収める。
  * スマホ30px／sm以上36px（いずれも要件のPC32〜40px・スマホ28〜34pxの範囲内）。
  * emphasize時も外枠のサイズは同じなので、ヘッダーの高さ・余白は変わらない。
+ * emphasize時のロゴ画像は、元の青系の色味だとネイビー背景に沈んで見えるため、
+ * filterで一旦白シルエット化（brightness(0) invert(1)）した上でsepia/saturateにより
+ * 淡いゴールド寄りの白に着色し、drop-shadowで輪郭を強調している。
  */
 export default function Logo({ dark = true, emphasize = false }: { dark?: boolean; emphasize?: boolean }) {
   return (
@@ -23,7 +26,10 @@ export default function Logo({ dark = true, emphasize = false }: { dark?: boolea
             alt=""
             aria-hidden="true"
             className="w-[22px] h-[22px] sm:w-[26px] sm:h-[26px] object-contain"
-            style={{ filter: 'brightness(1.14) contrast(1.03)' }}
+            style={{
+              filter: 'brightness(0) invert(1) sepia(0.35) saturate(2.4) '
+                + 'drop-shadow(0 0 2px rgba(212,175,55,0.4))',
+            }}
           />
         </span>
       ) : (
