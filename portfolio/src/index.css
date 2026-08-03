@@ -1138,9 +1138,11 @@
 }
 
 /* ---- 大切にしていること：3本のペガサス演出の中で最もはっきり
-   見せる（03 ＞ 04 ＞ 08）。頭部・翼の輪郭がひと目でペガサスだと
-   分かる濃さまで opacity・saturate・contrast を上げ、オーバーレイも
-   緩めて右端だけでなくカードの背後まで自然に広がるようにした。
+   見せる（03 ＞ 08 ＞ 04）。08を中間の基準値とし、03はそれより
+   一段はっきり見えるところまで強める。ただし彩度を上げすぎると
+   黄色いにじみになるだけで輪郭が読めなくなるため、saturateは
+   控えめにし、代わりに transform: scale() で頭部・首・翼の
+   輪郭そのものを拡大して読み取りやすくしている。
    縦位置はチャットボットのキャラクター（画面右・縦中央固定）と
    被りすぎないよう、やや上寄りにトリミングしている。
    カードは bg-white/55 の板を敷いているため、本文の可読性には
@@ -1157,42 +1159,52 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 72% 32%;
+  object-position: 64% 46%;
   opacity: 1;
-  filter: saturate(4.6) contrast(1.85) brightness(0.8);
+  transform: scale(1.55);
+  transform-origin: 72% 42%;
+  filter: saturate(2.8) contrast(1.55) brightness(0.9);
 }
 .values-photo-overlay {
   position: absolute;
   inset: 0;
   background:
     linear-gradient(100deg,
-      rgba(245, 242, 234, 0.6) 0%,
-      rgba(245, 242, 234, 0.3) 32%,
-      rgba(245, 242, 234, 0.1) 55%,
-      rgba(245, 242, 234, 0.02) 100%),
+      rgba(245, 242, 234, 0.48) 0%,
+      rgba(245, 242, 234, 0.18) 28%,
+      rgba(245, 242, 234, 0.04) 52%,
+      rgba(245, 242, 234, 0) 100%),
     linear-gradient(180deg,
-      rgba(245, 242, 234, 0.16) 0%,
-      rgba(245, 242, 234, 0) 20%,
-      rgba(245, 242, 234, 0) 78%,
-      rgba(245, 242, 234, 0.18) 100%);
+      rgba(245, 242, 234, 0.12) 0%,
+      rgba(245, 242, 234, 0) 18%,
+      rgba(245, 242, 234, 0) 80%,
+      rgba(245, 242, 234, 0.14) 100%);
 }
 @media (max-width: 767px) {
-  .values-photo { opacity: 0.9; object-position: 68% 20%; filter: saturate(4.2) contrast(1.7) brightness(0.82); }
+  .values-photo {
+    opacity: 0.85;
+    object-position: 62% 32%;
+    transform: scale(1.2);
+    transform-origin: 68% 30%;
+    filter: saturate(2.4) contrast(1.32) brightness(0.94);
+  }
   .values-photo-overlay {
     background:
       linear-gradient(180deg,
-        rgba(245, 242, 234, 0.72) 0%,
-        rgba(245, 242, 234, 0.54) 30%,
-        rgba(245, 242, 234, 0.68) 66%,
-        rgba(245, 242, 234, 0.84) 100%);
+        rgba(245, 242, 234, 0.58) 0%,
+        rgba(245, 242, 234, 0.38) 30%,
+        rgba(245, 242, 234, 0.52) 66%,
+        rgba(245, 242, 234, 0.72) 100%);
   }
 }
 
-/* ---- 案件に合わせた専門体制：03より一段控えめなペガサス演出。
-   03（values素材・上寄り）とは別のペガサス素材（profile素材）を
-   下寄り・翼と粒子中心のトリミングで使い、同じ画像を繰り返した
-   印象にならないようにする。強さの目安は 03 ＞ 04 ＞ 08。
-   見出し・専門体制の内容が乗る左〜中央帯はオーバーレイで保護する。 ---- */
+/* ---- 案件に合わせた専門体制：03より一段控えめだが、単体で見ても
+   背景演出があると分かる強さにする。03が頭部・首の輪郭を見せるのに
+   対し、04は同じ素材（profile素材）でも頭部を画面外へ外し、
+   翼の先端と粒子・回路線・光の流れの対角構図だけを見せることで、
+   03の弱いコピーに見えないようにしている。強さの目安は
+   03 ＞ 08 ＞ 04。見出し・専門体制の内容が乗る左〜中央帯は
+   オーバーレイで保護する。 ---- */
 .team-photo-wrap {
   position: absolute;
   inset: 0;
@@ -1205,34 +1217,42 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 88% 66%;
-  opacity: 0.72;
-  filter: saturate(2.1) contrast(1.14);
+  object-position: 94% 70%;
+  opacity: 0.85;
+  transform: scale(1.18);
+  transform-origin: 96% 66%;
+  filter: saturate(2.5) contrast(1.28) brightness(0.96);
 }
 .team-photo-overlay {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(100deg,
-      rgba(245, 242, 234, 0.95) 0%,
-      rgba(245, 242, 234, 0.84) 34%,
-      rgba(245, 242, 234, 0.54) 62%,
-      rgba(245, 242, 234, 0.24) 100%),
+    linear-gradient(112deg,
+      rgba(245, 242, 234, 0.9) 0%,
+      rgba(245, 242, 234, 0.72) 36%,
+      rgba(245, 242, 234, 0.4) 62%,
+      rgba(245, 242, 234, 0.14) 100%),
     linear-gradient(180deg,
-      rgba(245, 242, 234, 0.3) 0%,
+      rgba(245, 242, 234, 0.24) 0%,
       rgba(245, 242, 234, 0) 20%,
       rgba(245, 242, 234, 0) 78%,
-      rgba(245, 242, 234, 0.34) 100%);
+      rgba(245, 242, 234, 0.28) 100%);
 }
 @media (max-width: 767px) {
-  .team-photo { opacity: 0.5; object-position: 82% 44%; }
+  .team-photo {
+    opacity: 0.8;
+    object-position: 88% 52%;
+    transform: scale(1.12);
+    transform-origin: 92% 50%;
+    filter: saturate(2.5) contrast(1.3) brightness(0.94);
+  }
   .team-photo-overlay {
     background:
       linear-gradient(180deg,
-        rgba(245, 242, 234, 0.84) 0%,
-        rgba(245, 242, 234, 0.68) 30%,
-        rgba(245, 242, 234, 0.8) 66%,
-        rgba(245, 242, 234, 0.9) 100%);
+        rgba(245, 242, 234, 0.66) 0%,
+        rgba(245, 242, 234, 0.46) 30%,
+        rgba(245, 242, 234, 0.6) 66%,
+        rgba(245, 242, 234, 0.76) 100%);
   }
 }
 
