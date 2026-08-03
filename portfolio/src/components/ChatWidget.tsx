@@ -60,9 +60,10 @@ export default function ChatWidget() {
   const [open, setOpen] = useState(false)
   // ナビゲーション履歴。空 = 最初のメニュー（root）
   const [stack, setStack] = useState<string[]>([])
-  // 自由入力フォーム（「当てはまる項目がない」）の入力内容と判定結果
+  // 自由入力フォーム（「当てはまる項目がない」）の入力内容と、
+  // 判定できなかった場合にのみ使う案内フラグ（一致した場合は即座にgotoするため保持不要）
   const [freeInputText, setFreeInputText] = useState('')
-  const [matchResult, setMatchResult] = useState<{ targetId: string; reason: string } | null>(null)
+  const [judgeAmbiguous, setJudgeAmbiguous] = useState(false)
 
   const panelRef = useRef<HTMLDivElement>(null)
   const bodyRef   = useRef<HTMLDivElement>(null)
@@ -91,13 +92,19 @@ export default function ChatWidget() {
   useEffect(() => {
     bodyRef.current?.scrollTo({ top: 0 })
     setFreeInputText('')
-    setMatchResult(null)
+    setJudgeAmbiguous(false)
   }, [currentId])
 
   function handleJudge() {
     if (!freeInputText.trim()) return
-    setMatchResult(matchConsultTopic(freeInputText))
-    bodyRef.current?.scrollTo({ top: 0 })
+    const result = matchConsultTopic(freeInputText)
+    if (result.status === 'ambiguous') {
+      setJudgeAmbiguous(true)
+      bodyRef.current?.scrollTo({ top: 0 })
+      return
+    }
+    // 一致した具体的な悩みへ、通常選択した場合と同じ画面として遷移する
+    goto(result.targetId)
   }
 
   function closePanel() {
@@ -280,26 +287,6 @@ export default function ChatWidget() {
                   {ROOT_OPTIONS.map(opt => renderButton(opt))}
                 </ul>
               </>
-            ) : currentNode.freeInput && matchResult ? (
-              <>
-                <h3 className="text-[13px] font-semibold text-gold-bright mb-3">
-                  判定結果
-                </h3>
-
-                <p className="text-[12.5px] leading-[1.9] text-white/75 mb-3">
-                  入力内容では『{CHAT_NODES[matchResult.targetId]?.title ?? ''}』が最も近いご相談です。
-                </p>
-                <p className="text-[12.5px] leading-[1.9] text-white/75 mb-3 last:mb-0">
-                  {matchResult.reason}
-                </p>
-
-                <ul className="mt-5 pt-4 border-t border-white/10 space-y-2.5">
-                  {renderButton({ label: 'この内容を見る', targetId: matchResult.targetId })}
-                  {renderButton(
-                    { label: '最初のメニューに戻る', targetId: ROOT_ID }, 'secondary',
-                  )}
-                </ul>
-              </>
             ) : currentNode.freeInput ? (
               <>
                 <h3 className="text-[13px] font-semibold text-gold-bright mb-3">
@@ -308,9 +295,19 @@ export default function ChatWidget() {
 
                 {currentNode.body && currentNode.body.map((block, i) => renderBody(block, i))}
 
+                {judgeAmbiguous && (
+                  <p className="mb-3 rounded-md bg-gold/10 border border-gold/25
+                    px-3.5 py-3 text-[12.5px] leading-[1.85] text-gold-bright">
+                    この内容だけでは判断が難しいため、もう少し具体的に教えてください。
+                  </p>
+                )}
+
                 <textarea
                   value={freeInputText}
-                  onChange={e => setFreeInputText(e.target.value)}
+                  onChange={e => {
+                    setFreeInputText(e.target.value)
+                    setJudgeAmbiguous(false)
+                  }}
                   placeholder={currentNode.freeInput.placeholder}
                   rows={3}
                   className="mt-3 w-full rounded-md border border-white/15 bg-white/[0.03]

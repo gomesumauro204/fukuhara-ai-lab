@@ -70,43 +70,56 @@ export const ROOT_OPTIONS: ChatButton[] = [
 ]
 
 /**
- * 「当てはまる項目がない」の自由入力から、最初の4つの相談項目
- * （ROOT_OPTIONSのtargetId）の中で最も近いものを判定する。
+ * 「当てはまる項目がない」の自由入力から、同じ「efficiency」画面にある
+ * 5つの具体的な悩み（concern-*）の中で最も近いものを判定する。
+ * ROOT_OPTIONS（最初の4項目）への振り分けは行わない。
  *
- * 自由入力AIではなく、キーワードの一致数だけで近似判定する簡易ロジック。
- * 該当キーワードが1つも無い場合は「どんな相談ができますか？」を既定値にする。
+ * 自由入力AIではなく、キーワードの一致数（部分一致）だけで近似判定する
+ * 簡易ロジック。一致がまったく無い場合、または複数項目が同点で並んだ場合は
+ * 1つに決めず、呼び出し側で「もう少し具体的に」再入力を促す。
  */
 const TOPIC_KEYWORDS: Record<string, string[]> = {
-  services: ['相談したい', '作れる', 'できること', 'どんなこと', '依頼したい', 'ツールを作り'],
-  cost: ['費用', '料金', '価格', '見積', '予算', '納期', '期間はどのくらい', 'いくら'],
-  flow: ['流れ', '進め方', '手順', 'どうやって', 'プロセス', 'ステップ', '完成まで', 'どのくらいかかる'],
-  efficiency: [
-    '効率化', '自動化', 'excel', 'エクセル', '集計', '転記', '紙', '口頭',
-    '手作業', 'ミス', '漏れ', '業務改善', 'ai', 'エーアイ', '確認', '伝達', '入力',
+  'concern-transcription': [
+    '転記', '集計', '二重入力', '二度入力', '何度も入力', '毎回入力',
+    '表に移', '別の表', '書き写', '写経', 'コピペ', 'コピー&ペースト',
+  ],
+  'concern-scattered': [
+    '紙とexcel', '紙とエクセル', 'ばらばら', 'バラバラ', '分散', 'あちこち',
+    'いろんな場所', '一元管理', 'まとまっていない', '統一されていない', '口頭で',
+  ],
+  'concern-pipeline': [
+    '顧客管理', '案件管理', '進捗', '管理しづらい', '管理できていない',
+    'ステータス', '担当者', '期限管理', '案件の状況', '顧客の状況',
+  ],
+  'concern-miss': [
+    '確認漏れ', '伝達漏れ', '伝え忘れ', '連絡漏れ', '申し送り', '引き継ぎ',
+    'ミスが多い', '漏れがある', '誰が確認したか', '対応が完了したか',
+  ],
+  'concern-ai': [
+    'ai', 'エーアイ', '人工知能', 'chatgpt', '生成ai', 'どう使えば',
+    '活用方法が分から', 'ai活用', 'aiを使い',
   ],
 }
 
-const TOPIC_REASONS: Record<string, string> = {
-  services: '制作できる内容やご相談の進め方について、幅広くご案内できます。',
-  cost: '費用や納期の目安についてご案内できます。',
-  flow: 'ご相談から完成までの進め方についてご案内できます。',
-  efficiency: 'Excel作業の自動化や業務効率化についてご案内できます。',
-}
+export type ConsultMatch =
+  | { status: 'matched'; targetId: string }
+  | { status: 'ambiguous' }
 
-export function matchConsultTopic(rawInput: string): { targetId: string; reason: string } {
+export function matchConsultTopic(rawInput: string): ConsultMatch {
   const text = rawInput.toLowerCase()
-  let bestId = 'services'
-  let bestScore = 0
 
-  for (const [targetId, keywords] of Object.entries(TOPIC_KEYWORDS)) {
-    const score = keywords.reduce((n, kw) => n + (text.includes(kw.toLowerCase()) ? 1 : 0), 0)
-    if (score > bestScore) {
-      bestScore = score
-      bestId = targetId
-    }
-  }
+  const scores = Object.entries(TOPIC_KEYWORDS).map(([targetId, keywords]) => ({
+    targetId,
+    score: keywords.reduce((n, kw) => n + (text.includes(kw.toLowerCase()) ? 1 : 0), 0),
+  }))
 
-  return { targetId: bestId, reason: TOPIC_REASONS[bestId] }
+  const maxScore = Math.max(...scores.map(s => s.score))
+  if (maxScore === 0) return { status: 'ambiguous' }
+
+  const top = scores.filter(s => s.score === maxScore)
+  if (top.length > 1) return { status: 'ambiguous' }
+
+  return { status: 'matched', targetId: top[0].targetId }
 }
 
 export const CHAT_NODES: Record<string, ChatNode> = {
