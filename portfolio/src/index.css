@@ -481,6 +481,37 @@
   transform: translate3d(0, calc(var(--sy, 0) * 22px), 0);
 }
 
+/* 下端の継ぎ目なじませ：ダッシュボード演出（写真・ショーケース・
+   線や光点のアンビエンス）を下へ向かって濃紺（bg-navy）へ溶け込ませ、
+   次セクションとの境界を直線的に切らない。ヒーロー内の背景レイヤー
+   （z-index:0）より前面、前景コンテンツ（z-10）より背面に置く。
+   ゴールド／ブルーの淡い光の滲みを添え、フェードが単なる暗幕に
+   見えないようにする。 */
+.hero-bottom-fade {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 280px;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 55% 60% at 28% 100%,
+      rgba(201, 169, 97, 0.10) 0%, transparent 72%),
+    radial-gradient(ellipse 45% 55% at 78% 100%,
+      rgba(150, 190, 245, 0.08) 0%, transparent 72%),
+    linear-gradient(180deg,
+      rgba(11, 27, 58, 0) 0%,
+      rgba(11, 27, 58, 0.38) 38%,
+      rgba(11, 27, 58, 0.74) 66%,
+      rgba(11, 27, 58, 0.95) 86%,
+      rgba(11, 27, 58, 1) 100%);
+}
+@media (max-width: 767px) {
+  .hero-bottom-fade {
+    height: 210px;
+  }
+}
+
 /* =============================================================
    HERO — 背景アンビエンス
    ============================================================= */

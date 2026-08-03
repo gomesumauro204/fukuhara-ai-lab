@@ -62,6 +62,11 @@ export default function Hero() {
         <HeroAmbience />
       </div>
 
+      {/* 下端の継ぎ目なじませ：ダッシュボード・線・光点を含む背景全体を
+          下に向かって濃紺へ溶け込ませ、次セクション（同じネイビー）との
+          境界が直線的に切れて見えないようにする。文字・CTAより背面。 */}
+      <div className="hero-bottom-fade" aria-hidden="true" />
+
       {/* ── 第2層：前景コンテンツ ── */}
       <div className="hero-fg relative z-10 max-w-content mx-auto w-full
         px-5 sm:px-8 lg:px-12">
