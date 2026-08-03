@@ -10,7 +10,25 @@ import { Section, SectionHead, Reveal } from './ui'
  */
 export default function Team() {
   return (
-    <Section id="team" tone="paper" accent="plum">
+    <Section
+      id="team"
+      tone="paper"
+      accent="plum"
+      background={
+        <div className="team-photo-wrap" aria-hidden="true">
+          <img
+            src="/images/pegasus-profile.jpg"
+            alt=""
+            width={1600}
+            height={900}
+            loading="lazy"
+            decoding="async"
+            className="team-photo"
+          />
+          <div className="team-photo-overlay" />
+        </div>
+      }
+    >
       <SectionHead
         num="04"
         en="Project Team"

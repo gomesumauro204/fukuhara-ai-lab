@@ -1137,11 +1137,14 @@
   }
 }
 
-/* ---- 大切にしていること：ペガサス（淡いパーティクル画）を
-   ライトトーンのまま右奥に添える。用紙色(paper)に近いオフホワイト地
-   のため、白系オーバーレイでなじませつつ、以前より少しだけ気づける
-   濃さに調整（テキスト・カードの可読性を優先しつつ、入っているか
-   分からないほど薄くはしない）。 ---- */
+/* ---- 大切にしていること：3本のペガサス演出の中で最もはっきり
+   見せる（03 ＞ 04 ＞ 08）。頭部・翼の輪郭がひと目でペガサスだと
+   分かる濃さまで opacity・saturate・contrast を上げ、オーバーレイも
+   緩めて右端だけでなくカードの背後まで自然に広がるようにした。
+   縦位置はチャットボットのキャラクター（画面右・縦中央固定）と
+   被りすぎないよう、やや上寄りにトリミングしている。
+   カードは bg-white/55 の板を敷いているため、本文の可読性には
+   影響しない。 ---- */
 .values-photo-wrap {
   position: absolute;
   inset: 0;
@@ -1154,33 +1157,81 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 82% 38%;
-  opacity: 0.8;
-  filter: saturate(1.6) contrast(1.05);
+  object-position: 72% 32%;
+  opacity: 1;
+  filter: saturate(4.6) contrast(1.85) brightness(0.8);
 }
 .values-photo-overlay {
   position: absolute;
   inset: 0;
   background:
     linear-gradient(100deg,
-      rgba(245, 242, 234, 0.94) 0%,
-      rgba(245, 242, 234, 0.8) 36%,
-      rgba(245, 242, 234, 0.46) 64%,
-      rgba(245, 242, 234, 0.2) 100%),
+      rgba(245, 242, 234, 0.6) 0%,
+      rgba(245, 242, 234, 0.3) 32%,
+      rgba(245, 242, 234, 0.1) 55%,
+      rgba(245, 242, 234, 0.02) 100%),
     linear-gradient(180deg,
-      rgba(245, 242, 234, 0.32) 0%,
+      rgba(245, 242, 234, 0.16) 0%,
       rgba(245, 242, 234, 0) 20%,
       rgba(245, 242, 234, 0) 78%,
-      rgba(245, 242, 234, 0.36) 100%);
+      rgba(245, 242, 234, 0.18) 100%);
 }
 @media (max-width: 767px) {
-  .values-photo { opacity: 0.6; object-position: 74% 24%; }
+  .values-photo { opacity: 0.9; object-position: 68% 20%; filter: saturate(4.2) contrast(1.7) brightness(0.82); }
   .values-photo-overlay {
     background:
       linear-gradient(180deg,
-        rgba(245, 242, 234, 0.82) 0%,
-        rgba(245, 242, 234, 0.66) 32%,
-        rgba(245, 242, 234, 0.78) 66%,
+        rgba(245, 242, 234, 0.72) 0%,
+        rgba(245, 242, 234, 0.54) 30%,
+        rgba(245, 242, 234, 0.68) 66%,
+        rgba(245, 242, 234, 0.84) 100%);
+  }
+}
+
+/* ---- 案件に合わせた専門体制：03より一段控えめなペガサス演出。
+   03（values素材・上寄り）とは別のペガサス素材（profile素材）を
+   下寄り・翼と粒子中心のトリミングで使い、同じ画像を繰り返した
+   印象にならないようにする。強さの目安は 03 ＞ 04 ＞ 08。
+   見出し・専門体制の内容が乗る左〜中央帯はオーバーレイで保護する。 ---- */
+.team-photo-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  opacity: 0;
+  animation: fadeIn 1.2s ease-out 0.1s forwards;
+}
+.team-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 88% 66%;
+  opacity: 0.72;
+  filter: saturate(2.1) contrast(1.14);
+}
+.team-photo-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(100deg,
+      rgba(245, 242, 234, 0.95) 0%,
+      rgba(245, 242, 234, 0.84) 34%,
+      rgba(245, 242, 234, 0.54) 62%,
+      rgba(245, 242, 234, 0.24) 100%),
+    linear-gradient(180deg,
+      rgba(245, 242, 234, 0.3) 0%,
+      rgba(245, 242, 234, 0) 20%,
+      rgba(245, 242, 234, 0) 78%,
+      rgba(245, 242, 234, 0.34) 100%);
+}
+@media (max-width: 767px) {
+  .team-photo { opacity: 0.5; object-position: 82% 44%; }
+  .team-photo-overlay {
+    background:
+      linear-gradient(180deg,
+        rgba(245, 242, 234, 0.84) 0%,
+        rgba(245, 242, 234, 0.68) 30%,
+        rgba(245, 242, 234, 0.8) 66%,
         rgba(245, 242, 234, 0.9) 100%);
   }
 }
@@ -2152,6 +2203,7 @@
   .prof-photo-wrap,
   .contact-photo-wrap,
   .values-photo-wrap,
+  .team-photo-wrap,
   .faq-photo-wrap {
     animation: none !important;
     opacity: 1 !important;
