@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { BOOKING } from '../data/site'
 import {
-  GREETING, ROOT_OPTIONS, CHAT_NODES,
+  GREETING, ROOT_OPTIONS, CHAT_NODES, matchConsultTopic,
   type ChatButton, type ChatBodyBlock, type ChatNode,
 } from '../data/chatbot'
 import ChatCat from './ChatCat'
@@ -60,6 +60,9 @@ export default function ChatWidget() {
   const [open, setOpen] = useState(false)
   // ナビゲーション履歴。空 = 最初のメニュー（root）
   const [stack, setStack] = useState<string[]>([])
+  // 自由入力フォーム（「当てはまる項目がない」）の入力内容と判定結果
+  const [freeInputText, setFreeInputText] = useState('')
+  const [matchResult, setMatchResult] = useState<{ targetId: string; reason: string } | null>(null)
 
   const panelRef = useRef<HTMLDivElement>(null)
   const bodyRef   = useRef<HTMLDivElement>(null)
@@ -83,10 +86,19 @@ export default function ChatWidget() {
     if (open) panelRef.current?.querySelector('button')?.focus()
   }, [open])
 
-  // 画面（root / 各質問）が切り替わったら、内部スクロールを先頭へ戻す
+  // 画面（root / 各質問）が切り替わったら、内部スクロールを先頭へ戻し、
+  // 自由入力フォームの内容・判定結果もリセットする
   useEffect(() => {
     bodyRef.current?.scrollTo({ top: 0 })
+    setFreeInputText('')
+    setMatchResult(null)
   }, [currentId])
+
+  function handleJudge() {
+    if (!freeInputText.trim()) return
+    setMatchResult(matchConsultTopic(freeInputText))
+    bodyRef.current?.scrollTo({ top: 0 })
+  }
 
   function closePanel() {
     setOpen(false)
@@ -267,6 +279,58 @@ export default function ChatWidget() {
                 <ul className="mt-5 space-y-3">
                   {ROOT_OPTIONS.map(opt => renderButton(opt))}
                 </ul>
+              </>
+            ) : currentNode.freeInput && matchResult ? (
+              <>
+                <h3 className="text-[13px] font-semibold text-gold-bright mb-3">
+                  判定結果
+                </h3>
+
+                <p className="text-[12.5px] leading-[1.9] text-white/75 mb-3">
+                  入力内容では『{CHAT_NODES[matchResult.targetId]?.title ?? ''}』が最も近いご相談です。
+                </p>
+                <p className="text-[12.5px] leading-[1.9] text-white/75 mb-3 last:mb-0">
+                  {matchResult.reason}
+                </p>
+
+                <ul className="mt-5 pt-4 border-t border-white/10 space-y-2.5">
+                  {renderButton({ label: 'この内容を見る', targetId: matchResult.targetId })}
+                  {renderButton(
+                    { label: '最初のメニューに戻る', targetId: ROOT_ID }, 'secondary',
+                  )}
+                </ul>
+              </>
+            ) : currentNode.freeInput ? (
+              <>
+                <h3 className="text-[13px] font-semibold text-gold-bright mb-3">
+                  {currentNode.heading}
+                </h3>
+
+                {currentNode.body && currentNode.body.map((block, i) => renderBody(block, i))}
+
+                <textarea
+                  value={freeInputText}
+                  onChange={e => setFreeInputText(e.target.value)}
+                  placeholder={currentNode.freeInput.placeholder}
+                  rows={3}
+                  className="mt-3 w-full rounded-md border border-white/15 bg-white/[0.03]
+                    px-3.5 py-3 text-[13px] leading-[1.6] text-white placeholder:text-white/35
+                    resize-none transition-colors
+                    focus:border-gold/60 focus:bg-white/[0.05] focus:outline-none"
+                />
+
+                <button
+                  type="button"
+                  onClick={handleJudge}
+                  disabled={!freeInputText.trim()}
+                  className="mt-3 w-full rounded-full border border-gold bg-gold
+                    px-4 py-3 text-[13px] font-bold text-navy-deep
+                    transition-colors hover:bg-gold-bright hover:border-gold-bright
+                    disabled:opacity-40 disabled:cursor-not-allowed
+                    disabled:hover:bg-gold disabled:hover:border-gold"
+                >
+                  {currentNode.freeInput.buttonLabel}
+                </button>
               </>
             ) : (
               <>

@@ -36,6 +36,11 @@ export interface ChatNode {
   options?: ChatButton[]
   /** 回答の下に表示する関連ボタン */
   related?: ChatButton[]
+  /**
+   * このノード自体が自由入力フォームの場合に指定する。
+   * AIチャットではなく、キーワードによる簡易一致判定のみを行う。
+   */
+  freeInput?: { placeholder: string; buttonLabel: string }
 }
 
 /** 最初のメニューへ戻るボタン（各ノードの related 末尾で使い回す） */
@@ -63,6 +68,46 @@ export const ROOT_OPTIONS: ChatButton[] = [
   { label: '依頼から完成までの流れを知りたい', targetId: 'flow' },
   { label: '自分の業務も効率化できるか知りたい', targetId: 'efficiency' },
 ]
+
+/**
+ * 「当てはまる項目がない」の自由入力から、最初の4つの相談項目
+ * （ROOT_OPTIONSのtargetId）の中で最も近いものを判定する。
+ *
+ * 自由入力AIではなく、キーワードの一致数だけで近似判定する簡易ロジック。
+ * 該当キーワードが1つも無い場合は「どんな相談ができますか？」を既定値にする。
+ */
+const TOPIC_KEYWORDS: Record<string, string[]> = {
+  services: ['相談したい', '作れる', 'できること', 'どんなこと', '依頼したい', 'ツールを作り'],
+  cost: ['費用', '料金', '価格', '見積', '予算', '納期', '期間はどのくらい', 'いくら'],
+  flow: ['流れ', '進め方', '手順', 'どうやって', 'プロセス', 'ステップ', '完成まで', 'どのくらいかかる'],
+  efficiency: [
+    '効率化', '自動化', 'excel', 'エクセル', '集計', '転記', '紙', '口頭',
+    '手作業', 'ミス', '漏れ', '業務改善', 'ai', 'エーアイ', '確認', '伝達', '入力',
+  ],
+}
+
+const TOPIC_REASONS: Record<string, string> = {
+  services: '制作できる内容やご相談の進め方について、幅広くご案内できます。',
+  cost: '費用や納期の目安についてご案内できます。',
+  flow: 'ご相談から完成までの進め方についてご案内できます。',
+  efficiency: 'Excel作業の自動化や業務効率化についてご案内できます。',
+}
+
+export function matchConsultTopic(rawInput: string): { targetId: string; reason: string } {
+  const text = rawInput.toLowerCase()
+  let bestId = 'services'
+  let bestScore = 0
+
+  for (const [targetId, keywords] of Object.entries(TOPIC_KEYWORDS)) {
+    const score = keywords.reduce((n, kw) => n + (text.includes(kw.toLowerCase()) ? 1 : 0), 0)
+    if (score > bestScore) {
+      bestScore = score
+      bestId = targetId
+    }
+  }
+
+  return { targetId: bestId, reason: TOPIC_REASONS[bestId] }
+}
 
 export const CHAT_NODES: Record<string, ChatNode> = {
   services: {
@@ -282,16 +327,15 @@ export const CHAT_NODES: Record<string, ChatNode> = {
     title: '当てはまる項目がない',
     heading: '当てはまる項目がない',
     body: [
-      { type: 'p', text: '一覧にない内容でもご相談いただけます。' },
       {
         type: 'p',
-        text: '現在行っている業務、時間がかかっている作業、ミスや確認漏れが起きやすい場面などを伺い、改善できる可能性があるかを整理します。',
+        text: '一覧にない内容でもご相談いただけます。現在の業務やお困りごとを簡単にご記入ください。入力内容に近いご相談内容をご案内します。',
       },
     ],
-    related: [
-      { label: '別のお悩みを選ぶ', targetId: 'efficiency' },
-      ...CONSULT_FOOTER,
-    ],
+    freeInput: {
+      placeholder: '例：Excelで毎月集計しています',
+      buttonLabel: '判定する',
+    },
   },
 
   freeConsult: {
