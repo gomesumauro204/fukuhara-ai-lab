@@ -75,8 +75,10 @@ export const ROOT_OPTIONS: ChatButton[] = [
  * ROOT_OPTIONS（最初の4項目）への振り分けは行わない。
  *
  * 自由入力AIではなく、キーワードの一致数（部分一致）だけで近似判定する
- * 簡易ロジック。一致がまったく無い場合、または複数項目が同点で並んだ場合は
- * 1つに決めず、呼び出し側で「もう少し具体的に」再入力を促す。
+ * 簡易ロジック。入力がある程度具体的な長さであれば、キーワードが
+ * 一致しなくても必ずいずれか1つへ案内する（利用者の離脱を防ぐため）。
+ * 「もう少し具体的に」の再入力を促すのは、本当に情報量が少ない
+ * 短い入力（「困っています」等）の場合だけに限定する。
  */
 const TOPIC_KEYWORDS: Record<string, string[]> = {
   'concern-transcription': [
@@ -93,6 +95,9 @@ const TOPIC_KEYWORDS: Record<string, string[]> = {
     '分散', 'あちこち', 'いろんな場所', '色んな場所', '一元管理', 'まとまっていない',
     '統一されていない', '口頭で', '情報が散らば', '記録方法がバラバラ',
     '管理方法がバラバラ', '紙で管理', '口頭で伝え', '記録場所が違う', 'どこに何があるか',
+    'アナログ', '紙で保管', '紙ベース', '紙媒体', '手書き', '書類', '提出書類',
+    'ファイルで管理', 'デジタル化されていない', 'デジタル化したい', '電子化されていない',
+    '電子化したい', '紙の書類', '紙で提出',
   ],
   'concern-pipeline': [
     '顧客管理', '案件管理', '進捗', '管理しづらい', '管理できていない', '管理が大変',
@@ -113,12 +118,19 @@ const TOPIC_KEYWORDS: Record<string, string[]> = {
   ],
 }
 
+/** キーワードが一致しない場合の既定の案内先（最も汎用的な「情報が分散している」） */
+const DEFAULT_FALLBACK_ID = 'concern-scattered'
+
+/** この文字数以下で、かつキーワード一致が無い場合だけ「判断が難しい」を返す */
+const VAGUE_MAX_LENGTH = 15
+
 export type ConsultMatch =
   | { status: 'matched'; targetId: string }
   | { status: 'ambiguous' }
 
 export function matchConsultTopic(rawInput: string): ConsultMatch {
-  const text = rawInput.toLowerCase()
+  const trimmed = rawInput.trim()
+  const text = trimmed.toLowerCase()
 
   const scores = Object.entries(TOPIC_KEYWORDS).map(([targetId, keywords]) => ({
     targetId,
@@ -126,12 +138,20 @@ export function matchConsultTopic(rawInput: string): ConsultMatch {
   }))
 
   const maxScore = Math.max(...scores.map(s => s.score))
-  if (maxScore === 0) return { status: 'ambiguous' }
 
-  const top = scores.filter(s => s.score === maxScore)
-  if (top.length > 1) return { status: 'ambiguous' }
+  if (maxScore > 0) {
+    // キーワードが一致した項目のうち、最初のものへ案内する
+    const best = scores.find(s => s.score === maxScore)!
+    return { status: 'matched', targetId: best.targetId }
+  }
 
-  return { status: 'matched', targetId: top[0].targetId }
+  // キーワードには一致しなかったが、入力自体はある程度具体的な長さがある場合は
+  // 再入力を求めず、最も汎用的な項目へ案内する
+  if (trimmed.length > VAGUE_MAX_LENGTH) {
+    return { status: 'matched', targetId: DEFAULT_FALLBACK_ID }
+  }
+
+  return { status: 'ambiguous' }
 }
 
 export const CHAT_NODES: Record<string, ChatNode> = {
