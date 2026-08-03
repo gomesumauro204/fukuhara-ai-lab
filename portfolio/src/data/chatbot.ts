@@ -41,19 +41,27 @@ export interface ChatNode {
 /** 最初のメニューへ戻るボタン（各ノードの related 末尾で使い回す） */
 export const HOME_BUTTON: ChatButton = { label: '最初のメニューに戻る', targetId: 'root' }
 
+/**
+ * 回答ノード共通のフッター導線。無料相談は最初のメニューには置かず、
+ * 各回答を読んだ後にだけ案内する（回答本文の直後・HOME_BUTTONの前に追加する）。
+ */
+export const CONSULT_FOOTER: ChatButton[] = [
+  { label: '無料相談について見る', targetId: 'freeConsult' },
+  HOME_BUTTON,
+]
+
 /** 最初の画面：冒頭文 */
 export const GREETING = [
   'こんにちは。福原AI研究所のご相談窓口です。',
   'ご検討中の内容に近いものをお選びください。',
 ]
 
-/** 最初の画面：5つの選択肢 */
+/** 最初の画面：4つの選択肢（無料相談は各回答の下から案内するため、ここには置かない） */
 export const ROOT_OPTIONS: ChatButton[] = [
   { label: 'どんな相談ができますか？', targetId: 'services' },
   { label: '費用と納期の目安を知りたい', targetId: 'cost' },
   { label: '依頼から完成までの流れを知りたい', targetId: 'flow' },
   { label: '自分の業務も効率化できるか知りたい', targetId: 'efficiency' },
-  { label: '無料相談について知りたい', targetId: 'freeConsult' },
 ]
 
 export const CHAT_NODES: Record<string, ChatNode> = {
@@ -81,8 +89,7 @@ export const CHAT_NODES: Record<string, ChatNode> = {
     related: [
       { label: '具体的な制作例を知りたい', targetId: 'worksExample' },
       { label: '自分の業務も相談できるか確認する', targetId: 'efficiency' },
-      { label: '無料相談について知る', targetId: 'freeConsult' },
-      HOME_BUTTON,
+      ...CONSULT_FOOTER,
     ],
   },
 
@@ -106,7 +113,7 @@ export const CHAT_NODES: Record<string, ChatNode> = {
     ],
     related: [
       { label: '制作実績を見る', action: { kind: 'scroll', href: '#works' } },
-      HOME_BUTTON,
+      ...CONSULT_FOOTER,
     ],
   },
 
@@ -137,8 +144,7 @@ export const CHAT_NODES: Record<string, ChatNode> = {
     ],
     related: [
       { label: '依頼から完成までの流れを見る', targetId: 'flow' },
-      { label: '無料相談について知る', targetId: 'freeConsult' },
-      HOME_BUTTON,
+      ...CONSULT_FOOTER,
     ],
   },
 
@@ -163,8 +169,7 @@ export const CHAT_NODES: Record<string, ChatNode> = {
     ],
     related: [
       { label: 'どんな相談ができるか見る', targetId: 'services' },
-      { label: '無料相談について知る', targetId: 'freeConsult' },
-      HOME_BUTTON,
+      ...CONSULT_FOOTER,
     ],
   },
 
@@ -196,8 +201,7 @@ export const CHAT_NODES: Record<string, ChatNode> = {
     ],
     related: [
       { label: '別のお悩みを選ぶ', targetId: 'efficiency' },
-      { label: '無料相談について知る', targetId: 'freeConsult' },
-      HOME_BUTTON,
+      ...CONSULT_FOOTER,
     ],
   },
 
@@ -214,8 +218,7 @@ export const CHAT_NODES: Record<string, ChatNode> = {
     ],
     related: [
       { label: '別のお悩みを選ぶ', targetId: 'efficiency' },
-      { label: '無料相談について知る', targetId: 'freeConsult' },
-      HOME_BUTTON,
+      ...CONSULT_FOOTER,
     ],
   },
 
@@ -232,8 +235,7 @@ export const CHAT_NODES: Record<string, ChatNode> = {
     ],
     related: [
       { label: '別のお悩みを選ぶ', targetId: 'efficiency' },
-      { label: '無料相談について知る', targetId: 'freeConsult' },
-      HOME_BUTTON,
+      ...CONSULT_FOOTER,
     ],
   },
 
@@ -254,8 +256,7 @@ export const CHAT_NODES: Record<string, ChatNode> = {
     ],
     related: [
       { label: '別のお悩みを選ぶ', targetId: 'efficiency' },
-      { label: '無料相談について知る', targetId: 'freeConsult' },
-      HOME_BUTTON,
+      ...CONSULT_FOOTER,
     ],
   },
 
@@ -272,8 +273,7 @@ export const CHAT_NODES: Record<string, ChatNode> = {
     ],
     related: [
       { label: '別のお悩みを選ぶ', targetId: 'efficiency' },
-      { label: '無料相談について知る', targetId: 'freeConsult' },
-      HOME_BUTTON,
+      ...CONSULT_FOOTER,
     ],
   },
 
@@ -290,8 +290,7 @@ export const CHAT_NODES: Record<string, ChatNode> = {
     ],
     related: [
       { label: '別のお悩みを選ぶ', targetId: 'efficiency' },
-      { label: '無料相談について知る', targetId: 'freeConsult' },
-      HOME_BUTTON,
+      ...CONSULT_FOOTER,
     ],
   },
 
@@ -304,22 +303,16 @@ export const CHAT_NODES: Record<string, ChatNode> = {
         type: 'p',
         text: '無料相談では、現在の業務やお困りごとを伺い、どのような改善方法が考えられるかを整理します。',
       },
-      { type: 'p', text: '次のような段階でも問題ありません。' },
       {
-        type: 'ul',
-        items: [
-          'まだ正式に依頼するか決めていない',
-          '作りたいものが明確になっていない',
-          '自分の業務が対象になるか知りたい',
-          '予算や期間の目安を確認したい',
-        ],
+        type: 'p',
+        text: 'まだ正式に依頼するか決めていない場合や、作りたいものが明確でない段階でも問題ありません。',
       },
       { type: 'p', text: '顔出しなしでもご参加いただけます。無理な勧誘は行いません。' },
     ],
+    // この画面のみ、下に表示するのは予約ボタン1つだけにする
+    // （「戻る」はヘッダーの戻るボタンで対応済み）
     related: [
       { label: '無料相談の日程を確認する', action: { kind: 'booking' } },
-      { label: 'もう少し質問する', targetId: 'root' },
-      HOME_BUTTON,
     ],
   },
 }

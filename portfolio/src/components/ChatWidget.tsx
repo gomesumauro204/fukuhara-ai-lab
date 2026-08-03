@@ -136,7 +136,7 @@ export default function ChatWidget() {
           type="button"
           onClick={() => handleButton(btn)}
           className={`group w-full flex items-center gap-2.5 rounded-md
-            border px-3.5 py-2.5 text-left text-[12.5px] font-semibold
+            border px-4 py-3.5 text-left text-[13px] leading-[1.5] font-semibold
             transition-colors
             ${variant === 'primary'
               ? 'border-white/15 text-white/85 hover:border-gold/60 hover:bg-white/[0.04]'
@@ -264,7 +264,7 @@ export default function ChatWidget() {
                   </p>
                 ))}
 
-                <ul className="mt-4 space-y-2">
+                <ul className="mt-5 space-y-3">
                   {ROOT_OPTIONS.map(opt => renderButton(opt))}
                 </ul>
               </>
@@ -277,13 +277,13 @@ export default function ChatWidget() {
                 {currentNode.body && currentNode.body.map((block, i) => renderBody(block, i))}
 
                 {currentNode.options && (
-                  <ul className="mt-4 space-y-2">
+                  <ul className="mt-5 space-y-3">
                     {currentNode.options.map(opt => renderButton(opt))}
                   </ul>
                 )}
 
                 {currentNode.related && (
-                  <ul className="mt-5 pt-4 border-t border-white/10 space-y-2">
+                  <ul className="mt-5 pt-4 border-t border-white/10 space-y-2.5">
                     {currentNode.related.map(btn => renderButton(
                       btn, btn.targetId === ROOT_ID ? 'secondary' : 'primary',
                     ))}
