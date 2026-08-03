@@ -4,7 +4,25 @@ import { Section, SectionHead, Reveal } from './ui'
 /** 特徴：上に細いアクセント帯を引いたカード型。スマホでは1列で読みやすさを優先 */
 export default function Strengths() {
   return (
-    <Section id="strengths" tone="paper" accent="forest">
+    <Section
+      id="strengths"
+      tone="paper"
+      accent="forest"
+      background={
+        <div className="values-photo-wrap" aria-hidden="true">
+          <img
+            src="/images/pegasus-values.jpg"
+            alt=""
+            width={1600}
+            height={900}
+            loading="lazy"
+            decoding="async"
+            className="values-photo"
+          />
+          <div className="values-photo-overlay" />
+        </div>
+      }
+    >
       <SectionHead
         num="03"
         en="Strengths"

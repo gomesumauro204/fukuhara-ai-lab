@@ -491,24 +491,55 @@
   position: absolute;
   inset-inline: 0;
   bottom: 0;
-  height: 280px;
+  height: 380px;
   z-index: 1;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 55% 60% at 28% 100%,
-      rgba(201, 169, 97, 0.10) 0%, transparent 72%),
-    radial-gradient(ellipse 45% 55% at 78% 100%,
-      rgba(150, 190, 245, 0.08) 0%, transparent 72%),
+    radial-gradient(ellipse 58% 65% at 20% 100%,
+      rgba(201, 169, 97, 0.14) 0%, transparent 70%),
+    radial-gradient(ellipse 48% 60% at 82% 100%,
+      rgba(150, 190, 245, 0.11) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 50% at 52% 100%,
+      rgba(201, 169, 97, 0.07) 0%, transparent 75%),
     linear-gradient(180deg,
       rgba(11, 27, 58, 0) 0%,
-      rgba(11, 27, 58, 0.38) 38%,
-      rgba(11, 27, 58, 0.74) 66%,
-      rgba(11, 27, 58, 0.95) 86%,
+      rgba(11, 27, 58, 0.30) 24%,
+      rgba(11, 27, 58, 0.62) 46%,
+      rgba(11, 27, 58, 0.86) 66%,
+      rgba(11, 27, 58, 0.97) 84%,
       rgba(11, 27, 58, 1) 100%);
 }
 @media (max-width: 767px) {
   .hero-bottom-fade {
-    height: 210px;
+    height: 260px;
+  }
+}
+
+/* Heroとの継ぎ目：課題セクションの最上部だけ、Heroの下端フェードの
+   終着点と全く同じ濃紺(#0B1B3A)で始め、この下にある課題背景の光レイヤー
+   （problem-base / problem-layer-a・b）へ向かって溶け込ませる。
+   両方の縁が同一色でつながるため、境界線がどこにも生じない。 */
+.problem-top-fade {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 320px;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 50% 70% at 20% 0%,
+      rgba(201, 169, 97, 0.12) 0%, transparent 68%),
+    radial-gradient(ellipse 45% 65% at 82% 0%,
+      rgba(150, 190, 245, 0.10) 0%, transparent 68%),
+    linear-gradient(180deg,
+      rgba(11, 27, 58, 1) 0%,
+      rgba(11, 27, 58, 0.94) 18%,
+      rgba(11, 27, 58, 0.68) 42%,
+      rgba(11, 27, 58, 0.32) 70%,
+      rgba(11, 27, 58, 0) 100%);
+}
+@media (max-width: 767px) {
+  .problem-top-fade {
+    height: 220px;
   }
 }
 
@@ -1058,7 +1089,12 @@
   }
 }
 
-/* ---- プロフィール：業務にあたる様子（右寄せ、人物・PCが見える位置） ---- */
+/* ---- プロフィール：ペガサスの世界観を淡く添える（右寄せ） ----
+   元画像はほぼ白〜クリーム地の淡いパーティクル画のため、そのままでは
+   ネイビーの上で明るく浮いてしまう。filterで全体を暗く落として
+   ネイビーに馴染む濃さに揃えたうえで、Strengthsとは異なる構図
+   （やや低め・中央寄りのトリミング）で「同じ世界観だが別の見え方」
+   にしている。 */
 .prof-photo-wrap {
   position: absolute;
   inset: 0;
@@ -1071,12 +1107,15 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 76% 30%;
+  object-position: 74% 46%;
   opacity: 0.85;
-  /* Serviceとは違う質感にするため、縦だけでなく横にもはっきり動く
-     斜めドリフトにする（同じ動きの繰り返しに見えないように） */
-  transform: scale(1.46)
-    translate3d(calc((var(--p, 0.5) - 0.5) * 130px), calc((var(--p, 0.5) - 0.5) * -180px), 0);
+  /* 元画像は「ペガサスの輪郭」と「背景」の明度差がごく小さい淡い素材
+     のため、暗く落とすだけでは差が潰れて見えなくなる。彩度を大きく
+     引き上げ、金色・水色の粒子部分の“色味の違い”でペガサスの存在を
+     感じさせる（輪郭のシャープさではなく、淡い光の粒として見せる）。 */
+  filter: brightness(0.66) saturate(2.6) contrast(1.1);
+  transform: scale(1.3)
+    translate3d(calc((var(--p, 0.5) - 0.5) * 90px), calc((var(--p, 0.5) - 0.5) * -110px), 0);
   will-change: transform;
 }
 .prof-photo-overlay {
@@ -1084,25 +1123,116 @@
   inset: 0;
   background:
     linear-gradient(90deg,
-      rgba(11, 27, 58, 0.97) 0%,
-      rgba(11, 27, 58, 0.93) 36%,
-      rgba(11, 27, 58, 0.6) 64%,
-      rgba(11, 27, 58, 0.26) 100%),
+      rgba(11, 27, 58, 0.93) 0%,
+      rgba(11, 27, 58, 0.8) 40%,
+      rgba(11, 27, 58, 0.4) 70%,
+      rgba(11, 27, 58, 0.15) 100%),
     linear-gradient(180deg,
-      rgba(11, 27, 58, 0.35) 0%,
-      rgba(11, 27, 58, 0) 18%,
-      rgba(11, 27, 58, 0) 82%,
-      rgba(11, 27, 58, 0.4) 100%);
+      rgba(11, 27, 58, 0.25) 0%,
+      rgba(11, 27, 58, 0) 20%,
+      rgba(11, 27, 58, 0) 68%,
+      rgba(11, 27, 58, 0.3) 100%);
 }
 @media (max-width: 767px) {
-  .prof-photo { opacity: 0.5; object-position: 66% 20%; }
+  .prof-photo { opacity: 0.8; object-position: 68% 26%; }
   .prof-photo-overlay {
     background:
       linear-gradient(180deg,
-        rgba(11, 27, 58, 0.88) 0%,
-        rgba(11, 27, 58, 0.8) 30%,
-        rgba(11, 27, 58, 0.88) 65%,
-        rgba(11, 27, 58, 0.95) 100%);
+        rgba(11, 27, 58, 0.55) 0%,
+        rgba(11, 27, 58, 0.4) 26%,
+        rgba(11, 27, 58, 0.55) 60%,
+        rgba(11, 27, 58, 0.8) 100%);
+  }
+}
+
+/* ---- 大切にしていること：ペガサス（淡いパーティクル画）を
+   ライトトーンのまま右奥に添える。用紙色(paper)に近いオフホワイト地
+   のため、白系オーバーレイでなじませるだけで自然に溶け込む。 ---- */
+.values-photo-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  opacity: 0;
+  animation: fadeIn 1.2s ease-out 0.1s forwards;
+}
+.values-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 82% 38%;
+  opacity: 0.6;
+}
+.values-photo-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(100deg,
+      rgba(245, 242, 234, 0.97) 0%,
+      rgba(245, 242, 234, 0.88) 36%,
+      rgba(245, 242, 234, 0.58) 64%,
+      rgba(245, 242, 234, 0.3) 100%),
+    linear-gradient(180deg,
+      rgba(245, 242, 234, 0.4) 0%,
+      rgba(245, 242, 234, 0) 20%,
+      rgba(245, 242, 234, 0) 78%,
+      rgba(245, 242, 234, 0.45) 100%);
+}
+@media (max-width: 767px) {
+  .values-photo { opacity: 0.4; object-position: 74% 24%; }
+  .values-photo-overlay {
+    background:
+      linear-gradient(180deg,
+        rgba(245, 242, 234, 0.92) 0%,
+        rgba(245, 242, 234, 0.8) 32%,
+        rgba(245, 242, 234, 0.88) 66%,
+        rgba(245, 242, 234, 0.95) 100%);
+  }
+}
+
+/* ---- よくある質問：ペガサス全身を最も控えめに ----
+   3種のうち最も描写量が多い画像のため、opacity・オーバーレイとも
+   Strengthsより一段弱め、FAQ本文・アコーディオン・チャットボットの
+   視認性を最優先する。トリミングも縦位置を下げて差をつける。 */
+.faq-photo-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  opacity: 0;
+  animation: fadeIn 1.2s ease-out 0.1s forwards;
+}
+.faq-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 88% 62%;
+  opacity: 0.4;
+}
+.faq-photo-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(110deg,
+      rgba(245, 242, 234, 0.98) 0%,
+      rgba(245, 242, 234, 0.92) 32%,
+      rgba(245, 242, 234, 0.72) 58%,
+      rgba(245, 242, 234, 0.42) 100%),
+    linear-gradient(180deg,
+      rgba(245, 242, 234, 0.45) 0%,
+      rgba(245, 242, 234, 0) 22%,
+      rgba(245, 242, 234, 0) 76%,
+      rgba(245, 242, 234, 0.5) 100%);
+}
+@media (max-width: 767px) {
+  .faq-photo { opacity: 0.28; object-position: 80% 40%; }
+  .faq-photo-overlay {
+    background:
+      linear-gradient(180deg,
+        rgba(245, 242, 234, 0.95) 0%,
+        rgba(245, 242, 234, 0.88) 30%,
+        rgba(245, 242, 234, 0.93) 66%,
+        rgba(245, 242, 234, 0.97) 100%);
   }
 }
 
@@ -2022,7 +2152,9 @@
   .svc-photo-wrap,
   .proc-photo-wrap,
   .prof-photo-wrap,
-  .contact-photo-wrap {
+  .contact-photo-wrap,
+  .values-photo-wrap,
+  .faq-photo-wrap {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;

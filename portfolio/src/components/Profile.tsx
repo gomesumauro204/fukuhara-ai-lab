@@ -14,19 +14,16 @@ export default function Profile() {
       accent="teal"
       background={
         <div className="prof-photo-wrap" aria-hidden="true">
-          <picture>
-            <source media="(max-width: 767px)" srcSet="/profile-work-sm.webp" />
-            <img
-              src="/profile-work.webp"
-              alt=""
-              width={1600}
-              height={901}
-              loading="lazy"
-              decoding="async"
-              data-parallax
-              className="prof-photo"
-            />
-          </picture>
+          <img
+            src="/images/pegasus-profile.jpg"
+            alt=""
+            width={1600}
+            height={900}
+            loading="lazy"
+            decoding="async"
+            data-parallax
+            className="prof-photo"
+          />
           <div className="prof-photo-overlay" />
         </div>
       }

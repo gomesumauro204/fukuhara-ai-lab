@@ -112,6 +112,12 @@ function ProblemBackground() {
       </ul>
 
       <span className="problem-grain" />
+
+      {/* Heroとの継ぎ目：セクション最上部だけ、Heroの下端フェードと
+          同じ濃紺(#0B1B3A)から始めてこの下の光レイヤーへ溶け込ませる。
+          Hero側の下端フェードと合わせて使うことで、境界線上で色が
+          完全に一致し、直線的な切れ目がなくなる。 */}
+      <span className="problem-top-fade" aria-hidden="true" />
     </div>
   )
 }

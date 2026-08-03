@@ -7,7 +7,24 @@ export default function Faq() {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
   return (
-    <Section id="faq" tone="paper">
+    <Section
+      id="faq"
+      tone="paper"
+      background={
+        <div className="faq-photo-wrap" aria-hidden="true">
+          <img
+            src="/images/pegasus-faq.jpg"
+            alt=""
+            width={1600}
+            height={900}
+            loading="lazy"
+            decoding="async"
+            className="faq-photo"
+          />
+          <div className="faq-photo-overlay" />
+        </div>
+      }
+    >
       <SectionHead
         num="08"
         en="FAQ"
